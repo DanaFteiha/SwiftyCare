@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Shield, Save, Globe, ArrowLeft } from 'lucide-react';
+import { apiFetch } from '@/lib/api';
 
 interface VitalsData {
   bloodPressure: string;
@@ -72,7 +73,7 @@ function VitalsEntryPage() {
 
   const submitVitalsMutation = useMutation({
     mutationFn: async (vitals: any) => {
-      const response = await fetch(`http://localhost:3001/cases/${caseId}/vitals`, {
+      const response = await apiFetch(`/cases/${caseId}/vitals`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -88,7 +89,7 @@ function VitalsEntryPage() {
     },
     onSuccess: () => {
       console.log('Vitals submitted successfully!');
-      navigate(`/case/${caseId}`);
+      navigate(`/doctor/case/${caseId}`);
     },
     onError: (error: Error) => {
       console.error('Error submitting vitals:', error);
@@ -253,7 +254,7 @@ function VitalsEntryPage() {
             <div className="flex justify-between items-center mt-8 pt-6 border-t">
               <Button
                 variant="outline"
-                onClick={() => navigate('/dashboard')}
+                onClick={() => navigate('/doctor')}
                 className="flex items-center space-x-2"
               >
                 <ArrowLeft className="w-4 h-4" />

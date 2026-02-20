@@ -24,6 +24,13 @@ router.get("/", async (_req, res) => {
 // ---------------- CREATE CASE ----------------
 router.post("/", async (req, res) => {
   try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({
+        error: "Database unavailable",
+        message: "Database is not connected. Please start MongoDB or configure MONGODB_URI."
+      });
+    }
+
     const { patientName, nationalId } = req.body;
 
     if (!patientName || !nationalId) {
@@ -37,6 +44,13 @@ router.post("/", async (req, res) => {
     return res.status(201).json(newCase);
   } catch (error: any) {
     console.error("Error creating case:", error);
+
+    if (error.name === "ValidationError") {
+      return res.status(400).json({
+        error: "Validation error",
+        message: error.message
+      });
+    }
 
     if (error.code === 11000) {
       return res.status(409).json({
@@ -87,8 +101,6 @@ router.post("/:id/questionnaire", async (req, res) => {
     const caseId = req.params.id;
     const { answers } = req.body;
     
-    console.log("Questionnaire request:", { caseId, answers, body: req.body, headers: req.headers });
-
     // validate ObjectId
     if (!mongoose.Types.ObjectId.isValid(caseId)) {
       return res.status(400).json({
@@ -111,12 +123,106 @@ router.post("/:id/questionnaire", async (req, res) => {
     }
 
     const questionnaire = await Questionnaire.create({ caseId, answers });
+    if (existingCase.status !== "open") {
+      existingCase.status = "open";
+      await existingCase.save();
+    }
     return res.status(201).json(questionnaire);
-  } catch (error) {
+  } catch (error: any) {
     console.error("Questionnaire error:", error);
     return res.status(500).json({
+      error: "Internal server error",
       message: "Error saving questionnaire",
-      error
+      details: error.message
+    });
+  }
+});
+
+// ---------------- UPDATE STATUS ----------------
+router.patch("/:id/status", async (req, res) => {
+  try {
+    const caseId = req.params.id;
+    const { status } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(caseId)) {
+      return res.status(400).json({
+        error: "Invalid ID format",
+        message: "Please provide a valid MongoDB ObjectId"
+      });
+    }
+
+    const allowedStatuses = ["open", "in_progress", "closed", "cancelled"];
+    if (!status || !allowedStatuses.includes(status)) {
+      return res.status(400).json({
+        error: "Invalid status",
+        message: `Status must be one of: ${allowedStatuses.join(", ")}`
+      });
+    }
+
+    const updatedCase = await Case.findByIdAndUpdate(
+      caseId,
+      { status },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedCase) {
+      return res.status(404).json({ message: "Case not found" });
+    }
+
+    return res.status(200).json(updatedCase);
+  } catch (error: any) {
+    console.error("Status update error:", error);
+    return res.status(500).json({
+      message: "Error updating case status",
+      error: error.message
+    });
+  }
+});
+
+// ---------------- ORDER TESTS ----------------
+router.post("/:id/order-tests", async (req, res) => {
+  try {
+    const caseId = req.params.id;
+    const { tests } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(caseId)) {
+      return res.status(400).json({
+        error: "Invalid ID format",
+        message: "Please provide a valid MongoDB ObjectId"
+      });
+    }
+
+    const caseDoc = await Case.findById(caseId);
+    if (!caseDoc) {
+      return res.status(404).json({ message: "Case not found" });
+    }
+
+    if (caseDoc.status === "closed") {
+      return res.status(409).json({
+        error: "Case already closed",
+        message: "This case has already been closed."
+      });
+    }
+
+    const updateFields: Record<string, unknown> = {
+      status: "closed",
+      orderedAt: new Date(),
+    };
+    if (tests && Array.isArray(tests)) {
+      updateFields.orderedTests = tests;
+    }
+
+    const updatedCase = await Case.findByIdAndUpdate(caseId, updateFields, {
+      new: true,
+      runValidators: true,
+    });
+
+    return res.status(200).json(updatedCase);
+  } catch (error: any) {
+    console.error("Order tests error:", error);
+    return res.status(500).json({
+      message: "Error ordering tests",
+      error: error.message
     });
   }
 });
@@ -231,9 +337,8 @@ ${JSON.stringify(vitals, null, 2)}
 Return only the clinical summary paragraph. Do not include any notes or metadata.
 `;
 
-    // Check if OpenAI API key is available
     if (!process.env.OPENAI_API_KEY) {
-      return res.status(500).json({
+      return res.status(503).json({
         error: "OpenAI API key not configured",
         message: "Please set OPENAI_API_KEY environment variable"
       });
@@ -312,8 +417,21 @@ Return only the clinical summary paragraph. Do not include any notes or metadata
 router.post("/:id/diagnosis", async (req, res) => {
   try {
     const caseId = req.params.id;
-    
-    // Find the case
+
+    if (!mongoose.Types.ObjectId.isValid(caseId)) {
+      return res.status(400).json({
+        error: "Invalid ID format",
+        message: "Please provide a valid MongoDB ObjectId"
+      });
+    }
+
+    if (!process.env.OPENAI_API_KEY) {
+      return res.status(503).json({
+        error: "OpenAI API key not configured",
+        message: "Please set OPENAI_API_KEY environment variable"
+      });
+    }
+
     const caseDoc = await Case.findById(caseId);
     if (!caseDoc) {
       return res.status(404).json({ message: "Case not found" });
@@ -386,9 +504,7 @@ Format your response as structured medical analysis suitable for physician revie
 
     const aiDiagnosis = completion.choices[0]?.message?.content || "Unable to generate diagnosis";
 
-    // Update case with AI diagnosis
-    (caseDoc as any).aiDiagnosis = aiDiagnosis;
-    await caseDoc.save();
+    await Case.findByIdAndUpdate(caseId, { aiDiagnosis });
 
     return res.json({
       diagnosis: aiDiagnosis,
@@ -396,10 +512,25 @@ Format your response as structured medical analysis suitable for physician revie
     });
 
   } catch (error: any) {
-    console.error("Error generating AI diagnosis:", error);
+    console.error("Diagnosis generation error:", error);
+
+    if (error.status === 429) {
+      return res.status(429).json({
+        error: "OpenAI API quota exceeded",
+        message: "Please check your OpenAI API billing"
+      });
+    }
+    if (error.code === "invalid_api_key") {
+      return res.status(401).json({
+        error: "Invalid OpenAI API key",
+        message: "Please check your OPENAI_API_KEY environment variable"
+      });
+    }
+
     return res.status(500).json({
+      error: "Internal server error",
       message: "Error generating AI diagnosis",
-      error: error.message
+      details: error.message
     });
   }
 });
@@ -426,6 +557,35 @@ router.get("/:id", async (req, res) => {
     console.error("Error fetching case:", error);
     return res.status(500).json({
       message: "Error fetching case",
+      error: error.message
+    });
+  }
+});
+
+// ---------------- DELETE CASE ----------------
+router.delete("/:id", async (req, res) => {
+  try {
+    const caseId = req.params.id;
+
+    if (!mongoose.Types.ObjectId.isValid(caseId)) {
+      return res.status(400).json({
+        error: "Invalid ID format",
+        message: "Please provide a valid MongoDB ObjectId"
+      });
+    }
+
+    const deletedCase = await Case.findByIdAndDelete(caseId);
+    await Questionnaire.deleteMany({ caseId });
+
+    if (!deletedCase) {
+      return res.status(404).json({ message: "Case not found" });
+    }
+
+    return res.status(200).json({ message: "Case deleted" });
+  } catch (error: any) {
+    console.error("Error deleting case:", error);
+    return res.status(500).json({
+      message: "Error deleting case",
       error: error.message
     });
   }

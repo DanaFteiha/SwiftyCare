@@ -5,6 +5,8 @@ export interface ICase extends Document {
   patientName: string;
   nationalId: string;
   status: string;
+  orderedTests?: string[];
+  orderedAt?: Date;
   vitals?: {
     bp?: string;
     hr?: number;
@@ -80,6 +82,13 @@ const CaseSchema = new Schema<ICase>({
   aiDiagnosis: {
     type: String,
     trim: true
+  },
+  orderedTests: {
+    type: [String],
+    default: []
+  },
+  orderedAt: {
+    type: Date
   }
 }, {
   timestamps: true // Automatically adds createdAt and updatedAt fields

@@ -710,6 +710,7 @@ const resources = {
         submitButtonLoading: "יוצר מקרה...",
         formReady: "הטופס מוכן לשליחה",
         submitError: "שגיאה ביצירת המקרה. נסה שוב.",
+        duplicateCaseError: "נראה שהמקרה הזה כבר קיים. אנא ודא את הפרטים שלך או פנה לתמיכה.",
         networkError: "שגיאת רשת. נסה שוב."
       },
       hospitals: {
@@ -746,6 +747,8 @@ const resources = {
         title: "שאלון רפואי",
         subtitle: "נא ענה על השאלות הבאות",
         greeting: "שלום {{name}}, אנא מלא את הפרטים הבאים.",
+        confirmationTitle: "תודה",
+        confirmationMessage: "תודה שמילאת את פרטיך. רופא יבדוק את המקרה שלך בקרוב.",
         step1: "פרטים אישיים והיסטוריה רפואית",
         step2: "תסמינים נוכחיים",
         personalInfo: {
@@ -1105,6 +1108,10 @@ const resources = {
       loading: "טוען מקרים...",
       error: "שגיאה בטעינת מקרים",
       retry: "נסה שוב",
+      tabs: {
+        open: "פתוח",
+        closed: "סגור"
+      },
       search: {
         placeholder: "חפש לפי שם מטופל או ת.ז..."
       },
@@ -1116,9 +1123,8 @@ const resources = {
         cancelled: "בוטל"
       },
       status: {
-        pendingDoctorReview: "ממתין לבדיקת רופא",
-        inReview: "בבדיקה",
-        completed: "הושלם",
+        open: "פתוח",
+        closed: "סגור",
         cancelled: "בוטל"
       },
       table: {
@@ -1130,7 +1136,9 @@ const resources = {
       },
       actions: {
         newCase: "מקרה חדש",
-        openFile: "פתח תיק"
+        openFile: "פתח תיק",
+        delete: "מחק",
+        deleteConfirm: "למחוק את המקרה? פעולה זו לא ניתנת לביטול."
       },
       empty: {
         title: "לא נמצאו מקרים",
@@ -1139,6 +1147,7 @@ const resources = {
     },
     case: {
       title: "ניהול מקרה",
+      detailsTab: "פרטי מטופל",
       id: "ת.ז",
       age: "גיל",
       status: "סטטוס",
@@ -1211,6 +1220,7 @@ const resources = {
         interactiveDescription: "סקור ובחר בדיקות בהתבסס על ניתוח ה-AI לעיל",
         recommendedTests: "בדיקות מומלצות",
         clickToExpand: "לחץ על \"הצג פרטים\" למעלה כדי לראות את אבחנת ה-AI",
+        caseClosed: "המקרה נסגר. הזמנת בדיקות חסומה.",
         diagnoses: {
           acuteMi: "אוטם שריר הלב החריף",
           unstableAngina: "תעוקת חזה לא יציבה",
@@ -1250,6 +1260,13 @@ const resources = {
           muscleTest: "הערכת תפקוד שריר-שלד"
         }
       }
+    },
+    doctorLogin: {
+      title: "כניסת רופא",
+      subtitle: "הזן קוד גישה כדי להמשיך.",
+      passcodePlaceholder: "קוד גישה",
+      continue: "המשך",
+      invalidCode: "קוד גישה לא תקין."
     }
   }
 }

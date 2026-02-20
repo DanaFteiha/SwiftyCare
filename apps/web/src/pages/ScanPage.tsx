@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Shield, User, Building, ArrowRight, Globe, MapPin, CreditCard } from 'lucide-react'
+import { Shield, User, ArrowRight, Globe, MapPin, CreditCard } from 'lucide-react'
+import { apiFetch } from '@/lib/api'
 
 interface FormData {
   hospital: string
@@ -64,10 +65,13 @@ function ScanPage() {
     } else if (formData.fullName.trim().length < 2) {
       newErrors.fullName = t('form.fullNameMinLength', 'Name must be at least 2 characters')
     }
-    if (!formData.nationalId.trim()) {
+    const nationalId = formData.nationalId.trim()
+    if (!nationalId) {
       newErrors.nationalId = t('form.nationalIdRequired', 'National ID is required')
-    } else if (!/^\d+$/.test(formData.nationalId.trim())) {
+    } else if (!/^\d+$/.test(nationalId)) {
       newErrors.nationalId = t('form.nationalIdInvalid', 'National ID must contain only numbers')
+    } else if (nationalId.length < 5) {
+      newErrors.nationalId = t('form.nationalIdMinLength', 'National ID must contain at least 5 digits')
     }
 
     setErrors(newErrors)
@@ -75,9 +79,12 @@ function ScanPage() {
   }
 
   const isFormValid = (): boolean => {
+    const nationalId = formData.nationalId.trim()
     return formData.hospital.trim() !== '' &&
            formData.fullName.trim() !== '' &&
-           formData.nationalId.trim() !== '' &&
+           nationalId !== '' &&
+           /^\d+$/.test(nationalId) &&
+           nationalId.length >= 5 &&
            Object.keys(errors).length === 0
   }
 
@@ -91,7 +98,7 @@ function ScanPage() {
     setIsSubmitting(true)
 
     try {
-      const response = await fetch('http://localhost:3001/cases', {
+      const response = await apiFetch('/cases', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -99,19 +106,41 @@ function ScanPage() {
         body: JSON.stringify({
           patientName: formData.fullName.trim(),
           nationalId: formData.nationalId.trim(),
-          status: 'pendingDoctorReview'
+          status: 'open'
         })
       })
 
       if (!response.ok) {
-        throw new Error('Failed to create case')
+        let errorPayload: any = null
+        try {
+          errorPayload = await response.json()
+        } catch {
+          errorPayload = null
+        }
+
+        throw {
+          status: response.status,
+          message: errorPayload?.message || errorPayload?.error || null
+        }
       }
 
       const caseData = await response.json()
-      navigate(`/questionnaire/${caseData._id}`)
+      navigate(`/patient/questionnaire/${caseData._id}`)
     } catch (error) {
       console.error('Error creating case:', error)
-      alert(t('form.submitError', 'Error creating case. Please try again.'))
+      const err = error as { status?: number; message?: string }
+      if (err?.status === 409) {
+        alert(
+          t(
+            'form.duplicateCaseError',
+            'It looks like this case already exists. Please verify your information or contact support.'
+          )
+        )
+      } else if (err?.message) {
+        alert(err.message)
+      } else {
+        alert(t('form.submitError', 'Error creating case. Please try again.'))
+      }
     } finally {
       setIsSubmitting(false)
     }

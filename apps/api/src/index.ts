@@ -6,45 +6,112 @@ import caseRoutes from "./routes/caseRoutes.js";
 
 dotenv.config();
 
+// --------------- Env validation ---------------
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/swiftycare";
+const PORT = process.env.PORT || 3001;
+
+if (!process.env.OPENAI_API_KEY) {
+  console.warn("⚠️  OPENAI_API_KEY is not set — AI summary and diagnosis features will be unavailable");
+}
+if (!process.env.MONGODB_URI) {
+  console.warn("⚠️  MONGODB_URI is not set — using default: mongodb://localhost:27017/swiftycare");
+}
+
+function sanitizeUri(uri: string): string {
+  try {
+    const parsed = new URL(uri);
+    if (parsed.password) parsed.password = "***";
+    return parsed.toString();
+  } catch {
+    return uri.replace(/:([^@/]+)@/, ":***@");
+  }
+}
+
+// --------------- Express app ---------------
 const app = express();
-app.use(cors());
+
+// --------------- CORS ---------------
+const rawCorsOrigins = process.env.CORS_ORIGINS || "";
+const corsOrigins = rawCorsOrigins
+  .split(",")
+  .map(origin => origin.trim())
+  .filter(Boolean);
+
+const extraAllowedOrigins = ["https://demo.swifty-care.com"];
+
+const isAllowedOrigin = (origin?: string) => {
+  if (!origin) return true;
+  if (corsOrigins.length > 0) {
+    return corsOrigins.includes(origin);
+  }
+  if (extraAllowedOrigins.includes(origin)) return true;
+  if (origin.startsWith("http://localhost:")) return true;
+  if (origin.endsWith(".trycloudflare.com")) return true;
+  if (origin.endsWith(".ngrok-free.app")) return true;
+  return false;
+};
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (isAllowedOrigin(origin)) {
+      return callback(null, true);
+    }
+    console.warn(`[cors] rejected origin: ${origin}`);
+    return callback(new Error("Not allowed by CORS"));
+  },
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: false
+}));
+app.options(/.*/, cors());
 app.use(express.json());
 
-// MongoDB connection (optional)
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/swiftycare";
+// --------------- Request logging ---------------
+app.use((req, res, next) => {
+  const start = Date.now();
+  res.on("finish", () => {
+    const duration = Date.now() - start;
+    const level = res.statusCode >= 500 ? "error" : res.statusCode >= 400 ? "warn" : "info";
+    console[level](
+      `[${level}] ${req.method} ${req.originalUrl} → ${res.statusCode} (${duration}ms)`
+    );
+  });
+  next();
+});
 
+// --------------- MongoDB ---------------
 mongoose.connect(MONGODB_URI)
   .then(() => {
     console.log("✅ Connected to MongoDB");
   })
-  .catch((error) => {
-    console.log("⚠️  MongoDB not available - continuing without database");
-    console.log("   To enable database features, install MongoDB or use MongoDB Atlas");
+  .catch(() => {
+    console.error("❌ MongoDB connection failed — database features unavailable");
+    console.error(`   URI: ${sanitizeUri(MONGODB_URI)}`);
   });
 
-// Test route
-app.get("/", (req, res) => {
+// --------------- Health routes ---------------
+app.get("/", (_req, res) => {
   res.json({
-    message: "API is running 🚀",
-    database: mongoose.connection.readyState === 1 ? "Connected" : "Disconnected",
+    status: "ok",
+    database: mongoose.connection.readyState === 1 ? "connected" : "disconnected",
     timestamp: new Date().toISOString()
   });
 });
 
-// Health check route
-app.get("/health", (req, res) => {
-  res.json({
-    status: "OK",
-    database: mongoose.connection.readyState === 1 ? "Connected" : "Disconnected",
+app.get("/health", (_req, res) => {
+  const dbConnected = mongoose.connection.readyState === 1;
+  res.status(dbConnected ? 200 : 503).json({
+    status: dbConnected ? "healthy" : "degraded",
+    database: dbConnected ? "connected" : "disconnected",
     uptime: process.uptime()
   });
 });
 
-// API Routes
-app.use("/cases", caseRoutes);
+// --------------- API Routes ---------------
+app.use("/api/cases", caseRoutes);
 
-const PORT = process.env.PORT || 3001;
+// --------------- Start ---------------
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📊 MongoDB URI: ${MONGODB_URI}`);
+  console.log(`📊 MongoDB: ${sanitizeUri(MONGODB_URI)}`);
 });

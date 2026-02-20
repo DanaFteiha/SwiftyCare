@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { User, Heart, FileText, Globe, Brain, Eye, EyeOff, Stethoscope, TestTube, CheckCircle } from 'lucide-react';
+import { apiFetch } from '@/lib/api';
 
 function CasePage() {
   const { id } = useParams();
@@ -14,8 +15,8 @@ function CasePage() {
   
   
   const [selectedTests, setSelectedTests] = useState<string[]>([]);
-  const [isSummaryExpanded, setIsSummaryExpanded] = useState(true);
   const [isDiagnosisExpanded, setIsDiagnosisExpanded] = useState(true);
+  const [activeTab, setActiveTab] = useState<'summary' | 'diagnosis' | 'details'>('details');
 
   // Language toggle function
   const toggleLanguage = () => {
@@ -27,7 +28,7 @@ function CasePage() {
   const { data: caseData, isLoading: caseLoading, error: caseError } = useQuery({
     queryKey: ['case', id],
     queryFn: async () => {
-      const response = await fetch(`http://localhost:3001/cases/${id}`);
+      const response = await apiFetch(`/cases/${id}`);
       if (!response.ok) throw new Error('Failed to fetch case');
       return response.json();
     },
@@ -38,7 +39,7 @@ function CasePage() {
   const { data: questionnaireData } = useQuery({
     queryKey: ['questionnaire', id],
     queryFn: async () => {
-      const response = await fetch(`http://localhost:3001/cases/${id}/questionnaire`);
+      const response = await apiFetch(`/cases/${id}/questionnaire`);
       if (!response.ok) return null;
       return response.json();
     },
@@ -48,7 +49,7 @@ function CasePage() {
   // Generate AI summary mutation
   const generateSummary = useMutation({
     mutationFn: async () => {
-      const response = await fetch(`http://localhost:3001/cases/${id}/summary`, {
+      const response = await apiFetch(`/cases/${id}/summary`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
       });
@@ -67,7 +68,7 @@ function CasePage() {
   // Generate AI diagnosis mutation
   const generateDiagnosis = useMutation({
     mutationFn: async () => {
-      const response = await fetch(`http://localhost:3001/cases/${id}/diagnosis`, {
+      const response = await apiFetch(`/cases/${id}/diagnosis`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
       });
@@ -80,6 +81,30 @@ function CasePage() {
     onError: (error: Error) => {
       console.error('Error generating diagnosis:', error);
       alert(t('case.aiDiagnosis.error', 'Failed to generate AI diagnosis. Please try again.'));
+    }
+  });
+
+  const orderTestsMutation = useMutation({
+    mutationFn: async (tests: string[]) => {
+      const response = await apiFetch(`/cases/${id}/order-tests`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tests })
+      });
+      if (!response.ok) {
+        const payload = await response.json().catch(() => null);
+        throw new Error(payload?.message || 'Failed to order tests');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['case', id] });
+      queryClient.invalidateQueries({ queryKey: ['cases'] });
+      alert(`Success — Tests for ${caseData?.patientName || 'patient'} have been ordered.`);
+      navigate('/doctor');
+    },
+    onError: (error: Error) => {
+      alert(error.message || 'Failed to order tests');
     }
   });
 
@@ -144,35 +169,153 @@ function CasePage() {
   };
 
   const toggleTestSelection = (testId: string) => {
-    console.log('Toggling test:', testId, 'Current selection:', selectedTests);
-    setSelectedTests(prev => {
-      const newSelection = prev.includes(testId) 
-        ? prev.filter(id => id !== testId)
-        : [...prev, testId];
-      console.log('New selection:', newSelection);
-      return newSelection;
-    });
+    setSelectedTests(prev =>
+      prev.includes(testId) ? prev.filter(id => id !== testId) : [...prev, testId]
+    );
   };
 
-  // Mock AI diagnosis data - in real implementation, this would come from the API
-  const mockDiagnoses = [
-    { id: '1', nameKey: 'aiDiagnosis.diagnoses.acuteMi', probability: 85, evidenceKeys: ['aiDiagnosis.evidence.chestPain', 'aiDiagnosis.evidence.elevatedTroponin', 'aiDiagnosis.evidence.ecgChanges'] },
-    { id: '2', nameKey: 'aiDiagnosis.diagnoses.unstableAngina', probability: 70, evidenceKeys: ['aiDiagnosis.evidence.chestPain', 'aiDiagnosis.evidence.riskFactors', 'aiDiagnosis.evidence.ecgChanges'] },
-    { id: '3', nameKey: 'aiDiagnosis.diagnoses.gerd', probability: 45, evidenceKeys: ['aiDiagnosis.evidence.chestPain', 'aiDiagnosis.evidence.heartburn', 'aiDiagnosis.evidence.noEcgChanges'] },
-    { id: '4', nameKey: 'aiDiagnosis.diagnoses.musculoskeletalPain', probability: 30, evidenceKeys: ['aiDiagnosis.evidence.chestPain', 'aiDiagnosis.evidence.muscleTenderness', 'aiDiagnosis.evidence.noCardiacMarkers'] }
-  ];
+  useEffect(() => {
+    if (caseData?.status === 'closed') {
+      const ordered = Array.isArray(caseData.orderedTests) ? caseData.orderedTests : [];
+      setSelectedTests(ordered);
+    }
+  }, [caseData?.status, caseData?.orderedTests]);
 
-  const mockTests = [
-    { id: 'ecg', nameKey: 'aiDiagnosis.tests.ecg', urgency: 'high', descriptionKey: 'aiDiagnosis.testDescriptions.ecg', diagnosisId: '1' },
-    { id: 'troponin', nameKey: 'aiDiagnosis.tests.troponin', urgency: 'high', descriptionKey: 'aiDiagnosis.testDescriptions.troponin', diagnosisId: '1' },
-    { id: 'ckmb', nameKey: 'aiDiagnosis.tests.ckmb', urgency: 'medium', descriptionKey: 'aiDiagnosis.testDescriptions.ckmb', diagnosisId: '1' },
-    { id: 'chest-xray', nameKey: 'aiDiagnosis.tests.chestXray', urgency: 'medium', descriptionKey: 'aiDiagnosis.testDescriptions.chestXray', diagnosisId: '2' },
-    { id: 'echo', nameKey: 'aiDiagnosis.tests.echo', urgency: 'low', descriptionKey: 'aiDiagnosis.testDescriptions.echo', diagnosisId: '2' },
-    { id: 'stress-test', nameKey: 'aiDiagnosis.tests.stressTest', urgency: 'low', descriptionKey: 'aiDiagnosis.testDescriptions.stressTest', diagnosisId: '2' },
-    { id: 'endoscopy', nameKey: 'aiDiagnosis.tests.endoscopy', urgency: 'low', descriptionKey: 'aiDiagnosis.testDescriptions.endoscopy', diagnosisId: '3' },
-    { id: 'ph-monitor', nameKey: 'aiDiagnosis.tests.phMonitor', urgency: 'low', descriptionKey: 'aiDiagnosis.testDescriptions.phMonitor', diagnosisId: '3' },
-    { id: 'muscle-test', nameKey: 'aiDiagnosis.tests.muscleTest', urgency: 'low', descriptionKey: 'aiDiagnosis.testDescriptions.muscleTest', diagnosisId: '4' }
-  ];
+  type ParsedDiagnosis = {
+    name: string;
+    probability?: number;
+    evidence: string[];
+  };
+
+  type ParsedTest = {
+    id: string;
+    name: string;
+    urgency?: 'high' | 'medium' | 'low';
+    rationale?: string;
+  };
+
+  const parseInteractiveDiagnosis = (text: string | undefined | null) => {
+    if (!text) {
+      return { diagnoses: [] as ParsedDiagnosis[], tests: [] as ParsedTest[] };
+    }
+
+    const stripMarkdown = (value: string) =>
+      value.replace(/\*\*(.*?)\*\*/g, '$1').replace(/[`*_]/g, '').trim();
+
+    const lines = text
+      .split('\n')
+      .map(line => stripMarkdown(line))
+      .filter(Boolean);
+
+    const isSectionHeader = (line: string, keywords: string[]) =>
+      keywords.some(keyword => line.toLowerCase().includes(keyword));
+
+    let currentSection: 'diagnoses' | 'tests' | null = null;
+    let collectingEvidence = false;
+    const diagnoses: ParsedDiagnosis[] = [];
+    const tests: ParsedTest[] = [];
+
+    const toSlug = (value: string) =>
+      value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
+    for (const line of lines) {
+      if (isSectionHeader(line, ['differential diagnos', 'diagnoses'])) {
+        currentSection = 'diagnoses';
+        collectingEvidence = false;
+        continue;
+      }
+      if (isSectionHeader(line, ['recommended tests', 'test recommendations', 'diagnostic tests', 'tests'])) {
+        currentSection = 'tests';
+        collectingEvidence = false;
+        continue;
+      }
+
+      if (currentSection === 'diagnoses') {
+        if (collectingEvidence) {
+          if (line.toLowerCase().startsWith('probability')) {
+            const percentMatch = line.match(/(\d{1,3})\s*%/);
+            if (percentMatch && diagnoses.length > 0) {
+              diagnoses[diagnoses.length - 1].probability = Number(percentMatch[1]);
+            }
+          } else if (line.toLowerCase().startsWith('supporting evidence')) {
+            collectingEvidence = true;
+          } else if (diagnoses.length > 0) {
+            diagnoses[diagnoses.length - 1].evidence.push(line);
+          }
+          continue;
+        }
+
+        const nameMatch = line.match(/^\d+[\).]\s*(.+)$/) || line.match(/^-?\s*(.+)$/);
+        if (nameMatch && !line.toLowerCase().startsWith('probability') && !line.toLowerCase().startsWith('supporting')) {
+          const name = nameMatch[1].trim();
+          const percentMatch = name.match(/(\d{1,3})\s*%/);
+          const probability = percentMatch ? Number(percentMatch[1]) : undefined;
+          const cleanedName = name.replace(/\s*-\s*\d{1,3}\s*%/g, '').trim();
+          diagnoses.push({ name: cleanedName, probability, evidence: [] });
+          collectingEvidence = false;
+          continue;
+        }
+
+        if (line.toLowerCase().startsWith('probability')) {
+          const percentMatch = line.match(/(\d{1,3})\s*%/);
+          if (percentMatch && diagnoses.length > 0) {
+            diagnoses[diagnoses.length - 1].probability = Number(percentMatch[1]);
+          }
+          continue;
+        }
+
+        if (line.toLowerCase().startsWith('supporting evidence')) {
+          collectingEvidence = true;
+          continue;
+        }
+
+        if (collectingEvidence && diagnoses.length > 0) {
+          diagnoses[diagnoses.length - 1].evidence.push(line);
+        }
+        continue;
+      }
+
+      if (currentSection === 'tests') {
+        if (line.toLowerCase().startsWith('urgency:')) {
+          const urgencyMatch = line.match(/\b(high|medium|low)\b/i);
+          if (urgencyMatch && tests.length > 0) {
+            tests[tests.length - 1].urgency = urgencyMatch[1].toLowerCase() as ParsedTest['urgency'];
+          }
+          continue;
+        }
+
+        const lowerLine = line.toLowerCase();
+        if (lowerLine.includes('summary') || lowerLine.startsWith('probability')) {
+          continue;
+        }
+        if (line.endsWith(':')) {
+          continue;
+        }
+
+        const testNameMatch = line.match(/^\d+[\).]\s*(.+)$/) || line.match(/^-?\s*(.+)$/);
+        if (testNameMatch) {
+          const rawName = testNameMatch[1].trim();
+          const name = rawName.replace(/\(.*?\)/g, '').trim();
+          const startsWithTest = /^(x-?ray|ct|mri|ultrasound|ecg|ekg|physical exam|examination|labs?|blood test|urine test|urinalysis|cbc|cmp|culture|panel|imaging|scan|test)\b/i.test(
+            name
+          );
+          const explanatoryPrefix = /^(risk factors?|can present|absence of|common in|pain score|mri is|ct scan is|x-?ray is|a thorough|physical examination is|assessment is)/i.test(
+            name
+          );
+          if (name && startsWithTest && !explanatoryPrefix) {
+            tests.push({ id: toSlug(name), name });
+          }
+        }
+      }
+    }
+
+    return { diagnoses, tests };
+  };
+
+  const interactiveData = useMemo(
+    () => parseInteractiveDiagnosis(caseData?.aiDiagnosis),
+    [caseData?.aiDiagnosis]
+  );
 
   if (caseLoading) {
     return (
@@ -190,7 +333,7 @@ function CasePage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-600 mb-4">{t('case.error', 'Error loading case')}</p>
-          <Button onClick={() => navigate('/dashboard')}>
+          <Button onClick={() => navigate('/doctor')}>
             {t('case.backToDashboard', 'Back to Dashboard')}
           </Button>
         </div>
@@ -212,7 +355,7 @@ function CasePage() {
             <div className="flex items-center">
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">
-                  {t('case.title', 'Case Management')}: {caseData.patientName}
+                  {t('case.title', 'Medical Summary')}: {caseData.patientName}
                 </h1>
                 <p className="text-sm text-gray-600">
                   {t('case.id', 'ID')}: {caseData.nationalId}, {t('case.age', 'Age')}: {personalInfo.age || 'N/A'}, {t('case.status', 'Status')}: {caseData.status}
@@ -232,10 +375,45 @@ function CasePage() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Left Column - Vital Signs (View Only) */}
-          <div className="space-y-6">
-            <Card>
+        {/* Tabs */}
+        <div className="mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 rounded-lg border border-gray-200 overflow-hidden bg-white">
+          <button
+            onClick={() => setActiveTab('details')}
+            className={`px-4 py-3 text-sm font-semibold border-b sm:border-b-0 sm:border-r ${
+              activeTab === 'details'
+                ? 'bg-blue-600 text-white border-blue-600'
+                : 'text-gray-700 border-gray-200 hover:bg-gray-50'
+            }`}
+          >
+            {t('case.detailsTab', 'Patient Details')}
+          </button>
+          <button
+            onClick={() => setActiveTab('summary')}
+            className={`px-4 py-3 text-sm font-semibold border-b sm:border-b-0 sm:border-r ${
+              activeTab === 'summary'
+                ? 'bg-blue-600 text-white border-blue-600'
+                : 'text-gray-700 border-gray-200 hover:bg-gray-50'
+            }`}
+          >
+            {t('case.aiSummary.title', 'AI-Generated Symptom & Exam Summary')}
+          </button>
+          <button
+            onClick={() => setActiveTab('diagnosis')}
+            className={`px-4 py-3 text-sm font-semibold border-b sm:border-b-0 ${
+              activeTab === 'diagnosis'
+                ? 'bg-blue-600 text-white border-blue-600'
+                : 'text-gray-700 border-gray-200 hover:bg-gray-50'
+            }`}
+          >
+            {t('case.aiDiagnosis.title', 'AI Differential-Diagnosis & Test Recommendations')}
+          </button>
+          </div>
+        </div>
+
+        {activeTab === 'details' && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card className="order-2">
               <CardContent className="p-6">
                 <h3 className={`text-lg font-semibold text-gray-900 mb-4 flex items-center ${i18n.language === 'he' ? 'space-x-reverse space-x-2' : 'space-x-2'}`}>
                   <Heart className="w-5 h-5 text-red-600" />
@@ -300,7 +478,7 @@ function CasePage() {
             </Card>
 
             {/* Personal Details */}
-            <Card>
+            <Card className="order-1">
               <CardContent className="p-6">
                 <h3 className={`text-lg font-semibold text-gray-900 mb-4 flex items-center ${i18n.language === 'he' ? 'space-x-reverse space-x-2' : 'space-x-2'}`}>
                   <User className="w-5 h-5 text-blue-600" />
@@ -340,7 +518,7 @@ function CasePage() {
             </Card>
 
             {/* Medical History */}
-            <Card>
+            <Card className="order-3">
               <CardContent className="p-6">
                 <h3 className={`text-lg font-semibold text-gray-900 mb-4 flex items-center ${i18n.language === 'he' ? 'space-x-reverse space-x-2' : 'space-x-2'}`}>
                   <Stethoscope className="w-5 h-5 text-green-600" />
@@ -373,7 +551,7 @@ function CasePage() {
             </Card>
 
             {/* Current Illness - Complaints and Details */}
-            <Card>
+            <Card className="order-4">
               <CardContent className="p-6">
                 <h3 className={`text-lg font-semibold text-gray-900 mb-4 flex items-center ${i18n.language === 'he' ? 'space-x-reverse space-x-2' : 'space-x-2'}`}>
                   <FileText className="w-5 h-5 text-purple-600" />
@@ -400,33 +578,28 @@ function CasePage() {
               </CardContent>
             </Card>
           </div>
+        )}
 
           {/* Right Column - AI Summary & Diagnosis */}
+        {(activeTab === 'summary' || activeTab === 'diagnosis') && (
           <div className="space-y-6">
             {/* AI-Generated Symptom & Exam Summary */}
+              {activeTab === 'summary' && (
             <Card>
               <CardContent className="p-6">
-                <div className="flex justify-between items-start mb-4">
+                    <div className="flex items-start mb-4">
                   <div className={`flex items-center ${i18n.language === 'he' ? 'space-x-reverse space-x-3' : 'space-x-3'}`}>
                     <Brain className="w-5 h-5 text-indigo-600" />
                     <h3 className="text-lg font-semibold text-gray-900">
                       {t('case.aiSummary.title', 'AI-Generated Symptom & Exam Summary')}
                     </h3>
                   </div>
-                  <button
-                    onClick={() => setIsSummaryExpanded(!isSummaryExpanded)}
-                    className={`flex items-center ${i18n.language === 'he' ? 'space-x-reverse space-x-1' : 'space-x-1'} text-blue-600 hover:text-blue-800 text-sm font-medium`}
-                  >
-                    {isSummaryExpanded ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    <span>{isSummaryExpanded ? t('case.hideDetails', 'Hide Details') : t('case.showDetails', 'Show Details')}</span>
-                  </button>
                 </div>
                 <p className="text-sm text-gray-600 mb-6">
                   {t('case.aiSummary.description', 'NLP summarization with medical-ontology tagging, red-flag highlighting, and chronic-condition identification')}
                 </p>
 
-                {isSummaryExpanded && (
-                  caseData.summary ? (
+                    {caseData.summary ? (
                     <div className="prose prose-sm max-w-none text-gray-800 leading-relaxed bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
                       <div dangerouslySetInnerHTML={{ __html: formatAIText(caseData.summary) }} />
                     </div>
@@ -450,12 +623,13 @@ function CasePage() {
                         </Button>
                       </div>
                     </div>
-                  )
                 )}
               </CardContent>
             </Card>
+              )}
 
             {/* AI Differential-Diagnosis & Test Recommendations */}
+              {activeTab === 'diagnosis' && (
             <Card>
               <CardContent className="p-6">
                 <div className="flex justify-between items-start mb-4">
@@ -479,79 +653,117 @@ function CasePage() {
 
                 {isDiagnosisExpanded && caseData.aiDiagnosis ? (
                   <div className="space-y-6">
-                    {/* AI Diagnosis Content */}
                     <div className="prose prose-sm max-w-none text-gray-800 leading-relaxed bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
                       <div dangerouslySetInnerHTML={{ __html: formatAIText(caseData.aiDiagnosis) }} />
                     </div>
                     
-                    {/* Interactive Differential Diagnoses */}
                     <div className="mt-8 border-t pt-6">
                       <h4 className="text-md font-semibold text-gray-900 mb-4 flex items-center">
                         <TestTube className="w-5 h-5 text-orange-600 mr-2" />
                         {t('case.aiDiagnosis.interactiveDiagnoses', 'Interactive Diagnosis Review')}
                       </h4>
-                      <p className="text-sm text-gray-600 mb-4">
-                        {t('case.aiDiagnosis.interactiveDescription', 'Review and select tests based on the AI analysis above')}
-                      </p>
-                      
-                      <div className="space-y-4">
-                        {mockDiagnoses.map((diag) => (
-                          <div key={diag.id} className="bg-gray-50 p-4 rounded-md border border-gray-200">
-                            <div className="flex justify-between items-center mb-2">
-                              <p className="font-medium text-gray-800">{t(diag.nameKey, diag.nameKey)}</p>
-                              <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm font-medium">
-                                {diag.probability}%
-                              </span>
-                            </div>
-                            <p className="text-sm text-gray-600 mb-3">
-                              {t('common.evidence', 'Evidence')}: {diag.evidenceKeys.map(key => t(key)).join(', ')}
+
+                          {interactiveData.diagnoses.length === 0 && interactiveData.tests.length === 0 ? (
+                            <p className="text-sm text-gray-600">
+                              {t(
+                                'case.aiDiagnosis.interactiveUnavailable',
+                                'Interactive review requires recognizable diagnosis and test lists in the AI output.'
+                              )}
                             </p>
-                            
-                            {/* Related Tests */}
+                          ) : (
+                            <div className="space-y-6">
+                              {caseData?.status === 'closed' && (
+                                <div className="rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+                                  {t('case.aiDiagnosis.caseClosed', 'Case is closed. Ordering tests is disabled.')}
+                                </div>
+                              )}
+                              {interactiveData.diagnoses.length > 0 && (
+                                <div className="space-y-3">
+                                  <p className="text-xs font-medium text-gray-700 uppercase tracking-wide">
+                                    {t('case.aiDiagnosis.differentialDiagnoses', 'Differential Diagnoses')}:
+                                  </p>
+                                  <div className="space-y-3">
+                                    {interactiveData.diagnoses.map((diag, index) => (
+                                      <div key={`${diag.name}-${index}`} className="bg-gray-50 p-4 rounded-md border border-gray-200">
+                                        <div className="flex items-center justify-between">
+                                          <p className="font-semibold text-gray-900">{diag.name}</p>
+                                          {typeof diag.probability === 'number' && (
+                                            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                                              {diag.probability}%
+                                            </span>
+                                          )}
+                                        </div>
+                                        {diag.evidence.length > 0 && (
+                                          <div className="mt-3 text-sm text-gray-600">
+                                            <span className="font-medium text-gray-700">
+                                              {t('common.evidence', 'Supporting Evidence')}:
+                                            </span>{' '}
+                                            <span className="leading-relaxed">{diag.evidence.join(' ')}</span>
+                                          </div>
+                                        )}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
+                          {interactiveData.tests.length > 0 && (
                             <div className="space-y-2">
                               <p className="text-xs font-medium text-gray-700 uppercase tracking-wide">
                                 {t('case.aiDiagnosis.recommendedTests', 'Recommended Tests')}:
                               </p>
-                              {mockTests
-                                .filter(test => test.diagnosisId === diag.id)
-                                .map((test) => (
+                                  {interactiveData.tests.map(test => (
                                   <div key={test.id} className="flex items-center bg-white p-2 rounded border border-gray-200 hover:bg-gray-50">
                                     <input
                                       type="checkbox"
                                       id={`test-${test.id}`}
                                       checked={selectedTests.includes(test.id)}
                                       onChange={() => toggleTestSelection(test.id)}
+                                      disabled={caseData?.status === 'closed'}
                                       className="h-4 w-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 cursor-pointer"
                                     />
                                     <label htmlFor={`test-${test.id}`} className="ml-3 text-sm flex-1 cursor-pointer">
-                                      <div className="font-medium text-gray-800">{t(test.nameKey)}</div>
+                                        <div className="font-medium text-gray-800">{test.name}</div>
+                                        {test.urgency && (
                                       <p className="text-gray-600">
-                                        {t('common.urgency', 'Urgency')}: 
-                                        <span className={`font-semibold ml-1 ${
-                                          test.urgency === 'high' ? 'text-red-600' : 
-                                          test.urgency === 'medium' ? 'text-yellow-600' : 'text-green-600'
-                                        }`}>
+                                            {t('common.urgency', 'Urgency')}:{' '}
+                                            <span
+                                              className={`font-semibold ml-1 ${
+                                                test.urgency === 'high'
+                                                  ? 'text-red-600'
+                                                  : test.urgency === 'medium'
+                                                  ? 'text-yellow-600'
+                                                  : 'text-green-600'
+                                              }`}
+                                            >
                                           {t(`common.${test.urgency}`, test.urgency)}
                                         </span>
                                       </p>
-                                      <p className="text-gray-600">{t(test.descriptionKey)}</p>
+                                        )}
+                                        {test.rationale && <p className="text-gray-600">{test.rationale}</p>}
                                     </label>
                                   </div>
                                 ))}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
 
-                      <div className="mt-6 flex justify-end">
-                        <Button 
-                          onClick={() => alert(t('aiDiagnosis.orderingTests', 'Ordering tests: {{tests}}', { tests: selectedTests.join(', ') }))}
-                          disabled={selectedTests.length === 0} 
-                          className="bg-green-600 hover:bg-green-700"
-                        >
-                          {t('aiDiagnosis.orderTests', 'Order Selected Tests')}
-                        </Button>
-                      </div>
+                                  <div className="mt-4 flex justify-end">
+                                    <Button
+                                      onClick={() => orderTestsMutation.mutate(selectedTests)}
+                                      disabled={
+                                        selectedTests.length === 0 ||
+                                        orderTestsMutation.isPending ||
+                                        caseData?.status === 'closed'
+                                      }
+                                      className="bg-green-600 hover:bg-green-700"
+                                    >
+                                      {orderTestsMutation.isPending
+                                        ? t('aiDiagnosis.orderingTests', 'Ordering tests...')
+                                        : t('aiDiagnosis.orderTests', 'Order Selected Tests')}
+                                    </Button>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
                     </div>
                   </div>
                 ) : !isDiagnosisExpanded ? (
@@ -581,11 +793,11 @@ function CasePage() {
                     </div>
                   </div>
                 )}
-
               </CardContent>
             </Card>
+              )}
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

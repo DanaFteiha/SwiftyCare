@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Shield, ArrowRight, ArrowLeft, CheckCircle, Globe } from 'lucide-react';
+import { apiFetch } from '@/lib/api';
 
 interface QuestionnaireData {
   personalInfo: {
@@ -1322,6 +1323,67 @@ const ADAPTIVE_QUESTIONNAIRE = {
           ]
         }
       }
+    },
+    eyeProblems: {
+      id: 'eyeProblems',
+      name: 'Eye Problems',
+      redFlags: ['suddenVisionLoss', 'severeEyePain', 'trauma', 'chemicalExposure'],
+      questions: {
+        type: {
+          id: 'type',
+          type: 'checkbox',
+          label: 'Eye Symptoms',
+          options: [
+            { id: 'visionLoss', label: 'Sudden Vision Loss', triggers: ['redFlag'] },
+            { id: 'blurredVision', label: 'Blurred Vision', triggers: [] },
+            { id: 'doubleVision', label: 'Double Vision', triggers: [] },
+            { id: 'eyePain', label: 'Eye Pain', triggers: ['painQuestions'] },
+            { id: 'redness', label: 'Redness', triggers: [] },
+            { id: 'discharge', label: 'Discharge', triggers: [] },
+            { id: 'lightSensitivity', label: 'Light Sensitivity', triggers: ['painQuestions'] }
+          ]
+        },
+        onset: {
+          id: 'onset',
+          type: 'select',
+          label: 'Onset',
+          options: [
+            { id: 'sudden', label: 'Sudden', triggers: ['redFlag'] },
+            { id: 'gradual', label: 'Gradual', triggers: [] }
+          ]
+        },
+        laterality: {
+          id: 'laterality',
+          type: 'select',
+          label: 'Which Eye',
+          options: [
+            { id: 'left', label: 'Left', triggers: [] },
+            { id: 'right', label: 'Right', triggers: [] },
+            { id: 'both', label: 'Both', triggers: [] }
+          ]
+        },
+        trauma: {
+          id: 'trauma',
+          type: 'select',
+          label: 'Recent Eye Trauma or Chemical Exposure',
+          options: [
+            { id: 'none', label: 'No', triggers: [] },
+            { id: 'trauma', label: 'Trauma', triggers: ['redFlag'] },
+            { id: 'chemical', label: 'Chemical Exposure', triggers: ['redFlag'] }
+          ]
+        },
+        painQuestions: {
+          id: 'painQuestions',
+          type: 'select',
+          label: 'Pain Severity',
+          condition: 'eyePain|lightSensitivity',
+          options: [
+            { id: 'mild', label: 'Mild', triggers: [] },
+            { id: 'moderate', label: 'Moderate', triggers: [] },
+            { id: 'severe', label: 'Severe', triggers: ['redFlag'] }
+          ]
+        }
+      }
     }
   }
 };
@@ -1335,6 +1397,7 @@ function QuestionnairePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [expandedDetails, setExpandedDetails] = useState<Record<string, boolean>>({});
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const totalSteps = 2; // Patient completes 2 steps, vitals are for nurses
 
@@ -1420,7 +1483,7 @@ function QuestionnairePage() {
   // Fetch case data
   const { data: caseData, isLoading: isLoadingCase, error: caseError } = useQuery({
     queryKey: ['case', caseId],
-    queryFn: () => fetch(`http://localhost:3001/cases/${caseId}`).then(res => {
+    queryFn: () => apiFetch(`/cases/${caseId}`).then(res => {
       if (!res.ok) {
         throw new Error('Failed to fetch case');
       }
@@ -1432,7 +1495,7 @@ function QuestionnairePage() {
   // Submit questionnaire mutation
   const submitQuestionnaire = useMutation({
     mutationFn: (answers: any) =>
-      fetch(`http://localhost:3001/cases/${caseId}/questionnaire`, {
+      apiFetch(`/cases/${caseId}/questionnaire`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ answers })
@@ -1479,11 +1542,16 @@ function QuestionnairePage() {
       
       // Submit questionnaire only (vitals will be entered by nurse)
       await submitQuestionnaire.mutateAsync(formData);
+
+      // Ensure case status is OPEN after patient completes questionnaire
+      await apiFetch(`/cases/${caseId}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'open' })
+      });
       
-      console.log('Questionnaire submitted successfully, navigating to vitals entry...');
-      
-      // Navigate to vitals entry page for nurse
-      navigate(`/vitals/${caseId}`);
+      console.log('Questionnaire submitted successfully, showing confirmation...');
+      setIsSubmitted(true);
       
     } catch (error) {
       console.error('Error submitting form:', error);
@@ -2273,7 +2341,7 @@ function QuestionnairePage() {
       jointPain: 'fever',
       painInLimbs: 'injuryTrauma',
       earPain: 'fever',
-      eyeProblems: 'headache',
+      eyeProblems: 'eyeProblems',
       injectionSitePain: 'injuryTrauma'
     };
 
@@ -2510,6 +2578,29 @@ function QuestionnairePage() {
             {t('common.back')}
           </Button>
         </div>
+      </div>
+    );
+  }
+
+  if (isSubmitted) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4" dir={i18n.language === 'he' ? 'rtl' : 'ltr'}>
+        <Card className="w-full max-w-lg">
+          <CardContent className="p-8 text-center space-y-4">
+            <div className="flex justify-center">
+              <Shield className="h-10 w-10 text-blue-600" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900">
+              {t('questionnaire.confirmationTitle', 'Thank you')}
+            </h2>
+            <p className="text-gray-600">
+              {t(
+                'questionnaire.confirmationMessage',
+                'Thank you for filling out your information. A doctor will review your case shortly.'
+              )}
+            </p>
+          </CardContent>
+        </Card>
       </div>
     );
   }

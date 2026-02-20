@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Shield, Plus, Search, Globe, User, Clock, FileText } from 'lucide-react';
+import { apiFetch } from '@/lib/api';
 
 function DashboardPage() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState('pending_doctor_review');
+  const [activeTab, setActiveTab] = useState<'open' | 'closed'>('open');
+  const queryClient = useQueryClient();
 
   // Language toggle function
   const toggleLanguage = () => {
@@ -20,27 +22,28 @@ function DashboardPage() {
   };
 
   // Fetch cases from API
-  const { data: cases = [], isLoading, error } = useQuery({
+  const { data: casesResponse, isLoading, error } = useQuery({
     queryKey: ['cases'],
     queryFn: async () => {
-      const response = await fetch('http://localhost:3001/cases');
+      const response = await apiFetch('/cases');
       if (!response.ok) throw new Error('Failed to fetch cases');
       return response.json();
     }
   });
 
+  const cases = casesResponse?.cases || [];
+
   const filteredCases = cases.filter((caseItem: any) => {
     const matchesSearch = caseItem.patientName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          caseItem.nationalId?.includes(searchTerm);
-    const matchesFilter = filterStatus === 'all' || caseItem.status === filterStatus;
-    return matchesSearch && matchesFilter;
+    const matchesTab = activeTab === 'open' ? caseItem.status === 'open' : caseItem.status === 'closed';
+    return matchesSearch && matchesTab;
   });
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending_doctor_review': return 'bg-blue-100 text-blue-800';
-      case 'in_review': return 'bg-yellow-100 text-yellow-800';
-      case 'completed': return 'bg-green-100 text-green-800';
+      case 'open': return 'bg-blue-100 text-blue-800';
+      case 'closed': return 'bg-green-100 text-green-800';
       case 'cancelled': return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
     }
@@ -48,9 +51,8 @@ function DashboardPage() {
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'pending_doctor_review': return t('dashboard.status.pendingDoctorReview', 'Waiting for doctor\'s review');
-      case 'in_review': return t('dashboard.status.inReview', 'In Review');
-      case 'completed': return t('dashboard.status.completed', 'Completed');
+      case 'open': return t('dashboard.status.open', 'Open');
+      case 'closed': return t('dashboard.status.closed', 'Closed');
       case 'cancelled': return t('dashboard.status.cancelled', 'Cancelled');
       default: return status;
     }
@@ -66,6 +68,22 @@ function DashboardPage() {
       minute: '2-digit'
     });
   };
+
+  const deleteCaseMutation = useMutation({
+    mutationFn: async (caseId: string) => {
+      const response = await apiFetch(`/cases/${caseId}`, {
+        method: 'DELETE'
+      });
+      if (!response.ok) {
+        const payload = await response.json().catch(() => null);
+        throw new Error(payload?.message || 'Failed to delete case');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cases'] });
+    }
+  });
 
   if (isLoading) {
     return (
@@ -117,7 +135,7 @@ function DashboardPage() {
                 <span>{i18n.language === 'he' ? 'EN' : 'עִבְרִית'}</span>
               </button>
               <Button
-                onClick={() => navigate('/scan')}
+                onClick={() => navigate('/patient')}
                 className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700"
               >
                 <Plus className="w-4 h-4" />
@@ -130,8 +148,26 @@ function DashboardPage() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Search and Filter */}
-        <div className="mb-6 flex flex-col sm:flex-row gap-4">
+        {/* Tabs + Search */}
+        <div className="mb-6 flex flex-col gap-4">
+          <div className="grid grid-cols-2 rounded-lg border border-gray-200 overflow-hidden bg-white w-full sm:w-64">
+            <button
+              onClick={() => setActiveTab('open')}
+              className={`px-4 py-2 text-sm font-semibold ${
+                activeTab === 'open' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              {t('dashboard.tabs.open', 'Open')}
+            </button>
+            <button
+              onClick={() => setActiveTab('closed')}
+              className={`px-4 py-2 text-sm font-semibold ${
+                activeTab === 'closed' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              {t('dashboard.tabs.closed', 'Closed')}
+            </button>
+          </div>
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
@@ -142,17 +178,6 @@ function DashboardPage() {
               className="pl-10"
             />
           </div>
-          <select
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="all">{t('dashboard.filters.all', 'All Cases')}</option>
-            <option value="pending_doctor_review">{t('dashboard.filters.pendingDoctorReview', 'Waiting for doctor\'s review')}</option>
-            <option value="in_review">{t('dashboard.filters.inReview', 'In Review')}</option>
-            <option value="completed">{t('dashboard.filters.completed', 'Completed')}</option>
-            <option value="cancelled">{t('dashboard.filters.cancelled', 'Cancelled')}</option>
-          </select>
         </div>
 
         {/* Cases Table */}
@@ -207,15 +232,33 @@ function DashboardPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <Button
-                          onClick={() => navigate(`/case/${caseItem._id}`)}
-                          variant="outline"
-                          size="sm"
-                          className="flex items-center space-x-1"
-                        >
-                          <FileText className="w-4 h-4" />
-                          <span>{t('dashboard.actions.openFile', 'Open File')}</span>
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            onClick={() => navigate(`/doctor/case/${caseItem._id}`)}
+                            variant="outline"
+                            size="sm"
+                            className="flex items-center space-x-1"
+                          >
+                            <FileText className="w-4 h-4" />
+                            <span>{t('dashboard.actions.openFile', 'Open File')}</span>
+                          </Button>
+                          <Button
+                            onClick={() => {
+                              const confirmed = window.confirm(
+                                t('dashboard.actions.deleteConfirm', 'Delete this case? This cannot be undone.')
+                              );
+                              if (confirmed) {
+                                deleteCaseMutation.mutate(caseItem._id);
+                              }
+                            }}
+                            variant="outline"
+                            size="sm"
+                            className="text-red-600 border-red-200 hover:bg-red-50"
+                            disabled={deleteCaseMutation.isPending}
+                          >
+                            {t('dashboard.actions.delete', 'Delete')}
+                          </Button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -236,7 +279,7 @@ function DashboardPage() {
               {t('dashboard.empty.description', 'No cases match your current search criteria.')}
             </p>
             <Button
-              onClick={() => navigate('/scan')}
+              onClick={() => navigate('/patient')}
               className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700"
             >
               <Plus className="w-4 h-4" />
