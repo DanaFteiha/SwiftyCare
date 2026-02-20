@@ -276,7 +276,9 @@ function CasePage() {
       }
 
       if (currentSection === 'tests') {
-        if (line.toLowerCase().startsWith('urgency:')) {
+        const lowerLine = line.toLowerCase();
+
+        if (lowerLine.match(/^-?\s*urgency[:\s]/)) {
           const urgencyMatch = line.match(/\b(high|medium|low)\b/i);
           if (urgencyMatch && tests.length > 0) {
             tests[tests.length - 1].urgency = urgencyMatch[1].toLowerCase() as ParsedTest['urgency'];
@@ -284,23 +286,42 @@ function CasePage() {
           continue;
         }
 
-        const lowerLine = line.toLowerCase();
-        if (lowerLine.includes('summary') || lowerLine.startsWith('probability')) {
+        if (lowerLine.match(/probability[:\s]|^\s*-?\s*\d{1,3}\s*%\s*$/)) {
+          continue;
+        }
+        if (lowerLine.match(/^-?\s*(rationale|supporting evidence|summary|note)[:\s]/)) {
+          if (lowerLine.match(/^-?\s*rationale[:\s]/) && tests.length > 0) {
+            const rationale = line.replace(/^-?\s*rationale[:\s]*/i, '').trim();
+            if (rationale) tests[tests.length - 1].rationale = rationale;
+          }
           continue;
         }
         if (line.endsWith(':')) {
           continue;
         }
 
+        const diagnosisNames = diagnoses.map(d => d.name.toLowerCase());
         const testNameMatch = line.match(/^\d+[\).]\s*(.+)$/) || line.match(/^-\s+(.+)$/);
         if (testNameMatch) {
-          const rawName = testNameMatch[1].trim();
-          const name = rawName.replace(/\s*[-–—:]\s*$/, '').trim();
-          const explanatoryPrefix = /^(risk factors?|can present|absence of|common in|pain score|this |a thorough|assessment is|note:|rationale:?$|the above|based on|if |should be|consider)/i.test(
-            name
-          );
-          if (name && name.length > 1 && name.length < 80 && !explanatoryPrefix) {
-            tests.push({ id: toSlug(name), name });
+          let rawName = testNameMatch[1].trim();
+
+          const urgencyInline = rawName.match(/\s*-\s*urgency[:\s]*\s*(high|medium|low)\s*$/i);
+          let inlineUrgency: string | undefined;
+          if (urgencyInline) {
+            inlineUrgency = urgencyInline[1].toLowerCase();
+            rawName = rawName.slice(0, urgencyInline.index).trim();
+          }
+
+          const name = rawName.replace(/\s*[-–—:]\s*$/, '').replace(/\.+$/, '').trim();
+          const isNotTest = /^(risk factors?|can present|absence of|common in|pain score|this |a thorough|assessment is|the above|based on|if |should be|consider)/i.test(name);
+          const isDiagnosisName = diagnosisNames.some(d => name.toLowerCase().includes(d) && !name.toLowerCase().includes('for '));
+
+          if (name && name.length > 2 && name.length < 80 && !isNotTest && !isDiagnosisName) {
+            tests.push({
+              id: toSlug(name),
+              name,
+              ...(inlineUrgency && { urgency: inlineUrgency as ParsedTest['urgency'] }),
+            });
           }
         }
       }
