@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -10,7 +10,7 @@ const DOCTOR_ACCESS_KEY = 'swiftycare:doctorAccess'
 
 function DoctorLoginPage() {
   const navigate = useNavigate()
-  const location = useLocation()
+
   const [passcode, setPasscode] = useState('')
   const [error, setError] = useState('')
   const { t, i18n } = useTranslation()

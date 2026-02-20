@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useMutation } from '@tanstack/react-query';
@@ -262,10 +262,10 @@ function VitalsEntryPage() {
               </Button>
               <Button
                 onClick={handleSubmit}
-                disabled={submitVitalsMutation.isLoading || !isFormValid()}
+                disabled={submitVitalsMutation.isPending || !isFormValid()}
                 className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700"
               >
-                {submitVitalsMutation.isLoading ? (
+                {submitVitalsMutation.isPending ? (
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 ) : (
                   <Save className="w-4 h-4" />

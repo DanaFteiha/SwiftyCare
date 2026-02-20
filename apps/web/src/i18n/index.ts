@@ -388,64 +388,6 @@ const resources = {
         medium: "medium",
         low: "low"
       },
-      // Case page translations
-      case: {
-        id: "ID",
-        age: "Age",
-        status: "Status",
-        vitals: {
-          title: "Vital Signs",
-          description: "Vital signs measurements taken.",
-          bloodPressure: "Blood Pressure",
-          pulse: "Pulse",
-          oxygenSaturation: "Oxygen Saturation",
-          temperature: "Temperature",
-          painScale: "Pain Scale (1-10)",
-          notRecorded: "Not recorded"
-        },
-        personalDetails: {
-          title: "Personal Details",
-          fullName: "Full Name",
-          id: "ID No.",
-          gender: "Gender",
-          age: "Age",
-          maritalStatus: "Marital Status",
-          cognitiveStatus: "Cognitive Status",
-          functionalStatus: "Functional Status",
-          notProvided: "Not provided"
-        },
-        medicalHistory: {
-          title: "Medical History",
-          backgroundDiseases: "Background Diseases",
-          notProvided: "Not provided"
-        },
-        currentIllness: {
-          title: "Current Illness - Complaints and Details",
-          notProvided: "Not provided"
-        },
-        aiSummary: {
-          title: "AI-Generated Symptom & Exam Summary",
-          description: "NLP summarization with medical-ontology tagging, red-flag highlighting, and chronic-condition identification",
-          generateButton: "Generate AI Summary",
-          generating: "Generating...",
-          error: "Failed to generate AI summary. Please try again.",
-          noSummary: "No summary available"
-        },
-        aiDiagnosis: {
-          title: "AI Differential-Diagnosis & Test Recommendations",
-          description: "Evidence-weighted diagnosis list with contextual test recommendations",
-          generateButton: "Generate Diagnosis",
-          generating: "Generating...",
-          error: "Failed to generate diagnosis. Please try again.",
-          noDiagnosis: "No diagnosis available",
-          interactiveDiagnoses: "Interactive Diagnosis Review",
-          interactiveDescription: "Review and select tests based on the AI analysis above",
-          recommendedTests: "Recommended Tests",
-          orderTests: "Order Selected Tests"
-        },
-        hideDetails: "Hide Details",
-        showDetails: "Show Details"
-      },
       // AI Diagnosis translations
       aiDiagnosis: {
         diagnoses: {
@@ -998,49 +940,6 @@ const resources = {
         },
         noCases: "לא נמצאו מקרים",
         loading: "טוען מקרים..."
-      },
-      
-      // CasePage translations
-      case: {
-        title: "פרטי מקרה",
-        tabs: {
-          overview: "סקירה כללית",
-          questionnaire: "שאלון",
-          vitals: "סימנים חיוניים",
-          summary: "סיכום AI"
-        },
-        overview: {
-          patientName: "שם החולה",
-          nationalId: "מספר תעודת זהות",
-          status: "סטטוס",
-          createdAt: "נוצר ב",
-          updatedAt: "עודכן ב"
-        },
-        questionnaire: {
-          title: "תשובות השאלון",
-          noData: "אין נתוני שאלון זמינים"
-        },
-        vitals: {
-          title: "סימנים חיוניים",
-          noData: "לא נרשמו סימנים חיוניים",
-          bloodPressure: "לחץ דם",
-          heartRate: "דופק",
-          temperature: "טמפרטורה",
-          oxygenSaturation: "ריווי חמצן",
-          respiratoryRate: "קצב נשימה",
-          painScore: "ציון כאב"
-        },
-        summary: {
-          title: "סיכום רפואי AI",
-          generate: "צור סיכום",
-          generating: "יוצר...",
-          noSummary: "אין סיכום זמין",
-          error: "שגיאה ביצירת הסיכום"
-        },
-        actions: {
-          backToDashboard: "חזור ללוח הבקרה",
-          loading: "טוען..."
-        }
       },
       
       // Common translations
