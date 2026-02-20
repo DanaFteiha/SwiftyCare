@@ -292,17 +292,14 @@ function CasePage() {
           continue;
         }
 
-        const testNameMatch = line.match(/^\d+[\).]\s*(.+)$/) || line.match(/^-?\s*(.+)$/);
+        const testNameMatch = line.match(/^\d+[\).]\s*(.+)$/) || line.match(/^-\s+(.+)$/);
         if (testNameMatch) {
           const rawName = testNameMatch[1].trim();
-          const name = rawName.replace(/\(.*?\)/g, '').trim();
-          const startsWithTest = /^(x-?ray|ct|mri|ultrasound|ecg|ekg|physical exam|examination|labs?|blood test|urine test|urinalysis|cbc|cmp|culture|panel|imaging|scan|test)\b/i.test(
+          const name = rawName.replace(/\s*[-–—:]\s*$/, '').trim();
+          const explanatoryPrefix = /^(risk factors?|can present|absence of|common in|pain score|this |a thorough|assessment is|note:|rationale:?$|the above|based on|if |should be|consider)/i.test(
             name
           );
-          const explanatoryPrefix = /^(risk factors?|can present|absence of|common in|pain score|mri is|ct scan is|x-?ray is|a thorough|physical examination is|assessment is)/i.test(
-            name
-          );
-          if (name && startsWithTest && !explanatoryPrefix) {
+          if (name && name.length > 1 && name.length < 80 && !explanatoryPrefix) {
             tests.push({ id: toSlug(name), name });
           }
         }
