@@ -71,7 +71,6 @@ const resources = {
         subtitle: "Please answer the following questions",
         greeting: "Hello {{name}}, please fill in the following details.",
         step1: "Personal Details & Medical History",
-        step2: "Current Symptoms",
         personalInfo: {
           title: "Personal Details",
           age: "Age",
@@ -808,7 +807,6 @@ const resources = {
         subtitle: "נא ענה על השאלות הבאות",
         greeting: "שלום {{name}}, אנא מלא את הפרטים הבאים.",
         step1: "פרטים אישיים והיסטוריה רפואית",
-        step2: "תסמינים נוכחיים",
         personalInfo: {
           title: "פרטים אישיים",
           age: "גיל",
