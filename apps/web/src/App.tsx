@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { Analytics } from '@vercel/analytics/react'
 import ScanPage from './pages/ScanPage'
 import QuestionnairePage from './pages/QuestionnairePage'
 import VitalsEntryPage from './pages/VitalsEntryPage'
@@ -50,6 +51,7 @@ function App() {
           </Routes>
         </div>
       </Router>
+      <Analytics />
     </QueryClientProvider>
   )
 }
