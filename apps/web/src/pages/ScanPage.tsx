@@ -128,6 +128,10 @@ function ScanPage() {
       navigate(`/patient/questionnaire/${caseData._id}`)
     } catch (error) {
       console.error('Error creating case:', error)
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        alert(t('form.timeoutError', 'The server is taking too long to respond. Please try again in a moment.'))
+        return
+      }
       const err = error as { status?: number; message?: string }
       if (err?.status === 409) {
         alert(
