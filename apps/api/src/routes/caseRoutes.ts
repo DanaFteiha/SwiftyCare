@@ -539,7 +539,7 @@ Format your response as structured medical analysis suitable for physician revie
 router.post("/:id/discharge-report/generate", async (req, res) => {
   try {
     const caseId = req.params.id;
-    const { action = "generate" } = req.body; // "generate" | "improve" | "shorten"
+    const { action = "generate", currentText } = req.body; // "generate" | "improve" | "shorten"
 
     if (!mongoose.Types.ObjectId.isValid(caseId)) {
       return res.status(400).json({ error: "Invalid ID format" });
@@ -572,7 +572,8 @@ router.post("/:id/discharge-report/generate", async (req, res) => {
 
     const orderedTestsList = (caseDoc.orderedTests || []).join(", ") || "None ordered";
 
-    const existingDraft = caseDoc.dischargeReport?.draft || "";
+    // Prefer text passed from frontend (may include manual edits) over saved draft
+    const existingDraft = currentText || caseDoc.dischargeReport?.draft || "";
 
     let systemMsg = "You are a senior emergency department physician writing official discharge summaries. Use formal clinical language, full sentences, and standard ED documentation style.";
     let userMsg = "";
