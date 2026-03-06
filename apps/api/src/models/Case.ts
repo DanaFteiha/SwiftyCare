@@ -17,6 +17,11 @@ export interface ICase extends Document {
   };
   summary?: string;
   aiDiagnosis?: string;
+  dischargeReport?: {
+    draft?: string;
+    finalized: boolean;
+    finalizedAt?: Date;
+  };
   createdAt: Date;
   updatedAt: Date;
 }
@@ -89,6 +94,11 @@ const CaseSchema = new Schema<ICase>({
   },
   orderedAt: {
     type: Date
+  },
+  dischargeReport: {
+    draft: { type: String },
+    finalized: { type: Boolean, default: false },
+    finalizedAt: { type: Date }
   }
 }, {
   timestamps: true // Automatically adds createdAt and updatedAt fields

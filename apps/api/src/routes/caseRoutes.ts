@@ -535,6 +535,189 @@ Format your response as structured medical analysis suitable for physician revie
   }
 });
 
+// ---------------- GENERATE DISCHARGE REPORT ----------------
+router.post("/:id/discharge-report/generate", async (req, res) => {
+  try {
+    const caseId = req.params.id;
+    const { action = "generate" } = req.body; // "generate" | "improve" | "shorten"
+
+    if (!mongoose.Types.ObjectId.isValid(caseId)) {
+      return res.status(400).json({ error: "Invalid ID format" });
+    }
+    if (!process.env.OPENAI_API_KEY) {
+      return res.status(503).json({ error: "OpenAI API key not configured" });
+    }
+
+    const caseDoc = await Case.findById(caseId);
+    if (!caseDoc) return res.status(404).json({ message: "Case not found" });
+
+    const questionnaire = await Questionnaire.findOne({ caseId });
+    const answers = questionnaire?.answers || {};
+    const personalInfo = answers.personalInfo || {};
+    const medicalHistory = answers.medicalHistory || {};
+    const currentIllness = answers.currentIllness || {};
+    const medications = answers.medications || {};
+    const adaptiveQ = answers.adaptiveQuestions || answers.symptoms || {};
+    const vitals = caseDoc.vitals || {};
+
+    const activeConditions = Object.entries(medicalHistory)
+      .filter(([k, v]) => v === true && k !== "none")
+      .map(([k]) => k)
+      .join(", ") || "None reported";
+
+    const activeSymptoms = Object.entries(currentIllness)
+      .filter(([, v]) => v === true)
+      .map(([k]) => k)
+      .join(", ") || "None reported";
+
+    const orderedTestsList = (caseDoc.orderedTests || []).join(", ") || "None ordered";
+
+    const existingDraft = caseDoc.dischargeReport?.draft || "";
+
+    let systemMsg = "You are a senior emergency department physician writing official discharge summaries. Use formal clinical language, full sentences, and standard ED documentation style.";
+    let userMsg = "";
+
+    if (action === "improve" && existingDraft) {
+      userMsg = `Rewrite the following discharge summary using more precise, professional clinical language while keeping all clinical facts intact:\n\n${existingDraft}`;
+    } else if (action === "shorten" && existingDraft) {
+      userMsg = `Create a concise version of this discharge summary (3-5 sentences), preserving the key clinical facts:\n\n${existingDraft}`;
+    } else {
+      userMsg = `Generate a professional emergency department discharge summary using the following patient information.
+
+Follow this exact structure (write each section as a flowing paragraph, no headings needed):
+1. Patient demographics (age, gender)
+2. Medical history / background
+3. Reason for ED visit (chief complaint)
+4. Emergency department evaluation
+5. Physical examination findings
+6. Laboratory and imaging results
+7. Treatment administered
+8. Clinical impression (diagnosis)
+9. Disposition
+10. Discharge recommendations
+
+Use professional clinical language similar to hospital discharge summaries.
+Write in full sentences. Do not use bullet points or section headers in the output.
+
+Patient Data:
+- Name: ${caseDoc.patientName}
+- Age: ${personalInfo.age || "Unknown"}
+- Gender: ${personalInfo.gender || "Unknown"}
+- National ID: ${caseDoc.nationalId}
+
+Medical History: ${activeConditions}
+
+Allergies: ${medications?.allergies?.allergyDetails || medications?.allergies?.hasAllergies || "None reported"}
+
+Chief Complaint / Current Illness: ${activeSymptoms}
+
+Adaptive Questionnaire Summary:
+${JSON.stringify(adaptiveQ, null, 2)}
+
+Vital Signs:
+- Blood Pressure: ${vitals.bp || "Not recorded"}
+- Heart Rate: ${vitals.hr ? vitals.hr + " bpm" : "Not recorded"}
+- SpO2: ${vitals.spo2 ? vitals.spo2 + "%" : "Not recorded"}
+- Temperature: ${vitals.temp ? vitals.temp + "°C" : "Not recorded"}
+- Respiratory Rate: ${vitals.respRate ? vitals.respRate + " /min" : "Not recorded"}
+- Pain Score: ${vitals.painScore ? vitals.painScore + "/10" : "Not recorded"}
+
+AI Summary: ${caseDoc.summary || "Not generated"}
+
+AI Diagnosis: ${caseDoc.aiDiagnosis || "Not generated"}
+
+Ordered Tests / Treatments: ${orderedTestsList}`;
+    }
+
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        { role: "system", content: systemMsg },
+        { role: "user", content: userMsg }
+      ],
+      temperature: 0.35,
+      max_tokens: 1200
+    });
+
+    const report = completion.choices[0]?.message?.content?.trim() || "";
+
+    // Auto-save draft
+    await Case.findByIdAndUpdate(caseId, {
+      "dischargeReport.draft": report,
+      "dischargeReport.finalized": false
+    });
+
+    return res.json({ report });
+  } catch (error: any) {
+    console.error("Discharge report generation error:", error);
+    if (error.status === 429) return res.status(429).json({ error: "OpenAI quota exceeded" });
+    return res.status(500).json({ error: "Internal server error", message: error.message });
+  }
+});
+
+// ---------------- SAVE DISCHARGE REPORT DRAFT ----------------
+router.put("/:id/discharge-report", async (req, res) => {
+  try {
+    const caseId = req.params.id;
+    const { draft } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(caseId)) {
+      return res.status(400).json({ error: "Invalid ID format" });
+    }
+    if (typeof draft !== "string") {
+      return res.status(400).json({ error: "draft must be a string" });
+    }
+
+    const updated = await Case.findByIdAndUpdate(
+      caseId,
+      { "dischargeReport.draft": draft, "dischargeReport.finalized": false },
+      { new: true }
+    );
+    if (!updated) return res.status(404).json({ message: "Case not found" });
+
+    return res.json({ dischargeReport: updated.dischargeReport });
+  } catch (error: any) {
+    return res.status(500).json({ error: "Internal server error", message: error.message });
+  }
+});
+
+// ---------------- FINALIZE DISCHARGE REPORT ----------------
+router.post("/:id/discharge-report/finalize", async (req, res) => {
+  try {
+    const caseId = req.params.id;
+    const { draft } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(caseId)) {
+      return res.status(400).json({ error: "Invalid ID format" });
+    }
+
+    const caseDoc = await Case.findById(caseId);
+    if (!caseDoc) return res.status(404).json({ message: "Case not found" });
+
+    const reportText = draft || caseDoc.dischargeReport?.draft;
+    if (!reportText) {
+      return res.status(400).json({ error: "No discharge report to finalize" });
+    }
+
+    const updated = await Case.findByIdAndUpdate(
+      caseId,
+      {
+        status: "closed",
+        "dischargeReport.draft": reportText,
+        "dischargeReport.finalized": true,
+        "dischargeReport.finalizedAt": new Date()
+      },
+      { new: true }
+    );
+
+    return res.json(updated);
+  } catch (error: any) {
+    console.error("Finalize discharge error:", error);
+    return res.status(500).json({ error: "Internal server error", message: error.message });
+  }
+});
+
 // ---------------- GET CASE BY ID (KEEP LAST) ----------------
 router.get("/:id", async (req, res) => {
   try {

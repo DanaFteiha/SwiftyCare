@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { User, Heart, FileText, Globe, Brain, Eye, EyeOff, Stethoscope, TestTube, CheckCircle } from 'lucide-react';
+import { User, Heart, FileText, Globe, Brain, Eye, EyeOff, Stethoscope, TestTube, CheckCircle, ClipboardList } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
 
 function CasePage() {
@@ -380,13 +380,33 @@ function CasePage() {
                 </p>
               </div>
             </div>
-            <button
-              onClick={toggleLanguage}
-              className={`flex items-center ${i18n.language === 'he' ? 'space-x-reverse space-x-2' : 'space-x-2'} px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-md transition-colors`}
-            >
-              <Globe className="w-4 h-4" />
-              <span>{i18n.language === 'he' ? 'EN' : 'עִבְרִית'}</span>
-            </button>
+            <div className="flex items-center gap-3">
+              {caseData?.status !== 'closed' && (
+                <button
+                  onClick={() => navigate(`/doctor/case/${id}/discharge-report`)}
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-green-600 hover:bg-green-700 text-white rounded-lg shadow-sm transition-colors"
+                >
+                  <ClipboardList className="w-4 h-4" />
+                  {t('discharge.proceedButton', 'Proceed to Discharge Report')}
+                </button>
+              )}
+              {caseData?.dischargeReport?.finalized && (
+                <button
+                  onClick={() => navigate(`/doctor/case/${id}/discharge-report`)}
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-gray-600 hover:bg-gray-700 text-white rounded-lg shadow-sm transition-colors"
+                >
+                  <ClipboardList className="w-4 h-4" />
+                  {t('discharge.viewReport', 'View Discharge Report')}
+                </button>
+              )}
+              <button
+                onClick={toggleLanguage}
+                className={`flex items-center ${i18n.language === 'he' ? 'space-x-reverse space-x-2' : 'space-x-2'} px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-md transition-colors`}
+              >
+                <Globe className="w-4 h-4" />
+                <span>{i18n.language === 'he' ? 'EN' : 'עִבְרִית'}</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>

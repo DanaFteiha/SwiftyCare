@@ -5,6 +5,7 @@ import QuestionnairePage from './pages/QuestionnairePage'
 import VitalsEntryPage from './pages/VitalsEntryPage'
 import DashboardPage from './pages/DashboardPage'
 import CasePage from './pages/CasePage'
+import DischargeReportPage from './pages/DischargeReportPage'
 import DoctorLoginPage from './pages/DoctorLoginPage'
 import DoctorRoute from './components/DoctorRoute'
 
@@ -42,6 +43,14 @@ function App() {
               element={
                 <DoctorRoute>
                   <CasePage />
+                </DoctorRoute>
+              }
+            />
+            <Route
+              path="/doctor/case/:id/discharge-report"
+              element={
+                <DoctorRoute>
+                  <DischargeReportPage />
                 </DoctorRoute>
               }
             />

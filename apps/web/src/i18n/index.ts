@@ -737,6 +737,33 @@ const resources = {
           muscleTest: "Evaluate musculoskeletal function"
         }
       }
+    },
+    discharge: {
+      title: "Discharge Report",
+      proceedButton: "Proceed to Discharge Report",
+      viewReport: "View Discharge Report",
+      loading: "Loading...",
+      finalized: "Finalized",
+      finalizedOn: "Finalized on",
+      aiActions: "AI Report Tools",
+      generateFull: "Generate Full Report",
+      improveLanguage: "Improve Medical Language",
+      shortenReport: "Shorten Report",
+      aiGenerating: "AI is generating the report, please wait...",
+      reportContent: "Report Content",
+      edit: "Edit",
+      saveChanges: "Save Changes",
+      saving: "Saving...",
+      saved: "Saved",
+      noReport: "No report generated yet.",
+      noReportHint: "Click \"Generate Full Report\" above to create one.",
+      returnToCase: "Return to Case",
+      print: "Print / Export PDF",
+      finalizeDischarge: "Finalize Discharge",
+      confirmFinalize: "This will close the case. Confirm?",
+      confirmYes: "Yes, Finalize",
+      cancel: "Cancel",
+      finalizing: "Finalizing..."
     }
   },
   he: {
@@ -1396,6 +1423,33 @@ const resources = {
       passcodePlaceholder: "קוד גישה",
       continue: "המשך",
       invalidCode: "קוד גישה לא תקין."
+    },
+    discharge: {
+      title: "דוח שחרור",
+      proceedButton: "המשך לדוח שחרור",
+      viewReport: "צפה בדוח השחרור",
+      loading: "טוען...",
+      finalized: "הושלם",
+      finalizedOn: "הושלם ב",
+      aiActions: "כלי AI לדוח",
+      generateFull: "צור דוח מלא",
+      improveLanguage: "שפר שפה רפואית",
+      shortenReport: "קצר את הדוח",
+      aiGenerating: "ה-AI מייצר את הדוח, אנא המתן...",
+      reportContent: "תוכן הדוח",
+      edit: "ערוך",
+      saveChanges: "שמור שינויים",
+      saving: "שומר...",
+      saved: "נשמר",
+      noReport: "טרם נוצר דוח.",
+      noReportHint: "לחץ על \"צור דוח מלא\" למעלה ליצירת דוח.",
+      returnToCase: "חזור למקרה",
+      print: "הדפס / ייצא PDF",
+      finalizeDischarge: "סיים שחרור",
+      confirmFinalize: "פעולה זו תסגור את המקרה. לאשר?",
+      confirmYes: "כן, סיים",
+      cancel: "ביטול",
+      finalizing: "מסיים..."
     }
   }
 }
