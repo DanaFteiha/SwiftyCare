@@ -73,7 +73,7 @@ function highlightParagraph(text: string): React.ReactNode[] {
           highlighted = highlighted.replace(re, '##BOLD##$1##/BOLD##');
         }
         const boldParts = highlighted.split(/(##BOLD##.*?##\/BOLD##)/);
-        boldParts.forEach((bp, bi) => {
+        boldParts.forEach((bp) => {
           if (bp.startsWith('##BOLD##')) {
             parts.push(
               <strong key={`dx-${key++}`} className="font-semibold text-gray-900">
@@ -113,7 +113,6 @@ function MedicalReportRenderer({ text }: { text: string }) {
   return (
     <div className="space-y-3 text-sm leading-relaxed text-gray-800 print:text-xs">
       {paragraphs.map((para, idx) => {
-        const lowerPara = para.toLowerCase();
         const isRecommendation = RECOMMENDATION_TRIGGERS.some(t => new RegExp(t, 'i').test(para));
         const isTreatment = TREATMENT_TRIGGERS.some(t => new RegExp(t, 'i').test(para));
         const isDemographics = idx === 0; // First paragraph = demographics
