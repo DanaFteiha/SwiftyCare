@@ -388,7 +388,7 @@ function CasePage() {
                     caseData.status === 'in_progress'  ? 'bg-blue-100 text-blue-800'  :
                                                          'bg-gray-100 text-gray-700'
                   }`}>
-                    {t(`case.statusLabel.${caseData.status}`, caseData.status)}
+                    {String(t(`case.statusLabel.${caseData.status}`, caseData.status))}
                   </span>
                 </p>
               </div>
