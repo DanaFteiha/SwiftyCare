@@ -204,10 +204,9 @@ router.post("/:id/order-tests", async (req, res) => {
       });
     }
 
-    // Tests ordered → move to "tests_ordered" status.
-    // Case closure is intentionally deferred to discharge-report/finalize.
+    // Ordering tests must NOT change case status.
+    // Status remains open/in_progress until discharge is finalized.
     const updateFields: Record<string, unknown> = {
-      status: "tests_ordered",
       orderedAt: new Date(),
     };
     if (tests && Array.isArray(tests)) {
