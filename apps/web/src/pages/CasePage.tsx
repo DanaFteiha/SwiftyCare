@@ -56,7 +56,11 @@ function CasePage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
       });
-      if (!response.ok) throw new Error('Failed to generate summary');
+      if (!response.ok) {
+        const payload = await response.json().catch(() => null);
+        const serverMsg = payload?.message || payload?.error || `Server error ${response.status}`;
+        throw new Error(serverMsg);
+      }
       return response.json();
     },
     onSuccess: () => {
@@ -64,7 +68,7 @@ function CasePage() {
     },
     onError: (error: Error) => {
       console.error('Error generating summary:', error);
-      alert(t('case.aiSummary.error', 'Failed to generate AI summary. Please try again.'));
+      alert(`${t('case.aiSummary.error', 'Failed to generate AI summary.')}\n\n${error.message}`);
     }
   });
 
@@ -75,7 +79,11 @@ function CasePage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
       });
-      if (!response.ok) throw new Error('Failed to generate diagnosis');
+      if (!response.ok) {
+        const payload = await response.json().catch(() => null);
+        const serverMsg = payload?.message || payload?.error || `Server error ${response.status}`;
+        throw new Error(serverMsg);
+      }
       return response.json();
     },
     onSuccess: () => {
@@ -83,7 +91,7 @@ function CasePage() {
     },
     onError: (error: Error) => {
       console.error('Error generating diagnosis:', error);
-      alert(t('case.aiDiagnosis.error', 'Failed to generate AI diagnosis. Please try again.'));
+      alert(`${t('case.aiDiagnosis.error', 'Failed to generate AI diagnosis.')}\n\n${error.message}`);
     }
   });
 

@@ -438,11 +438,23 @@ router.post("/:id/diagnosis", async (req, res) => {
       return res.status(404).json({ message: "Case not found" });
     }
 
-    // Find questionnaire data
+    // Questionnaire is optional — proceed with available data if not found
     const questionnaire = await Questionnaire.findOne({ caseId });
-    if (!questionnaire) {
-      return res.status(404).json({ message: "Questionnaire not found" });
-    }
+    const qAnswers = questionnaire?.answers || {};
+
+    const activeSymptomsDx = qAnswers.currentIllness
+      ? Object.entries(qAnswers.currentIllness)
+          .filter(([, v]) => v === true)
+          .map(([k]) => `- ${k}`)
+          .join('\n') || 'None reported'
+      : 'Not available';
+
+    const activeHistoryDx = qAnswers.medicalHistory
+      ? Object.entries(qAnswers.medicalHistory)
+          .filter(([k, v]) => v === true && k !== 'none')
+          .map(([k]) => `- ${k}`)
+          .join('\n') || 'None'
+      : 'Not available';
 
     // Initialize OpenAI client
     const openai = new OpenAI({
@@ -455,20 +467,14 @@ As a medical AI assistant, analyze the following patient data and provide differ
 
 Patient Information:
 - Name: ${caseDoc.patientName}
-- Age: ${questionnaire.answers?.personalInfo?.age || 'Unknown'}
-- Gender: ${questionnaire.answers?.personalInfo?.gender || 'Unknown'}
+- Age: ${qAnswers.personalInfo?.age || 'Unknown'}
+- Gender: ${qAnswers.personalInfo?.gender || 'Unknown'}
 
 Current Symptoms:
-${questionnaire.answers?.currentIllness ? Object.entries(questionnaire.answers.currentIllness)
-  .filter(([key, value]) => value === true)
-  .map(([key]) => `- ${key}`)
-  .join('\n') : 'None reported'}
+${activeSymptomsDx}
 
 Medical History:
-${questionnaire.answers?.medicalHistory ? Object.entries(questionnaire.answers.medicalHistory)
-  .filter(([key, value]) => value === true && key !== 'none')
-  .map(([key]) => `- ${key}`)
-  .join('\n') : 'None reported'}
+${activeHistoryDx}
 
 Vital Signs:
 - Blood Pressure: ${caseDoc.vitals?.bp || 'Not recorded'}
