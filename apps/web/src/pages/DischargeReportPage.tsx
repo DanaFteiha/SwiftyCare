@@ -288,15 +288,20 @@ function DischargeReportPage() {
   // ─── AI Action ───────────────────────────────────────────────────────────
   const aiActionMutation = useMutation({
     mutationFn: async (action: 'generate' | 'improve' | 'shorten') => {
-      const res = await apiFetch(`/cases/${id}/discharge-report/generate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action,
-          // Always send current frontend text so manual edits are preserved
-          currentText: reportText || undefined,
-        }),
-      });
+      // Discharge report generation with large prompts can take 25-40 s — use 90 s timeout
+      const res = await apiFetch(
+        `/cases/${id}/discharge-report/generate`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action,
+            // Always send current frontend text so manual edits are preserved
+            currentText: reportText || undefined,
+          }),
+        },
+        90_000,
+      );
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error(err.message || 'AI generation failed');
@@ -310,8 +315,20 @@ function DischargeReportPage() {
       queryClient.invalidateQueries({ queryKey: ['case', id] });
     },
     onError: (err: Error) => {
-      alert(err.message);
       setRegenerateConfirm(false);
+      // AbortError means the client timed out, but the server may have finished —
+      // invalidate the query so the saved draft is loaded on next render
+      if (err.name === 'AbortError' || err.message?.toLowerCase().includes('abort')) {
+        queryClient.invalidateQueries({ queryKey: ['case', id] });
+        alert(
+          t(
+            'discharge.generationTimeout',
+            'Generation is taking longer than expected. The report may already be ready — the page will refresh automatically.',
+          ),
+        );
+      } else {
+        alert(err.message);
+      }
     },
   });
 
@@ -513,14 +530,21 @@ function DischargeReportPage() {
               </div>
 
               {isPending && (
-                <p className="mt-3 text-xs text-indigo-600 animate-pulse flex items-center gap-1.5">
-                  <div className="w-3 h-3 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" />
-                  {activeAction === 'improve'
-                    ? t('discharge.aiImproving', 'Improving medical language...')
-                    : activeAction === 'shorten'
-                    ? t('discharge.aiShortening', 'Creating concise version...')
-                    : t('discharge.aiGenerating', 'Generating discharge report...')}
-                </p>
+                <div className="mt-3 space-y-1">
+                  <p className="text-xs text-indigo-600 animate-pulse flex items-center gap-1.5">
+                    <span className="w-3 h-3 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin inline-block" />
+                    {activeAction === 'improve'
+                      ? t('discharge.aiImproving', 'Improving medical language...')
+                      : activeAction === 'shorten'
+                      ? t('discharge.aiShortening', 'Creating concise version...')
+                      : t('discharge.aiGenerating', 'Generating structured discharge record...')}
+                  </p>
+                  {activeAction === 'generate' && (
+                    <p className="text-xs text-gray-400 pl-5">
+                      {t('discharge.aiGeneratingHint', 'This may take up to 30 seconds — please keep this page open.')}
+                    </p>
+                  )}
+                </div>
               )}
             </CardContent>
           </Card>
