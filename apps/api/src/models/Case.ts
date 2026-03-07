@@ -46,7 +46,8 @@ const CaseSchema = new Schema<ICase>({
   status: {
     type: String,
     default: "open",
-    enum: ["open", "in_progress", "closed", "cancelled"],
+    // tests_ordered: tests selected by doctor, awaiting results before discharge
+    enum: ["open", "in_progress", "tests_ordered", "closed", "cancelled"],
     trim: true
   },
   vitals: {

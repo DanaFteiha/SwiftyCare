@@ -107,34 +107,119 @@ function highlightParagraph(text: string): React.ReactNode[] {
   return parts;
 }
 
+// Section heading detection: matches **Heading Text** at start of a line/paragraph
+const SECTION_HEADING_RE = /^\*\*(.+?)\*\*\s*$/;
+
+// Section-specific styling map
+const SECTION_STYLES: Record<string, { border: string; bg: string; label: string }> = {
+  'patient summary':                  { border: 'border-indigo-400', bg: 'bg-indigo-50',  label: 'text-indigo-800' },
+  'relevant medical history':         { border: 'border-violet-400', bg: 'bg-violet-50',  label: 'text-violet-800' },
+  'presenting complaint':             { border: 'border-orange-400', bg: 'bg-orange-50',  label: 'text-orange-800' },
+  'clinical evaluation':              { border: 'border-blue-400',   bg: 'bg-blue-50',    label: 'text-blue-800'   },
+  'investigation summary':            { border: 'border-cyan-400',   bg: 'bg-cyan-50',    label: 'text-cyan-800'   },
+  'investigations performed':         { border: 'border-cyan-400',   bg: 'bg-cyan-50',    label: 'text-cyan-800'   },
+  'investigations performed / ordered':{ border: 'border-cyan-400',  bg: 'bg-cyan-50',    label: 'text-cyan-800'   },
+  'key findings and results':         { border: 'border-red-400',    bg: 'bg-red-50',     label: 'text-red-800'    },
+  'key findings':                     { border: 'border-red-400',    bg: 'bg-red-50',     label: 'text-red-800'    },
+  'treatment administered':           { border: 'border-blue-300',   bg: 'bg-blue-50',    label: 'text-blue-700'   },
+  'clinical impression':              { border: 'border-purple-400', bg: 'bg-purple-50',  label: 'text-purple-800' },
+  'recommended follow-up investigations':{ border: 'border-teal-400',bg: 'bg-teal-50',    label: 'text-teal-800'   },
+  'recommended follow-up':            { border: 'border-teal-400',   bg: 'bg-teal-50',    label: 'text-teal-800'   },
+  'discharge recommendations':        { border: 'border-emerald-400',bg: 'bg-emerald-50', label: 'text-emerald-800'},
+  'disposition':                      { border: 'border-gray-400',   bg: 'bg-gray-100',   label: 'text-gray-700'   },
+};
+
+function getSectionStyle(heading: string) {
+  const key = heading.toLowerCase().trim();
+  for (const [pattern, style] of Object.entries(SECTION_STYLES)) {
+    if (key.includes(pattern)) return style;
+  }
+  return { border: 'border-gray-300', bg: 'bg-gray-50', label: 'text-gray-700' };
+}
+
 function MedicalReportRenderer({ text }: { text: string }) {
-  const paragraphs = text.split(/\n+/).filter(p => p.trim());
+  // Split by newlines, keeping empty lines as paragraph separators
+  const lines = text.split(/\n/);
+
+  // Group lines into sections: { heading?: string; paragraphs: string[] }
+  type Section = { heading: string | null; paragraphs: string[] };
+  const sections: Section[] = [];
+  let current: Section = { heading: null, paragraphs: [] };
+
+  for (const raw of lines) {
+    const line = raw.trim();
+    if (!line) continue;
+
+    const headingMatch = line.match(SECTION_HEADING_RE);
+    if (headingMatch) {
+      // Push current section if it has content
+      if (current.paragraphs.length > 0 || current.heading) {
+        sections.push(current);
+      }
+      current = { heading: headingMatch[1], paragraphs: [] };
+    } else {
+      current.paragraphs.push(line);
+    }
+  }
+  if (current.paragraphs.length > 0 || current.heading) {
+    sections.push(current);
+  }
+
+  // If no section headings were detected, fall back to paragraph rendering
+  const hasSections = sections.some(s => s.heading !== null);
+
+  if (!hasSections) {
+    // Legacy / plain-text fallback
+    const paragraphs = text.split(/\n+/).filter(p => p.trim());
+    return (
+      <div className="space-y-3 text-sm leading-relaxed text-gray-800 print:text-xs">
+        {paragraphs.map((para, idx) => {
+          const isRecommendation = RECOMMENDATION_TRIGGERS.some(t => new RegExp(t, 'i').test(para));
+          const isTreatment = TREATMENT_TRIGGERS.some(t => new RegExp(t, 'i').test(para));
+          const isDemographics = idx === 0;
+          let containerClass = 'text-gray-800';
+          let borderClass = '';
+          if (isDemographics) {
+            containerClass = 'font-medium text-gray-900';
+          } else if (isRecommendation) {
+            borderClass = 'border-l-4 border-emerald-400 pl-3 bg-emerald-50 rounded-r-lg py-2 pr-2';
+          } else if (isTreatment) {
+            borderClass = 'border-l-4 border-blue-300 pl-3';
+          }
+          return (
+            <p key={idx} className={`${containerClass} ${borderClass}`}>
+              {isDemographics ? renderDemographics(para) : highlightParagraph(para)}
+            </p>
+          );
+        })}
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-3 text-sm leading-relaxed text-gray-800 print:text-xs">
-      {paragraphs.map((para, idx) => {
-        const isRecommendation = RECOMMENDATION_TRIGGERS.some(t => new RegExp(t, 'i').test(para));
-        const isTreatment = TREATMENT_TRIGGERS.some(t => new RegExp(t, 'i').test(para));
-        const isDemographics = idx === 0; // First paragraph = demographics
-
-        let containerClass = 'text-gray-800';
-        let borderClass = '';
-
-        if (isDemographics) {
-          containerClass = 'font-medium text-gray-900';
-        } else if (isRecommendation) {
-          borderClass = 'border-l-4 border-emerald-400 pl-3 bg-emerald-50 rounded-r-lg py-2 pr-2';
-          containerClass = 'text-gray-800';
-        } else if (isTreatment) {
-          borderClass = 'border-l-4 border-blue-300 pl-3';
-        }
-
+    <div className="space-y-4 print:space-y-3">
+      {sections.map((section, si) => {
+        const style = section.heading ? getSectionStyle(section.heading) : null;
         return (
-          <p key={idx} className={`${containerClass} ${borderClass}`}>
-            {isDemographics
-              ? renderDemographics(para)
-              : highlightParagraph(para)}
-          </p>
+          <div key={si} className="print:break-inside-avoid">
+            {section.heading && style && (
+              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-t-lg border-l-4 ${style.border} ${style.bg} mb-1`}>
+                <span className={`text-xs font-bold uppercase tracking-wide ${style.label}`}>
+                  {section.heading}
+                </span>
+              </div>
+            )}
+            <div className={`space-y-1.5 ${section.heading && style ? `pl-3 border-l-4 ${style.border} border-opacity-30` : ''}`}>
+              {section.paragraphs.map((para, pi) => {
+                const isFirst = si === 0 && pi === 0;
+                return (
+                  <p key={pi} className={`text-sm leading-relaxed text-gray-800 ${isFirst ? 'font-medium' : ''}`}>
+                    {isFirst ? renderDemographics(para) : highlightParagraph(para)}
+                  </p>
+                );
+              })}
+            </div>
+          </div>
         );
       })}
     </div>
@@ -490,23 +575,16 @@ function DischargeReportPage() {
               )}
             </div>
 
-            {/* Legend (read-only view only) */}
+            {/* Section count badge */}
             {hasReport && !isEditing && (
-              <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500 pb-1 border-b border-gray-100 print:hidden">
-                <span className="font-medium text-gray-600 mr-1">{t('discharge.legend', 'Key')}: </span>
-                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-indigo-50 border border-indigo-200 text-indigo-800 font-semibold">
-                  {t('discharge.legendDemo', 'Demographics')}
+              <div className="flex items-center gap-2 text-xs text-gray-400 pb-1 border-b border-gray-100 print:hidden">
+                <span className="px-1.5 py-0.5 rounded bg-indigo-50 border border-indigo-100 text-indigo-700 font-semibold">
+                  {t('discharge.structuredReport', 'Structured Discharge Record')}
                 </span>
-                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-blue-50 border border-blue-100 text-blue-800">
+                <span className="px-1.5 py-0.5 rounded bg-blue-50 border border-blue-100 text-blue-700">
                   {t('discharge.legendValues', 'Clinical Values')}
                 </span>
-                <span className="inline-flex items-center gap-1 border-l-4 border-emerald-400 pl-2 bg-emerald-50 rounded-r py-0.5">
-                  {t('discharge.legendRecs', 'Recommendations')}
-                </span>
-                <span className="inline-flex items-center gap-1 border-l-4 border-blue-300 pl-2 py-0.5">
-                  {t('discharge.legendTreatment', 'Treatment')}
-                </span>
-                <span className="font-semibold text-gray-800">{t('discharge.legendDx', 'Diagnosis Terms')}</span>
+                <span className="font-semibold text-gray-700">{t('discharge.legendDx', 'Diagnosis Terms')}</span>
               </div>
             )}
 

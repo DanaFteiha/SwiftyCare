@@ -177,8 +177,9 @@ function CasePage() {
     );
   };
 
+  // Restore previously ordered tests for both tests_ordered and closed states
   useEffect(() => {
-    if (caseData?.status === 'closed') {
+    if (caseData?.status === 'closed' || caseData?.status === 'tests_ordered') {
       const ordered = Array.isArray(caseData.orderedTests) ? caseData.orderedTests : [];
       setSelectedTests(ordered);
     }
@@ -378,22 +379,37 @@ function CasePage() {
                 <h1 className="text-2xl font-bold text-gray-900">
                   {t('case.title', 'Medical Summary')}: {caseData.patientName}
                 </h1>
-                <p className="text-sm text-gray-600">
-                  {t('case.id', 'ID')}: {caseData.nationalId}, {t('case.age', 'Age')}: {personalInfo.age || 'N/A'}, {t('case.status', 'Status')}: {caseData.status}
+                <p className="text-sm text-gray-600 flex items-center gap-2">
+                  {t('case.id', 'ID')}: {caseData.nationalId} &nbsp;·&nbsp;
+                  {t('case.age', 'Age')}: {personalInfo.age || 'N/A'} &nbsp;·&nbsp;
+                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${
+                    caseData.status === 'closed'       ? 'bg-green-100 text-green-800' :
+                    caseData.status === 'tests_ordered'? 'bg-amber-100 text-amber-800' :
+                    caseData.status === 'in_progress'  ? 'bg-blue-100 text-blue-800'  :
+                                                         'bg-gray-100 text-gray-700'
+                  }`}>
+                    {t(`case.statusLabel.${caseData.status}`, caseData.status)}
+                  </span>
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              {caseData?.status !== 'closed' && (
+              {/* Discharge report button — always visible until finalized */}
+              {caseData?.status !== 'closed' ? (
                 <button
                   onClick={() => navigate(`/doctor/case/${id}/discharge-report`)}
-                  className="flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-green-600 hover:bg-green-700 text-white rounded-lg shadow-sm transition-colors"
+                  className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white rounded-lg shadow-sm transition-colors ${
+                    caseData?.status === 'tests_ordered'
+                      ? 'bg-amber-600 hover:bg-amber-700'
+                      : 'bg-green-600 hover:bg-green-700'
+                  }`}
                 >
                   <ClipboardList className="w-4 h-4" />
-                  {t('discharge.proceedButton', 'Proceed to Discharge Report')}
+                  {caseData?.status === 'tests_ordered'
+                    ? t('discharge.prepareReport', 'Prepare Discharge Report')
+                    : t('discharge.proceedButton', 'Proceed to Discharge Report')}
                 </button>
-              )}
-              {caseData?.dischargeReport?.finalized && (
+              ) : (
                 <button
                   onClick={() => navigate(`/doctor/case/${id}/discharge-report`)}
                   className="flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-gray-600 hover:bg-gray-700 text-white rounded-lg shadow-sm transition-colors"
@@ -416,6 +432,37 @@ function CasePage() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 py-8">
+
+        {/* ── Workflow status banner ── */}
+        {caseData?.status === 'tests_ordered' && (
+          <div className="mb-6 flex items-start gap-3 px-5 py-4 rounded-xl border border-amber-300 bg-amber-50 text-amber-900">
+            <CheckCircle className="w-5 h-5 shrink-0 mt-0.5 text-amber-600" />
+            <div className="flex-1">
+              <p className="font-semibold text-sm">
+                {t('case.testsOrderedBanner', 'Tests have been ordered.')}
+              </p>
+              <p className="text-xs mt-0.5 text-amber-800">
+                {t('case.testsOrderedHint', 'Review the results when available, then prepare and finalize the discharge report to close this case.')}
+              </p>
+            </div>
+            <button
+              onClick={() => navigate(`/doctor/case/${id}/discharge-report`)}
+              className="shrink-0 px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold rounded-lg transition"
+            >
+              {t('discharge.prepareReport', 'Prepare Discharge Report')}
+            </button>
+          </div>
+        )}
+
+        {caseData?.status === 'closed' && (
+          <div className="mb-6 flex items-center gap-3 px-5 py-3 rounded-xl border border-green-300 bg-green-50 text-green-900">
+            <CheckCircle className="w-5 h-5 shrink-0 text-green-600" />
+            <p className="text-sm font-medium">
+              {t('case.closedBanner', 'This case has been closed. The discharge report has been finalized.')}
+            </p>
+          </div>
+        )}
+
         {/* Tabs */}
         <div className="mb-6">
           <div className="grid grid-cols-1 sm:grid-cols-3 rounded-lg border border-gray-200 overflow-hidden bg-white">
@@ -713,6 +760,12 @@ function CasePage() {
                             </p>
                           ) : (
                             <div className="space-y-6">
+                              {caseData?.status === 'tests_ordered' && (
+                                <div className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 flex items-center gap-2">
+                                  <CheckCircle className="w-4 h-4 shrink-0 text-amber-600" />
+                                  {t('case.aiDiagnosis.testsOrdered', 'Tests have been ordered. You can update the selection before finalizing the discharge report.')}
+                                </div>
+                              )}
                               {caseData?.status === 'closed' && (
                                 <div className="rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
                                   {t('case.aiDiagnosis.caseClosed', 'Case is closed. Ordering tests is disabled.')}
@@ -829,6 +882,7 @@ function CasePage() {
                                         (selectedTests.length === 0 && !(otherTestEnabled && otherTestText.trim())) ||
                                         orderTestsMutation.isPending ||
                                         caseData?.status === 'closed'
+                                        // Note: tests_ordered allows re-ordering; only closed truly blocks
                                       }
                                       className="bg-green-600 hover:bg-green-700"
                                     >

@@ -673,6 +673,16 @@ const resources = {
       error: "Error loading case",
       backToDashboard: "Back to Dashboard",
       backToList: "Back to list",
+      statusLabel: {
+        open: "Open",
+        in_progress: "In Progress",
+        tests_ordered: "Tests Ordered",
+        closed: "Closed",
+        cancelled: "Cancelled"
+      },
+      testsOrderedBanner: "Tests have been ordered.",
+      testsOrderedHint: "Review the results when available, then prepare and finalize the discharge report to close this case.",
+      closedBanner: "This case has been closed. The discharge report has been finalized.",
       tabs: {
         summary: "Summary and Vital Signs",
         physical: "Physical Examination",
@@ -739,6 +749,8 @@ const resources = {
         recommendedTests: "Recommended Tests",
         otherTest: "Other (specify)",
         otherTestPlaceholder: "Enter test name or description...",
+        caseClosed: "Case is closed. Ordering tests is disabled.",
+        testsOrdered: "Tests have been ordered. You can update the selection before finalizing the discharge report.",
         clickToExpand: "Click \"Show Details\" above to view AI diagnosis",
         diagnoses: {
           acuteMi: "Acute Myocardial Infarction",
@@ -783,6 +795,7 @@ const resources = {
     discharge: {
       title: "Discharge Report",
       proceedButton: "Proceed to Discharge Report",
+      prepareReport: "Prepare Discharge Report",
       viewReport: "View Discharge Report",
       loading: "Loading...",
       finalized: "Finalized",
@@ -808,6 +821,7 @@ const resources = {
       saving: "Saving...",
       saved: "Saved",
       legend: "Key",
+      structuredReport: "Structured Discharge Record",
       legendDemo: "Demographics",
       legendValues: "Clinical Values",
       legendRecs: "Recommendations",
@@ -1406,6 +1420,16 @@ const resources = {
       error: "שגיאה בטעינת מקרה",
       backToDashboard: "חזור ללוח הבקרה",
       backToList: "חזור לרשימה",
+      statusLabel: {
+        open: "פתוח",
+        in_progress: "בטיפול",
+        tests_ordered: "בדיקות הוזמנו",
+        closed: "סגור",
+        cancelled: "בוטל"
+      },
+      testsOrderedBanner: "הבדיקות הוזמנו.",
+      testsOrderedHint: "בדוק את התוצאות כשיהיו זמינות, לאחר מכן הכן וסיים את דוח השחרור כדי לסגור את המקרה.",
+      closedBanner: "מקרה זה נסגר. דוח השחרור הושלם.",
       tabs: {
         summary: "תקציר וסימנים חיוניים",
         physical: "בדיקה גופנית",
@@ -1474,6 +1498,7 @@ const resources = {
         otherTestPlaceholder: "הזן שם הבדיקה או תיאור...",
         clickToExpand: "לחץ על \"הצג פרטים\" למעלה כדי לראות את אבחנת ה-AI",
         caseClosed: "המקרה נסגר. הזמנת בדיקות חסומה.",
+        testsOrdered: "הבדיקות הוזמנו. ניתן לעדכן את הבחירה לפני סיום דוח השחרור.",
         diagnoses: {
           acuteMi: "אוטם שריר הלב החריף",
           unstableAngina: "תעוקת חזה לא יציבה",
@@ -1524,6 +1549,7 @@ const resources = {
     discharge: {
       title: "דוח שחרור",
       proceedButton: "המשך לדוח שחרור",
+      prepareReport: "הכן דוח שחרור",
       viewReport: "צפה בדוח השחרור",
       loading: "טוען...",
       finalized: "הושלם",
@@ -1549,6 +1575,7 @@ const resources = {
       saving: "שומר...",
       saved: "נשמר",
       legend: "מקרא",
+      structuredReport: "רשומת שחרור מובנית",
       legendDemo: "פרטים דמוגרפיים",
       legendValues: "ערכים קליניים",
       legendRecs: "המלצות",

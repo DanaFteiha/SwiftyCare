@@ -151,7 +151,7 @@ router.patch("/:id/status", async (req, res) => {
       });
     }
 
-    const allowedStatuses = ["open", "in_progress", "closed", "cancelled"];
+    const allowedStatuses = ["open", "in_progress", "tests_ordered", "closed", "cancelled"];
     if (!status || !allowedStatuses.includes(status)) {
       return res.status(400).json({
         error: "Invalid status",
@@ -204,8 +204,10 @@ router.post("/:id/order-tests", async (req, res) => {
       });
     }
 
+    // Tests ordered → move to "tests_ordered" status.
+    // Case closure is intentionally deferred to discharge-report/finalize.
     const updateFields: Record<string, unknown> = {
-      status: "closed",
+      status: "tests_ordered",
       orderedAt: new Date(),
     };
     if (tests && Array.isArray(tests)) {
@@ -575,47 +577,64 @@ router.post("/:id/discharge-report/generate", async (req, res) => {
     // Prefer text passed from frontend (may include manual edits) over saved draft
     const existingDraft = currentText || caseDoc.dischargeReport?.draft || "";
 
-    let systemMsg = "You are a senior emergency department physician writing official discharge summaries. Use formal clinical language, full sentences, and standard ED documentation style.";
+    const systemMsg = "You are a senior emergency department physician producing a formal, structured clinical discharge record for an electronic medical record (EMR) system. Use precise medical language, complete sentences, and standard ED documentation conventions.";
     let userMsg = "";
 
     if (action === "improve" && existingDraft) {
-      userMsg = `Rewrite the following discharge summary using more precise, professional clinical language while keeping all clinical facts intact:\n\n${existingDraft}`;
+      userMsg = `Rewrite the following discharge record using more precise, professional clinical language. Preserve all clinical facts, section headings, and the overall structure. Only improve wording and medical terminology:\n\n${existingDraft}`;
     } else if (action === "shorten" && existingDraft) {
-      userMsg = `Create a concise version of this discharge summary (3-5 sentences), preserving the key clinical facts:\n\n${existingDraft}`;
+      userMsg = `Create a concise version of this discharge record (approximately half the length). Preserve all section headings and critical clinical facts. Remove redundancy:\n\n${existingDraft}`;
     } else {
-      userMsg = `Generate a professional emergency department discharge summary using the following patient information.
+      // Derive additional context fields
+      const formFilledBy = personalInfo.formFilledBy || "Unknown";
+      const cognitiveState = personalInfo.cognitiveState || "Not recorded";
+      const functionalState = personalInfo.functionalState || "Not recorded";
+      const cancerStatus = medicalHistory.cancerStatus ? ` (${medicalHistory.cancerStatus})` : "";
+      const cancerType = medicalHistory.cancerType ? `, type: ${medicalHistory.cancerType}` : "";
+      const doesNotRememberMeds = medications?.doesNotRememberMedications === true;
+      const selectedMedsList = Object.values(medications?.groups || {}).flat().join(", ") || "None reported";
+      const medsLine = doesNotRememberMeds ? "Patient does not remember medications" : (selectedMedsList || "None reported");
 
-Follow this exact structure (write each section as a flowing paragraph, no headings needed):
-1. Patient demographics (age, gender)
-2. Medical history / background
-3. Reason for ED visit (chief complaint)
-4. Emergency department evaluation
-5. Physical examination findings
-6. Laboratory and imaging results
-7. Treatment administered
-8. Clinical impression (diagnosis)
-9. Disposition
-10. Discharge recommendations
+      userMsg = `Generate a complete, professional Emergency Department Discharge Record using the structured case data below.
 
-Use professional clinical language similar to hospital discharge summaries.
-Write in full sentences. Do not use bullet points or section headers in the output.
+FORMAT RULES:
+- Use this exact section format: **Section Name** followed by the paragraph content.
+- Write each section as 2-4 full clinical sentences.
+- Use formal medical language throughout.
+- Do NOT skip sections — if data is unavailable, state it professionally (e.g., "No results available at time of discharge").
+- Ordered investigations must appear explicitly by name in section 6 and any relevant results in section 7.
+- Recommended follow-up investigations must appear in section 10.
 
-Patient Data:
-- Name: ${caseDoc.patientName}
-- Age: ${personalInfo.age || "Unknown"}
-- Gender: ${personalInfo.gender || "Unknown"}
-- National ID: ${caseDoc.nationalId}
+REQUIRED SECTIONS IN ORDER:
+1. **Patient Summary**
+2. **Relevant Medical History**
+3. **Presenting Complaint**
+4. **Clinical Evaluation**
+5. **Investigation Summary**
+6. **Investigations Performed / Ordered**
+7. **Key Findings and Results**
+8. **Treatment Administered**
+9. **Clinical Impression**
+10. **Recommended Follow-Up Investigations**
+11. **Discharge Recommendations**
+12. **Disposition**
 
-Medical History: ${activeConditions}
+CASE DATA:
 
-Allergies: ${medications?.allergies?.allergyDetails || medications?.allergies?.hasAllergies || "None reported"}
+Patient: ${caseDoc.patientName}, Age: ${personalInfo.age || "Unknown"}, Gender: ${personalInfo.gender || "Unknown"}, ID: ${caseDoc.nationalId}
+Form filled by: ${formFilledBy} | Cognitive state: ${cognitiveState} | Functional state: ${functionalState}
+Marital status: ${personalInfo.maritalStatus || "Not recorded"}
 
-Chief Complaint / Current Illness: ${activeSymptoms}
+Medical History: ${activeConditions}${medicalHistory.cancer ? cancerStatus + cancerType : ""}
+Allergies: ${medications?.allergies?.allergyDetails || (medications?.allergies?.hasAllergies === "yes" ? "Yes — details unknown" : "None reported")}
+Current Medications: ${medsLine}
 
-Adaptive Questionnaire Summary:
+Chief Complaint / Presenting Symptoms: ${activeSymptoms}
+
+Adaptive Symptom Questionnaire (patient-reported details):
 ${JSON.stringify(adaptiveQ, null, 2)}
 
-Vital Signs:
+Vital Signs on Presentation:
 - Blood Pressure: ${vitals.bp || "Not recorded"}
 - Heart Rate: ${vitals.hr ? vitals.hr + " bpm" : "Not recorded"}
 - SpO2: ${vitals.spo2 ? vitals.spo2 + "%" : "Not recorded"}
@@ -623,11 +642,16 @@ Vital Signs:
 - Respiratory Rate: ${vitals.respRate ? vitals.respRate + " /min" : "Not recorded"}
 - Pain Score: ${vitals.painScore ? vitals.painScore + "/10" : "Not recorded"}
 
-AI Summary: ${caseDoc.summary || "Not generated"}
+AI Clinical Summary:
+${caseDoc.summary || "Not yet generated"}
 
-AI Diagnosis: ${caseDoc.aiDiagnosis || "Not generated"}
+AI Differential Diagnosis:
+${caseDoc.aiDiagnosis || "Not yet generated"}
 
-Ordered Tests / Treatments: ${orderedTestsList}`;
+Investigations Ordered by Physician:
+${orderedTestsList}
+
+NOTE: If ordered investigations do not yet have results documented, state them as "ordered; results pending at time of discharge" in section 7. List them by name in section 6.`;
     }
 
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -637,8 +661,8 @@ Ordered Tests / Treatments: ${orderedTestsList}`;
         { role: "system", content: systemMsg },
         { role: "user", content: userMsg }
       ],
-      temperature: 0.35,
-      max_tokens: 1200
+      temperature: 0.3,
+      max_tokens: 2000
     });
 
     const report = completion.choices[0]?.message?.content?.trim() || "";
