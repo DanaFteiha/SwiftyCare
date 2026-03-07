@@ -289,6 +289,7 @@ function CasePage() {
       if (currentSection === 'tests') {
         const lowerLine = line.toLowerCase();
 
+        // Urgency on its own line (legacy format)
         if (lowerLine.match(/^-?\s*urgency[:\s]/)) {
           const urgencyMatch = line.match(/\b(high|medium|low)\b/i);
           if (urgencyMatch && tests.length > 0) {
@@ -297,26 +298,29 @@ function CasePage() {
           continue;
         }
 
-        if (lowerLine.match(/probability[:\s]|^\s*-?\s*\d{1,3}\s*%\s*$/)) {
-          continue;
-        }
-        if (lowerLine.match(/^-?\s*(rationale|supporting evidence|summary|note)[:\s]/)) {
-          if (lowerLine.match(/^-?\s*rationale[:\s]/) && tests.length > 0) {
+        // Rationale line
+        if (lowerLine.match(/^-?\s*rationale[:\s]/)) {
+          if (tests.length > 0) {
             const rationale = line.replace(/^-?\s*rationale[:\s]*/i, '').trim();
             if (rationale) tests[tests.length - 1].rationale = rationale;
           }
           continue;
         }
-        if (line.endsWith(':')) {
+
+        // Skip non-test lines
+        if (lowerLine.match(/probability[:\s]|^\s*-?\s*\d{1,3}\s*%\s*$/) ||
+            lowerLine.match(/^-?\s*(supporting evidence|summary|note|important|critical rule|examples?)[:\s]/) ||
+            lowerLine.match(/^(do not|only include|list each|this section|invalid|valid)/i) ||
+            line.endsWith(':')) {
           continue;
         }
 
-        const diagnosisNames = diagnoses.map(d => d.name.toLowerCase());
         const testNameMatch = line.match(/^\d+[\).]\s*(.+)$/) || line.match(/^-\s+(.+)$/);
         if (testNameMatch) {
           let rawName = testNameMatch[1].trim();
 
-          const urgencyInline = rawName.match(/\s*-\s*urgency[:\s]*\s*(high|medium|low)\s*$/i);
+          // Extract inline urgency: "CT Head - Urgency: high"
+          const urgencyInline = rawName.match(/\s*[-–]\s*urgency[:\s]*\s*(high|medium|low)\s*$/i);
           let inlineUrgency: string | undefined;
           if (urgencyInline) {
             inlineUrgency = urgencyInline[1].toLowerCase();
@@ -324,10 +328,26 @@ function CasePage() {
           }
 
           const name = rawName.replace(/\s*[-–—:]\s*$/, '').replace(/\.+$/, '').trim();
-          const isNotTest = /^(risk factors?|can present|absence of|common in|pain score|this |a thorough|assessment is|the above|based on|if |should be|consider)/i.test(name);
-          const isDiagnosisName = diagnosisNames.some(d => name.toLowerCase().includes(d) && !name.toLowerCase().includes('for '));
 
-          if (name && name.length > 2 && name.length < 80 && !isNotTest && !isDiagnosisName) {
+          // Positive allow-list: only accept strings that look like a diagnostic investigation.
+          // Rejects disease/condition names that don't contain investigation keywords.
+          const INVESTIGATION_RE = /\b(x-?ray|radiograph|ct|mri|scan|ultrasound|echo|echocardiogram|ecg|ekg|eeg|emg|holter|stress test|blood|cbc|cmp|bmp|crp|esr|troponin|d-dimer|bnp|nt-probnp|lactate|glucose|hba1c|tsh|lft|rft|lipid|thyroid|electrolyte|coagulation|pt|inr|ptt|abg|vbg|urinalysis|urine|culture|sensitivity|sputum|stool|fecal|occult|biopsy|aspirat|lumbar puncture|spinal tap|endoscopy|colonoscopy|bronchoscopy|angiograph|doppler|spirometry|peak flow|swab|pcr|serology|antibody|antigen|titer|panel|screen|test|investigation|imaging|exam|level|analysis|smear|gram stain|procalcitonin|ferritin|fibrinogen|amylase|lipase|albumin|hemogram|hematology|toxicology|drug screen)\b/i;
+
+          // Reject anything that looks like a diagnosis sentence rather than a test name
+          const DIAGNOSIS_SENTENCE_RE = /^(risk |can |absence |common |this |a thorough|assessment |the above|based on|if |should |consider |secondary |primary |acute |chronic |suspected |possible |likely |rule out |to (assess|evaluate|rule|check|confirm|determine)|patient )/i;
+
+          // Also reject if the name contains no investigation keyword
+          const looksLikeTest = INVESTIGATION_RE.test(name) && !DIAGNOSIS_SENTENCE_RE.test(name);
+
+          // Additionally cross-check: if the name exactly matches a diagnosis we already parsed, skip it
+          const diagnosisNames = diagnoses.map(d => d.name.toLowerCase());
+          const isDuplicateDx = diagnosisNames.some(d => {
+            const stripped = name.toLowerCase().replace(/[^a-z0-9 ]/g, '');
+            const dStripped = d.replace(/[^a-z0-9 ]/g, '');
+            return stripped === dStripped || (stripped.length > 10 && dStripped.includes(stripped));
+          });
+
+          if (name && name.length > 2 && name.length < 100 && looksLikeTest && !isDuplicateDx) {
             tests.push({
               id: toSlug(name),
               name,

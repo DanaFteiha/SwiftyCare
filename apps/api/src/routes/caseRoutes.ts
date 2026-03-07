@@ -483,13 +483,47 @@ Vital Signs:
 - Temperature: ${caseDoc.vitals?.temp || 'Not recorded'}°C
 - Pain Score: ${caseDoc.vitals?.painScore || 'Not recorded'}/10
 
-Please provide:
-1. Top 3-4 differential diagnoses with probability percentages
-2. Supporting evidence for each diagnosis
-3. Recommended diagnostic tests with urgency levels (high/medium/low)
-4. Brief rationale for test recommendations
+Respond using EXACTLY this structure:
 
-Format your response as structured medical analysis suitable for physician review.
+## Differential Diagnoses
+
+1. [Diagnosis Name] - [XX]%
+Probability: [XX]%
+Supporting Evidence:
+- [evidence point]
+- [evidence point]
+
+2. [Diagnosis Name] - [XX]%
+Probability: [XX]%
+Supporting Evidence:
+- [evidence point]
+
+(repeat for 3-4 diagnoses)
+
+## Recommended Diagnostic Tests
+
+CRITICAL RULE: This section must contain ONLY diagnostic investigations a physician would order in an ED. 
+Do NOT list diseases, conditions, or diagnoses here — those belong in the section above.
+Only include items such as: blood tests, imaging, ECG, urinalysis, cultures, biopsies, and other investigations.
+
+List each test as:
+- [Test Name] - Urgency: [high/medium/low]
+  Rationale: [one sentence]
+
+Examples of VALID entries:
+- CT Head without contrast - Urgency: high
+  Rationale: Rule out intracranial hemorrhage or mass lesion.
+- CBC + CRP - Urgency: high
+  Rationale: Assess for infection or inflammatory process.
+- ECG - Urgency: high
+  Rationale: Evaluate for cardiac arrhythmia.
+- Chest X-ray - Urgency: medium
+  Rationale: Assess for pneumonia or pleural effusion.
+
+Examples of INVALID entries (DO NOT include these):
+- Pneumonia (this is a diagnosis, not a test)
+- Migraine (this is a diagnosis, not a test)
+- Hypertensive Crisis (this is a diagnosis, not a test)
 `;
 
     // Generate AI diagnosis
