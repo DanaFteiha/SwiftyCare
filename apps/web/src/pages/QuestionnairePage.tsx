@@ -22,28 +22,41 @@ import HeadacheLocationPicker from '@/components/questionnaire/HeadacheLocationP
 
 interface QuestionnaireData {
   personalInfo: {
+    // Who is filling out the form — helps assess patient cognitive status
+    formFilledBy: string;  // 'self' | 'companion'
     gender: string;
     age: string;
     maritalStatus: string;
-    cognitiveState: string;
+    cognitiveState: string;  // 'cognitivelyIntact' | 'cognitivelyImpaired' | 'memoryDecline'
     functionalState: string;
   };
   medicalHistory: {
     none: boolean;
     diabetes: boolean;
     hypertension: boolean;
+    // condition key preserved; label updated to "High Blood Lipids"
     dyslipidemia: boolean;
     asthma: boolean;
     ischemicHeartDisease: boolean;
     cancer: boolean;
+    // Cancer structured sub-fields
+    cancerStatus: string;   // 'active' | 'pastHistory' | ''
+    cancerType: string;     // free text
     previousStroke: boolean;
     hypothyroidism: boolean;
     copd: boolean;
+    // New conditions
+    renalFailure: boolean;
+    smoking: boolean;
+    heartFailure: boolean;
+    atrialFibrillation: boolean;
+    immunocompromised: boolean;
     otherDiseases: boolean;
     otherDiseasesText: string;
     previousSurgeries: boolean;
   };
   medications: {
+    doesNotRememberMedications: boolean;
     allergies: {
       hasAllergies: string;
       allergyDetails: string;
@@ -54,29 +67,43 @@ interface QuestionnaireData {
       bloodThinners: string[];
       immunosuppressants: string[];
       miscellaneous: string[];
+      cardiac: string[];
     };
   };
   currentIllness: {
+    // ── Pain group ──
     chestPain: boolean;
-    fever: boolean;
-    injuryTrauma: boolean;
-    swellingEdema: boolean;
-    abdominalPain: boolean;
-    shortnessOfBreath: boolean;
-    changeInConsciousness: boolean;
-    nauseaVomitingDiarrhea: boolean;
     headache: boolean;
-    chestPainSternum: boolean;
-    dizziness: boolean;
+    abdominalPain: boolean;
+    backPain: boolean;
+    flankPain: boolean;       // new
     neckPain: boolean;
-    fatigueWeakness: boolean;
     jointPain: boolean;
     painInLimbs: boolean;
     earPain: boolean;
-    eyeProblems: boolean;
-    backPain: boolean;
-    headInjury: boolean;
     injectionSitePain: boolean;
+    // ── Respiratory/systemic ──
+    fever: boolean;
+    shortnessOfBreath: boolean;
+    cough: boolean;           // new
+    // ── GI symptoms ──
+    nauseaVomitingDiarrhea: boolean;  // now represents "Nausea" (vomiting/diarrhea separated)
+    vomiting: boolean;        // new (was merged into nauseaVomitingDiarrhea)
+    diarrhea: boolean;        // new (was merged into nauseaVomitingDiarrhea)
+    rash: boolean;            // new
+    // ── Neurological / general ──
+    dizziness: boolean;
+    fatigueWeakness: boolean;         // label: "General weakness" (removed "neurological")
+    syncope: boolean;                 // new (previously part of changeInConsciousness label)
+    alteredMentalStatus: boolean;     // new standalone
+    changeInConsciousness: boolean;
+    // ── Trauma / other ──
+    swellingEdema: boolean;
+    eyeProblems: boolean;
+    injuryTrauma: boolean;
+    headInjury: boolean;
+    abnormalBloodTests: boolean;      // new
+    // chestPainSternum removed per product requirement
   };
   adaptiveQuestions: {
     chiefComplaint: string;
@@ -103,6 +130,7 @@ interface QuestionnaireData {
 
 const initialData: QuestionnaireData = {
   personalInfo: {
+    formFilledBy: '',
     gender: '',
     age: '',
     maritalStatus: '',
@@ -117,14 +145,22 @@ const initialData: QuestionnaireData = {
     asthma: false,
     ischemicHeartDisease: false,
     cancer: false,
+    cancerStatus: '',
+    cancerType: '',
     previousStroke: false,
     hypothyroidism: false,
     copd: false,
+    renalFailure: false,
+    smoking: false,
+    heartFailure: false,
+    atrialFibrillation: false,
+    immunocompromised: false,
     otherDiseases: false,
     otherDiseasesText: '',
     previousSurgeries: false
   },
   medications: {
+    doesNotRememberMedications: false,
     allergies: {
       hasAllergies: '',
       allergyDetails: ''
@@ -134,30 +170,38 @@ const initialData: QuestionnaireData = {
       diabetes: [],
       bloodThinners: [],
       immunosuppressants: [],
-      miscellaneous: []
+      miscellaneous: [],
+      cardiac: []
     }
   },
   currentIllness: {
     chestPain: false,
-    fever: false,
-    injuryTrauma: false,
-    swellingEdema: false,
-    abdominalPain: false,
-    shortnessOfBreath: false,
-    changeInConsciousness: false,
-    nauseaVomitingDiarrhea: false,
     headache: false,
-    chestPainSternum: false,
-    dizziness: false,
+    abdominalPain: false,
+    backPain: false,
+    flankPain: false,
     neckPain: false,
-    fatigueWeakness: false,
     jointPain: false,
     painInLimbs: false,
     earPain: false,
+    injectionSitePain: false,
+    fever: false,
+    shortnessOfBreath: false,
+    cough: false,
+    nauseaVomitingDiarrhea: false,
+    vomiting: false,
+    diarrhea: false,
+    rash: false,
+    dizziness: false,
+    fatigueWeakness: false,
+    syncope: false,
+    alteredMentalStatus: false,
+    changeInConsciousness: false,
+    swellingEdema: false,
     eyeProblems: false,
-    backPain: false,
+    injuryTrauma: false,
     headInjury: false,
-    injectionSitePain: false
+    abnormalBloodTests: false
   },
   adaptiveQuestions: {
     chiefComplaint: '',
@@ -200,6 +244,11 @@ const conditionIcons: Record<string, React.ReactNode> = {
   previousStroke:     <Brain className="w-4 h-4" />,
   hypothyroidism:     <Pill className="w-4 h-4" />,
   copd:               <Wind className="w-4 h-4" />,
+  renalFailure:       <Activity className="w-4 h-4" />,
+  smoking:            <Wind className="w-4 h-4" />,
+  heartFailure:       <Heart className="w-4 h-4" />,
+  atrialFibrillation: <Heart className="w-4 h-4" />,
+  immunocompromised:  <Shield className="w-4 h-4" />,
   otherDiseases:      <Plus className="w-4 h-4" />,
   previousSurgeries:  <Scissors className="w-4 h-4" />,
 };
@@ -293,6 +342,7 @@ function QuestionnairePage() {
 
   const validatePersonalScreen = (): boolean => {
     const errs: Record<string, string> = {};
+    if (!formData.personalInfo.formFilledBy) errs.formFilledBy = t('questionnaire.errors.formFilledByRequired', 'Please indicate who is filling the form');
     if (!formData.personalInfo.gender) errs.gender = t('questionnaire.errors.genderRequired');
     const ageErr = validateAge(formData.personalInfo.age);
     if (ageErr) errs.age = ageErr;
@@ -330,6 +380,7 @@ function QuestionnairePage() {
 
   // isPersonalValid — used for live Next-button disable state on Screen A
   const isPersonalValid =
+    !!formData.personalInfo.formFilledBy &&
     !!formData.personalInfo.gender &&
     !!formData.personalInfo.age &&
     !validateAge(formData.personalInfo.age) &&
@@ -371,7 +422,9 @@ function QuestionnairePage() {
         setScreen(SCREEN_ALLERGIES);
       } else if (screen === SCREEN_ALLERGIES) {
         if (!validateAllergiesScreen()) return;
-        setScreen(activeMedGroups.length > 0 ? SCREEN_MED_START : SCREEN_ILLNESS);
+        // Skip medication group screens if patient doesn't remember their medications
+        const skipMeds = formData.medications.doesNotRememberMedications;
+        setScreen((!skipMeds && activeMedGroups.length > 0) ? SCREEN_MED_START : SCREEN_ILLNESS);
       } else if (screen >= SCREEN_MED_START && screen < SCREEN_ILLNESS) {
         setScreen(screen + 1);
       } else if (screen === SCREEN_ILLNESS) {
@@ -550,6 +603,20 @@ function QuestionnairePage() {
           <p className="text-sm text-gray-500 mt-1">{t('questionnaire.wizard.personalSubtitle')}</p>
         </div>
 
+        {/* Who is filling the form — must appear first for cognitive status context */}
+        <div className="space-y-2">
+          <label className="block text-sm font-semibold text-gray-700">{t('questionnaire.personalInfo.formFilledBy')}</label>
+          <RadioCards
+            field="formFilledBy"
+            value={formData.personalInfo.formFilledBy}
+            error={errors.formFilledBy}
+            options={[
+              { value: 'self',      label: t('questionnaire.personalInfo.selfCompleted') },
+              { value: 'companion', label: t('questionnaire.personalInfo.completedByCompanion') },
+            ]}
+          />
+        </div>
+
         {/* Gender */}
         <div className="space-y-2">
           <label className="block text-sm font-semibold text-gray-700">{t('questionnaire.personalInfo.gender')}</label>
@@ -595,7 +662,7 @@ function QuestionnairePage() {
           />
         </div>
 
-        {/* Cognitive State */}
+        {/* Cognitive State — updated options (unconscious removed per product req) */}
         <div className="space-y-2">
           <label className="block text-sm font-semibold text-gray-700">{t('questionnaire.personalInfo.cognitiveState')}</label>
           <RadioCards
@@ -603,9 +670,9 @@ function QuestionnairePage() {
             value={formData.personalInfo.cognitiveState}
             error={errors.cognitiveState}
             options={[
-              { value: 'conscious',   label: t('questionnaire.personalInfo.conscious') },
-              { value: 'confused',    label: t('questionnaire.personalInfo.confused') },
-              { value: 'unconscious', label: t('questionnaire.personalInfo.unconscious') },
+              { value: 'cognitivelyIntact',   label: t('questionnaire.personalInfo.cognitivelyIntact') },
+              { value: 'cognitivelyImpaired', label: t('questionnaire.personalInfo.cognitivelyImpaired') },
+              { value: 'memoryDecline',       label: t('questionnaire.personalInfo.memoryDecline') },
             ]}
           />
         </div>
@@ -629,19 +696,26 @@ function QuestionnairePage() {
 
   // ─── Screen B: Medical History ─────────────────────────────────────────────
   const renderScreenB = () => {
+    // Only boolean condition keys are shown as toggle buttons
     const conditions: Array<{ key: keyof QuestionnaireData['medicalHistory']; labelKey: string }> = [
-      { key: 'none',                labelKey: 'questionnaire.medicalHistory.none' },
-      { key: 'diabetes',            labelKey: 'questionnaire.medicalHistory.diabetes' },
-      { key: 'hypertension',        labelKey: 'questionnaire.medicalHistory.hypertension' },
-      { key: 'dyslipidemia',        labelKey: 'questionnaire.medicalHistory.dyslipidemia' },
-      { key: 'asthma',              labelKey: 'questionnaire.medicalHistory.asthma' },
+      { key: 'none',               labelKey: 'questionnaire.medicalHistory.none' },
+      { key: 'diabetes',           labelKey: 'questionnaire.medicalHistory.diabetes' },
+      { key: 'hypertension',       labelKey: 'questionnaire.medicalHistory.hypertension' },
+      // label updated to "High Blood Lipids" in i18n; condition key preserved
+      { key: 'dyslipidemia',       labelKey: 'questionnaire.medicalHistory.dyslipidemia' },
+      { key: 'asthma',             labelKey: 'questionnaire.medicalHistory.asthma' },
       { key: 'ischemicHeartDisease',labelKey: 'questionnaire.medicalHistory.ischemicHeartDisease' },
-      { key: 'cancer',              labelKey: 'questionnaire.medicalHistory.cancer' },
-      { key: 'previousStroke',      labelKey: 'questionnaire.medicalHistory.previousStroke' },
-      { key: 'hypothyroidism',      labelKey: 'questionnaire.medicalHistory.hypothyroidism' },
-      { key: 'copd',                labelKey: 'questionnaire.medicalHistory.copd' },
-      { key: 'previousSurgeries',   labelKey: 'questionnaire.medicalHistory.previousSurgeries' },
-      { key: 'otherDiseases',       labelKey: 'questionnaire.medicalHistory.otherDiseases' },
+      { key: 'heartFailure',       labelKey: 'questionnaire.medicalHistory.heartFailure' },
+      { key: 'atrialFibrillation', labelKey: 'questionnaire.medicalHistory.atrialFibrillation' },
+      { key: 'cancer',             labelKey: 'questionnaire.medicalHistory.cancer' },
+      { key: 'previousStroke',     labelKey: 'questionnaire.medicalHistory.previousStroke' },
+      { key: 'hypothyroidism',     labelKey: 'questionnaire.medicalHistory.hypothyroidism' },
+      { key: 'copd',               labelKey: 'questionnaire.medicalHistory.copd' },
+      { key: 'renalFailure',       labelKey: 'questionnaire.medicalHistory.renalFailure' },
+      { key: 'smoking',            labelKey: 'questionnaire.medicalHistory.smoking' },
+      { key: 'immunocompromised',  labelKey: 'questionnaire.medicalHistory.immunocompromised' },
+      { key: 'previousSurgeries',  labelKey: 'questionnaire.medicalHistory.previousSurgeries' },
+      { key: 'otherDiseases',      labelKey: 'questionnaire.medicalHistory.otherDiseases' },
     ];
 
     const handleConditionToggle = (key: keyof QuestionnaireData['medicalHistory'], checked: boolean) => {
@@ -657,9 +731,16 @@ function QuestionnairePage() {
             asthma: false,
             ischemicHeartDisease: false,
             cancer: false,
+            cancerStatus: '',
+            cancerType: '',
             previousStroke: false,
             hypothyroidism: false,
             copd: false,
+            renalFailure: false,
+            smoking: false,
+            heartFailure: false,
+            atrialFibrillation: false,
+            immunocompromised: false,
             otherDiseases: false,
             otherDiseasesText: '',
             previousSurgeries: false,
@@ -667,10 +748,14 @@ function QuestionnairePage() {
         }));
       } else {
         if (checked) {
-          // Deselect "None" if a condition is selected
           updateFormData('medicalHistory', 'none', false);
         }
         updateFormData('medicalHistory', key, checked);
+        // Clear cancer sub-fields when cancer is deselected
+        if (key === 'cancer' && !checked) {
+          updateFormData('medicalHistory', 'cancerStatus', '');
+          updateFormData('medicalHistory', 'cancerType', '');
+        }
       }
     };
 
@@ -707,7 +792,45 @@ function QuestionnairePage() {
           })}
         </div>
 
-        {/* Other diseases textarea (animated reveal) */}
+        {/* Cancer structured sub-fields — shown when cancer is selected */}
+        {formData.medicalHistory.cancer && (
+          <div className="space-y-3 p-4 border border-blue-100 rounded-xl bg-blue-50">
+            <p className="text-sm font-semibold text-blue-800">{t('questionnaire.medicalHistory.cancerDetails')}</p>
+            {/* Cancer status */}
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-gray-700">{t('questionnaire.medicalHistory.cancerStatus')}</label>
+              <div className="grid grid-cols-2 gap-2">
+                {(['active', 'pastHistory'] as const).map(val => {
+                  const sel = formData.medicalHistory.cancerStatus === val;
+                  return (
+                    <button
+                      key={val}
+                      type="button"
+                      onClick={() => updateFormData('medicalHistory', 'cancerStatus', val)}
+                      className={`px-3 py-2 rounded-lg border-2 text-xs font-medium transition-all text-center
+                        ${sel ? 'border-blue-500 bg-white text-blue-700' : 'border-gray-200 bg-white text-gray-600 hover:border-blue-300'}`}
+                    >
+                      {sel && <Check className="inline w-3 h-3 mr-1" />}
+                      {t(`questionnaire.medicalHistory.cancerStatus_${val}`)}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            {/* Cancer type */}
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-gray-700">{t('questionnaire.medicalHistory.cancerType')}</label>
+              <Input
+                value={formData.medicalHistory.cancerType}
+                onChange={e => updateFormData('medicalHistory', 'cancerType', e.target.value)}
+                placeholder={t('questionnaire.medicalHistory.cancerTypePlaceholder')}
+                className="text-sm"
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Other diseases textarea */}
         {formData.medicalHistory.otherDiseases && (
           <div className="space-y-1">
             <label className="text-sm font-medium text-gray-700">
@@ -788,6 +911,32 @@ function QuestionnairePage() {
           />
         </div>
       )}
+
+      {/* "I do not remember my medications" — does not block progression */}
+      <div className="pt-3 border-t border-gray-100">
+        <button
+          type="button"
+          onClick={() =>
+            updateFormData('medications', 'doesNotRememberMedications',
+              !formData.medications.doesNotRememberMedications)
+          }
+          className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border-2 text-sm font-medium transition-all text-left
+            ${formData.medications.doesNotRememberMedications
+              ? 'border-amber-400 bg-amber-50 text-amber-800'
+              : 'border-gray-200 bg-white text-gray-700 hover:border-amber-300'}`}
+        >
+          <div className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0
+            ${formData.medications.doesNotRememberMedications ? 'bg-amber-400 border-amber-400' : 'border-gray-300'}`}>
+            {formData.medications.doesNotRememberMedications && <Check className="w-3 h-3 text-white" />}
+          </div>
+          <span>{t('questionnaire.medications.doesNotRemember', 'I do not remember my medications')}</span>
+        </button>
+        {formData.medications.doesNotRememberMedications && (
+          <p className="text-xs text-amber-700 mt-1 px-2">
+            {t('questionnaire.medications.doesNotRememberNote', 'The doctor will be informed that medication history is unavailable.')}
+          </p>
+        )}
+      </div>
     </div>
   );
 
@@ -853,27 +1002,42 @@ function QuestionnairePage() {
 
   // ─── Screen E: Current Illness ─────────────────────────────────────────────
   const renderScreenE = () => {
+    // Complaints are ordered "by pains" first, then systemic/other.
+    // chestPainSternum removed. New: flankPain, cough, vomiting, diarrhea,
+    // rash, syncope, alteredMentalStatus, abnormalBloodTests.
     const illnesses: Array<{ key: keyof QuestionnaireData['currentIllness']; labelKey: string }> = [
+      // ── Pain complaints (grouped first) ──
       { key: 'chestPain',              labelKey: 'questionnaire.currentIllness.chestPain' },
-      { key: 'chestPainSternum',       labelKey: 'questionnaire.currentIllness.chestPainSternum' },
-      { key: 'shortnessOfBreath',      labelKey: 'questionnaire.currentIllness.shortnessOfBreath' },
-      { key: 'fever',                  labelKey: 'questionnaire.currentIllness.fever' },
-      { key: 'abdominalPain',          labelKey: 'questionnaire.currentIllness.abdominalPain' },
       { key: 'headache',               labelKey: 'questionnaire.currentIllness.headache' },
-      { key: 'dizziness',              labelKey: 'questionnaire.currentIllness.dizziness' },
-      { key: 'nauseaVomitingDiarrhea', labelKey: 'questionnaire.currentIllness.nauseaVomitingDiarrhea' },
-      { key: 'changeInConsciousness',  labelKey: 'questionnaire.currentIllness.changeInConsciousness' },
-      { key: 'fatigueWeakness',        labelKey: 'questionnaire.currentIllness.fatigueWeakness' },
-      { key: 'injuryTrauma',           labelKey: 'questionnaire.currentIllness.injuryTrauma' },
-      { key: 'headInjury',             labelKey: 'questionnaire.currentIllness.headInjury' },
+      { key: 'abdominalPain',          labelKey: 'questionnaire.currentIllness.abdominalPain' },
       { key: 'backPain',               labelKey: 'questionnaire.currentIllness.backPain' },
+      { key: 'flankPain',              labelKey: 'questionnaire.currentIllness.flankPain' },
       { key: 'neckPain',               labelKey: 'questionnaire.currentIllness.neckPain' },
       { key: 'jointPain',              labelKey: 'questionnaire.currentIllness.jointPain' },
       { key: 'painInLimbs',            labelKey: 'questionnaire.currentIllness.painInLimbs' },
-      { key: 'swellingEdema',          labelKey: 'questionnaire.currentIllness.swellingEdema' },
-      { key: 'eyeProblems',            labelKey: 'questionnaire.currentIllness.eyeProblems' },
       { key: 'earPain',                labelKey: 'questionnaire.currentIllness.earPain' },
       { key: 'injectionSitePain',      labelKey: 'questionnaire.currentIllness.injectionSitePain' },
+      // ── Respiratory / systemic ──
+      { key: 'fever',                  labelKey: 'questionnaire.currentIllness.fever' },
+      { key: 'shortnessOfBreath',      labelKey: 'questionnaire.currentIllness.shortnessOfBreath' },
+      { key: 'cough',                  labelKey: 'questionnaire.currentIllness.cough' },
+      // ── GI ──
+      { key: 'nauseaVomitingDiarrhea', labelKey: 'questionnaire.currentIllness.nausea' },
+      { key: 'vomiting',               labelKey: 'questionnaire.currentIllness.vomiting' },
+      { key: 'diarrhea',               labelKey: 'questionnaire.currentIllness.diarrhea' },
+      { key: 'rash',                   labelKey: 'questionnaire.currentIllness.rash' },
+      // ── Neurological / general ──
+      { key: 'dizziness',              labelKey: 'questionnaire.currentIllness.dizziness' },
+      { key: 'fatigueWeakness',        labelKey: 'questionnaire.currentIllness.fatigueWeakness' },
+      { key: 'syncope',                labelKey: 'questionnaire.currentIllness.syncope' },
+      { key: 'alteredMentalStatus',    labelKey: 'questionnaire.currentIllness.alteredMentalStatus' },
+      { key: 'changeInConsciousness',  labelKey: 'questionnaire.currentIllness.changeInConsciousness' },
+      // ── Trauma / other ──
+      { key: 'swellingEdema',          labelKey: 'questionnaire.currentIllness.swellingEdema' },
+      { key: 'eyeProblems',            labelKey: 'questionnaire.currentIllness.eyeProblems' },
+      { key: 'injuryTrauma',           labelKey: 'questionnaire.currentIllness.injuryTrauma' },
+      { key: 'headInjury',             labelKey: 'questionnaire.currentIllness.headInjury' },
+      { key: 'abnormalBloodTests',     labelKey: 'questionnaire.currentIllness.abnormalBloodTests' },
     ];
 
     const atMax = selectedIllnessCount >= 2;

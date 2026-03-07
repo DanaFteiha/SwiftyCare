@@ -15,6 +15,9 @@ function CasePage() {
   
   
   const [selectedTests, setSelectedTests] = useState<string[]>([]);
+  // OTHER test: doctor can add a free-text test not in the AI-generated list
+  const [otherTestEnabled, setOtherTestEnabled] = useState(false);
+  const [otherTestText, setOtherTestText] = useState('');
   const [isDiagnosisExpanded, setIsDiagnosisExpanded] = useState(true);
   const [activeTab, setActiveTab] = useState<'summary' | 'diagnosis' | 'details'>('details');
 
@@ -783,11 +786,47 @@ function CasePage() {
                                   </div>
                                 ))}
 
+                                  {/* OTHER / additional test — free-text entry */}
+                                  <div className="flex items-start gap-3 bg-gray-50 p-3 rounded-lg border border-dashed border-gray-300">
+                                    <input
+                                      type="checkbox"
+                                      id="other-test-toggle"
+                                      checked={otherTestEnabled}
+                                      onChange={e => setOtherTestEnabled(e.target.checked)}
+                                      disabled={caseData?.status === 'closed'}
+                                      className="h-4 w-4 mt-1 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 cursor-pointer"
+                                    />
+                                    <div className="flex-1 space-y-2">
+                                      <label
+                                        htmlFor="other-test-toggle"
+                                        className="text-sm font-medium text-gray-700 cursor-pointer"
+                                      >
+                                        {t('case.aiDiagnosis.otherTest', 'Other (specify)')}
+                                      </label>
+                                      {otherTestEnabled && (
+                                        <input
+                                          type="text"
+                                          value={otherTestText}
+                                          onChange={e => setOtherTestText(e.target.value)}
+                                          placeholder={t('case.aiDiagnosis.otherTestPlaceholder', 'Enter test name or description...')}
+                                          disabled={caseData?.status === 'closed'}
+                                          className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        />
+                                      )}
+                                    </div>
+                                  </div>
+
                                   <div className="mt-4 flex justify-end">
                                     <Button
-                                      onClick={() => orderTestsMutation.mutate(selectedTests)}
+                                      onClick={() => {
+                                        const allTests = [...selectedTests];
+                                        if (otherTestEnabled && otherTestText.trim()) {
+                                          allTests.push(`OTHER: ${otherTestText.trim()}`);
+                                        }
+                                        orderTestsMutation.mutate(allTests);
+                                      }}
                                       disabled={
-                                        selectedTests.length === 0 ||
+                                        (selectedTests.length === 0 && !(otherTestEnabled && otherTestText.trim())) ||
                                         orderTestsMutation.isPending ||
                                         caseData?.status === 'closed'
                                       }

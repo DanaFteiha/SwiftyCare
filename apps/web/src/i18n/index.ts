@@ -83,7 +83,16 @@ const resources = {
           single: "Single",
           divorced: "Divorced",
           widowed: "Widowed",
+          // Form filler field
+          formFilledBy: "Who is filling out this form?",
+          selfCompleted: "Self-completed",
+          completedByCompanion: "Completed by companion / caregiver",
           cognitiveState: "Cognitive State",
+          // Cognitive state options (unconscious removed; 3 professional options added)
+          cognitivelyIntact: "Cognitively Intact",
+          cognitivelyImpaired: "Cognitively Impaired",
+          memoryDecline: "Memory Decline",
+          // Kept for backward compatibility with old saved data (not shown in new form)
           conscious: "Conscious",
           confused: "Confused",
           unconscious: "Unconscious",
@@ -100,13 +109,26 @@ const resources = {
           none: "None",
           diabetes: "Diabetes",
           hypertension: "High Blood Pressure",
-          dyslipidemia: "Dyslipidemia",
+          // dyslipidemia key preserved; label updated to "High Blood Lipids"
+          dyslipidemia: "High Blood Lipids",
           asthma: "Asthma",
           ischemicHeartDisease: "Ischemic Heart Disease",
+          heartFailure: "Heart Failure",
+          atrialFibrillation: "Atrial Fibrillation",
           cancer: "Cancer",
+          // Cancer sub-fields
+          cancerDetails: "Cancer Details",
+          cancerStatus: "Cancer Status",
+          cancerStatus_active: "Active",
+          cancerStatus_pastHistory: "Past History",
+          cancerType: "Cancer Type",
+          cancerTypePlaceholder: "e.g. Breast, Lung, Colon...",
           previousStroke: "Previous Stroke",
           hypothyroidism: "Hypothyroidism",
           copd: "COPD",
+          renalFailure: "Renal Failure",
+          smoking: "Smoking",
+          immunocompromised: "Immunocompromised",
           otherDiseases: "Other Underlying Diseases",
           otherDiseasesPlaceholder: "Please specify",
           previousSurgeries: "Previous Surgeries"
@@ -114,26 +136,40 @@ const resources = {
         currentIllness: {
           title: "Current Illness",
           instruction: "Please select all relevant symptoms.",
+          // ── Pain group ──
           chestPain: "Chest pain",
-          fever: "Fever",
-          injuryTrauma: "Injury / Trauma",
-          swellingEdema: "Swelling / Edema",
-          abdominalPain: "Abdominal pain",
-          shortnessOfBreath: "Shortness of breath",
-          changeInConsciousness: "Change in consciousness / Fainting",
-          nauseaVomitingDiarrhea: "Nausea / Vomiting / Diarrhea",
           headache: "Headache",
-          chestPainSternum: "Chest pain (sternum area)",
-          dizziness: "Dizziness",
+          abdominalPain: "Abdominal pain",
+          backPain: "Back pain",
+          flankPain: "Flank pain",
           neckPain: "Neck pain",
-          fatigueWeakness: "Fatigue / General weakness / Neurological",
           jointPain: "Joint pain",
           painInLimbs: "Pain in limbs",
           earPain: "Ear pain",
-          eyeProblems: "Eye problems",
-          backPain: "Back pain",
-          headInjury: "Head injury",
           injectionSitePain: "Pain at the injection/blood draw site",
+          // ── Respiratory / systemic ──
+          fever: "Fever",
+          shortnessOfBreath: "Shortness of breath",
+          cough: "Cough",
+          // ── GI ──
+          nausea: "Nausea",
+          vomiting: "Vomiting",
+          diarrhea: "Diarrhea",
+          rash: "Rash",
+          // ── Neurological / general ──
+          dizziness: "Dizziness",
+          // fatigueWeakness label simplified — "neurological" removed
+          fatigueWeakness: "General weakness",
+          syncope: "Syncope (Fainting)",
+          alteredMentalStatus: "Altered Mental Status",
+          changeInConsciousness: "Change in consciousness",
+          // ── Trauma / other ──
+          swellingEdema: "Swelling / Edema",
+          eyeProblems: "Eye problems",
+          injuryTrauma: "Injury / Trauma",
+          headInjury: "Head injury",
+          abnormalBloodTests: "Abnormal blood test results",
+          // chestPainSternum removed per product requirement
           maxSelected: "Maximum 2 conditions selected — deselect one to choose another"
         },
         adaptive: {
@@ -252,13 +288,16 @@ const resources = {
             no: "No",
             detailsPlaceholder: "Please specify the allergies"
           },
+          doesNotRemember: "I do not remember my medications",
+          doesNotRememberNote: "The doctor will be informed that medication history is unavailable.",
           groups: {
             title: "Medication Groups",
             bloodPressure: "Blood Pressure",
             diabetes: "Diabetes",
             bloodThinners: "Blood Thinners",
             immunosuppressants: "Immunosuppressants",
-            miscellaneous: "Miscellaneous"
+            miscellaneous: "Miscellaneous",
+            cardiac: "Cardiac"
           }
         },
         symptoms: {
@@ -401,6 +440,7 @@ const resources = {
           ageRequired: "Age is required",
           ageInvalid: "Age must be a valid number",
           ageRange: "Age must be between 0 and 120",
+          formFilledByRequired: "Please indicate who is filling this form",
           genderRequired: "Gender is required",
           maritalStatusRequired: "Marital status is required",
           cognitiveStateRequired: "Cognitive state is required",
@@ -410,7 +450,7 @@ const resources = {
           illnessRequired: "Please select at least one symptom"
         }
       },
-      
+
       // DashboardPage translations
       dashboard: {
         title: "Physician Dashboard",
@@ -697,6 +737,8 @@ const resources = {
         interactiveDiagnoses: "Interactive Diagnosis Review",
         interactiveDescription: "Review and select tests based on the AI analysis above",
         recommendedTests: "Recommended Tests",
+        otherTest: "Other (specify)",
+        otherTestPlaceholder: "Enter test name or description...",
         clickToExpand: "Click \"Show Details\" above to view AI diagnosis",
         diagnoses: {
           acuteMi: "Acute Myocardial Infarction",
@@ -864,8 +906,16 @@ const resources = {
           single: "רווק/ה",
           divorced: "גרוש/ה",
           widowed: "אלמן/ה",
+          formFilledBy: "מי ממלא את הטופס?",
+          selfCompleted: "ממולא בידי המטופל/ת עצמו/ה",
+          completedByCompanion: "ממולא בידי מלווה / מטפל/ת",
           cognitiveState: "מצב קוגניטיבי",
           selectCognitiveState: "בחר מצב קוגניטיבי",
+          // אפשרויות חדשות - שמור / ירוד / ירידה בזיכרון
+          cognitivelyIntact: "שמור קוגניטיבית",
+          cognitivelyImpaired: "ירוד קוגניטיבית",
+          memoryDecline: "ירידה בזיכרון",
+          // שמורים לתאימות לאחור עם נתונים ישנים
           conscious: "צלול",
           confused: "מבולבל",
           unconscious: "לא בהכרה",
@@ -879,13 +929,25 @@ const resources = {
           none: "אין",
           diabetes: "סכרת",
           hypertension: "יתר לחץ דם",
-          dyslipidemia: "דיסליפידמיה",
+          // עודכן מ"דיסליפידמיה" ל"שומני דם גבוהים"
+          dyslipidemia: "שומני דם גבוהים",
           asthma: "אסטמה",
           ischemicHeartDisease: "מחלת לב איסכמית",
+          heartFailure: "אי ספיקת לב",
+          atrialFibrillation: "פרפור פרוזדורים",
           cancer: "סרטן",
+          cancerDetails: "פרטי הסרטן",
+          cancerStatus: "סטטוס הסרטן",
+          cancerStatus_active: "פעיל",
+          cancerStatus_pastHistory: "היסטוריה בעבר",
+          cancerType: "סוג הסרטן",
+          cancerTypePlaceholder: "לדוגמה: שד, ריאות, מעי גס...",
           previousStroke: "שבץ מוחי בעבר",
           hypothyroidism: "תת פעילות של בלוטת התריס",
           copd: "COPD",
+          renalFailure: "אי ספיקת כליות",
+          smoking: "עישון",
+          immunocompromised: "כשל חיסוני / מדוכא חיסונית",
           otherDiseases: "מחלות רקע נוספות",
           otherDiseasesPlaceholder: "נא לציין",
           previousSurgeries: "ניתוחים בעבר"
@@ -893,26 +955,39 @@ const resources = {
         currentIllness: {
           title: "מחלה נוכחית",
           instruction: "אנא בחר את כל התלונות הרלוונטיות",
+          // ── כאבים ──
           chestPain: "כאבים בחזה",
-          fever: "חום",
-          injuryTrauma: "פציעות / טראומה",
-          swellingEdema: "נפיחויות / גוש",
-          abdominalPain: "כאבי בטן",
-          shortnessOfBreath: "קוצר נשימה",
-          changeInConsciousness: "שינויים במצב הכרה / עילפון",
-          nauseaVomitingDiarrhea: "הקאות / שלשולים",
           headache: "כאב ראש",
-          chestPainSternum: "כאב חזה (אזור הסטרנום)",
-          dizziness: "סחרחורת",
-          neckPain: "כאב גרון",
-          fatigueWeakness: "חולשה כללית / נוירולוגית",
-          jointPain: "כאב במפרקים",
-          painInLimbs: "נפיחות בגפיים",
-          earPain: "כאב אוזן",
-          eyeProblems: "בעיות בעיניים",
+          abdominalPain: "כאבי בטן",
           backPain: "כאבי גב",
+          flankPain: "כאב גב תחתון / מותן",
+          neckPain: "כאב צוואר",
+          jointPain: "כאב במפרקים",
+          painInLimbs: "כאב בגפיים",
+          earPain: "כאב אוזן",
+          injectionSitePain: "כאב באתר ניקור / בדיקת דם",
+          // ── נשימה / מערכתי ──
+          fever: "חום",
+          shortnessOfBreath: "קוצר נשימה",
+          cough: "שיעול",
+          // ── GI ──
+          nausea: "בחילה",
+          vomiting: "הקאות",
+          diarrhea: "שלשול",
+          rash: "פריחה",
+          // ── נוירולוגי / כללי ──
+          dizziness: "סחרחורת",
+          // חולשה כללית — הוסר "נוירולוגי"
+          fatigueWeakness: "חולשה כללית",
+          syncope: "סינקופה (עילפון)",
+          alteredMentalStatus: "שינוי במצב ההכרה",
+          changeInConsciousness: "שינוי ברמת ההכרה",
+          // ── טראומה / אחר ──
+          swellingEdema: "נפיחות / בצקת",
+          eyeProblems: "בעיות בעיניים",
+          injuryTrauma: "פציעה / טראומה",
           headInjury: "חבלת ראש",
-          injectionSitePain: "תפיחות/צריבה/דם בשתן",
+          abnormalBloodTests: "תוצאות בדיקות דם חריגות",
           maxSelected: "נבחרו 2 מצבים — בטל בחירה אחת כדי לבחור אחרת"
         },
         adaptive: {
@@ -1031,13 +1106,16 @@ const resources = {
             no: "לא",
             detailsPlaceholder: "נא לציין את הרגישויות"
           },
+          doesNotRemember: "אינני זוכר/ת את התרופות שלי",
+          doesNotRememberNote: "הרופא יקבל הודעה שהיסטוריית התרופות אינה זמינה.",
           groups: {
             title: "תרופות קבועות",
             bloodPressure: "לחץ דם",
             diabetes: "סוכרת",
             bloodThinners: "דילול דם",
             immunosuppressants: "דיכוי חיסוני",
-            miscellaneous: "שונות"
+            miscellaneous: "שונות",
+            cardiac: "לב"
           }
         },
         symptoms: {
@@ -1178,6 +1256,7 @@ const resources = {
           ageRequired: "גיל נדרש",
           ageInvalid: "גיל חייב להיות מספר תקין",
           ageRange: "גיל חייב להיות בין 0 ל-120",
+          formFilledByRequired: "נא לציין מי ממלא את הטופס",
           genderRequired: "מין נדרש",
           maritalStatusRequired: "מצב משפחתי נדרש",
           cognitiveStateRequired: "מצב קוגניטיבי נדרש",
@@ -1187,7 +1266,7 @@ const resources = {
           illnessRequired: "נא לבחור לפחות תסמין אחד"
         }
       },
-      
+
       // DashboardPage translations
       dashboard: {
         title: "לוח בקרה רפואי",
@@ -1391,6 +1470,8 @@ const resources = {
         interactiveDiagnoses: "סקירת אבחנה אינטראקטיבית",
         interactiveDescription: "סקור ובחר בדיקות בהתבסס על ניתוח ה-AI לעיל",
         recommendedTests: "בדיקות מומלצות",
+        otherTest: "אחר (ציין)",
+        otherTestPlaceholder: "הזן שם הבדיקה או תיאור...",
         clickToExpand: "לחץ על \"הצג פרטים\" למעלה כדי לראות את אבחנת ה-AI",
         caseClosed: "המקרה נסגר. הזמנת בדיקות חסומה.",
         diagnoses: {

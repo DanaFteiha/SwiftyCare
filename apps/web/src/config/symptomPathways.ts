@@ -962,8 +962,8 @@ export const SYMPTOM_PATHWAYS: Record<string, SymptomPathway> = {
 // ─── Symptom to Pathway mapping ──────────────────────────────────────────────
 
 export const SYMPTOM_TO_PATHWAY: Record<string, string> = {
+  // ── Original mappings (chestPainSternum removed from complaints UI) ──
   chestPain: 'chestPain',
-  chestPainSternum: 'chestPain',
   fever: 'fever',
   shortnessOfBreath: 'shortnessOfBreath',
   dizziness: 'dizziness',
@@ -982,6 +982,15 @@ export const SYMPTOM_TO_PATHWAY: Record<string, string> = {
   earPain: 'fever',
   eyeProblems: 'eyeProblems',
   injectionSitePain: 'injuryTrauma',
+  // ── New complaint keys ──
+  flankPain: 'backPain',               // closest anatomical pathway
+  cough: 'shortnessOfBreath',          // respiratory pathway
+  vomiting: 'nauseaVomitingDiarrhea',  // same GI pathway
+  diarrhea: 'nauseaVomitingDiarrhea',  // same GI pathway
+  rash: 'fever',                       // systemic/dermatological — fever pathway
+  syncope: 'changeInConsciousness',    // syncope → consciousness pathway
+  alteredMentalStatus: 'changeInConsciousness', // → consciousness pathway
+  // abnormalBloodTests has no specific adaptive pathway — no mapping
 };
 
 // ─── Helper: Get active pathways for selected illnesses ─────────────────────
