@@ -4,6 +4,7 @@ import mongoose, { Document, Schema } from "mongoose";
 export interface ICase extends Document {
   patientName: string;
   nationalId: string;
+  hospital?: string;
   status: string;
   orderedTests?: string[];
   orderedAt?: Date;
@@ -42,6 +43,11 @@ const CaseSchema = new Schema<ICase>({
     unique: true,
     minlength: [5, "National ID must be at least 5 characters long"],
     maxlength: [20, "National ID cannot exceed 20 characters"]
+  },
+  hospital: {
+    type: String,
+    trim: true,
+    maxlength: [100, "Hospital name cannot exceed 100 characters"]
   },
   status: {
     type: String,

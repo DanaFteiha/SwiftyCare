@@ -84,9 +84,19 @@ mongoose.connect(MONGODB_URI)
   .then(() => {
     console.log("✅ Connected to MongoDB");
   })
-  .catch(() => {
+  .catch((err: unknown) => {
+    const e = err as { name?: string; message?: string; code?: string | number };
     console.error("❌ MongoDB connection failed — database features unavailable");
     console.error(`   URI: ${sanitizeUri(MONGODB_URI)}`);
+    console.error(`   Reason: ${e?.name || "Error"}: ${e?.message || err}`);
+    if (e?.code) console.error(`   Code: ${e.code}`);
+    if (e?.message?.includes("ENOTFOUND") || e?.message?.includes("querySrv")) {
+      console.error("   Hint: the cluster hostname does not exist. Check MONGODB_URI or recreate the Atlas cluster.");
+    } else if (e?.message?.includes("Authentication failed")) {
+      console.error("   Hint: wrong username/password in MONGODB_URI.");
+    } else if (e?.message?.includes("IP") || e?.message?.includes("not allowed")) {
+      console.error("   Hint: your current IP is not in the Atlas Network Access allowlist.");
+    }
   });
 
 // --------------- Health routes ---------------

@@ -31,7 +31,7 @@ router.post("/", async (req, res) => {
       });
     }
 
-    const { patientName, nationalId } = req.body;
+    const { patientName, nationalId, hospital } = req.body;
 
     if (!patientName || !nationalId) {
       return res.status(400).json({
@@ -40,7 +40,11 @@ router.post("/", async (req, res) => {
       });
     }
 
-    const newCase = await Case.create({ patientName, nationalId });
+    const newCase = await Case.create({
+      patientName,
+      nationalId,
+      ...(typeof hospital === "string" && hospital.trim() ? { hospital: hospital.trim() } : {}),
+    });
     return res.status(201).json(newCase);
   } catch (error: any) {
     console.error("Error creating case:", error);
@@ -151,11 +155,13 @@ router.patch("/:id/status", async (req, res) => {
       });
     }
 
-    const allowedStatuses = ["open", "in_progress", "tests_ordered", "closed", "cancelled"];
+    // "closed" may only be set by the discharge-report/finalize endpoint.
+    // Any other code path (e.g. the dashboard) must not be able to close a case directly.
+    const allowedStatuses = ["open", "in_progress", "tests_ordered", "cancelled"];
     if (!status || !allowedStatuses.includes(status)) {
       return res.status(400).json({
         error: "Invalid status",
-        message: `Status must be one of: ${allowedStatuses.join(", ")}`
+        message: `Status must be one of: ${allowedStatuses.join(", ")}. To close a case, finalize the discharge report.`
       });
     }
 
