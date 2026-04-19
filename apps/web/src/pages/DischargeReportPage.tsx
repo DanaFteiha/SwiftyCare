@@ -265,7 +265,7 @@ function DischargeReportPage() {
   const [regenerateConfirm, setRegenerateConfirm] = useState(false);
 
   // ─── Fetch case ──────────────────────────────────────────────────────────
-  const { data: caseData, isLoading } = useQuery({
+  const { data: caseData, isLoading, isError } = useQuery({
     queryKey: ['case', id],
     queryFn: async () => {
       const res = await apiFetch(`/cases/${id}`);
@@ -383,6 +383,30 @@ function DischargeReportPage() {
         <div className="text-center">
           <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-gray-600">{t('discharge.loading', 'Loading...')}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isError || !caseData) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4" dir={isRTL ? 'rtl' : 'ltr'}>
+        <div className="text-center max-w-md">
+          <AlertTriangle className="w-10 h-10 text-red-500 mx-auto mb-3" />
+          <h2 className="text-lg font-bold text-gray-900 mb-2">
+            {t('discharge.loadErrorTitle', 'Could not load case')}
+          </h2>
+          <p className="text-sm text-gray-600 mb-5">
+            {t('discharge.loadErrorDescription', 'We were unable to load this discharge report. Please check your connection and try again.')}
+          </p>
+          <div className="flex justify-center gap-2">
+            <Button variant="outline" onClick={() => navigate('/doctor')}>
+              {t('common.backToDashboard', 'Back to Dashboard')}
+            </Button>
+            <Button onClick={() => window.location.reload()}>
+              {t('common.retry', 'Retry')}
+            </Button>
+          </div>
         </div>
       </div>
     );
@@ -614,12 +638,14 @@ function DischargeReportPage() {
 
             {/* Print header */}
             <div className="hidden print:block mb-6">
-              <h1 className="text-2xl font-bold text-gray-900">Emergency Department Discharge Summary</h1>
+              <h1 className="text-2xl font-bold text-gray-900">
+                {t('discharge.printTitle', 'Emergency Department Discharge Summary')}
+              </h1>
               <p className="text-gray-600 mt-1">
-                Patient: {caseData?.patientName} | ID: {caseData?.nationalId}
+                {t('discharge.patient', 'Patient')}: {caseData?.patientName} | {t('discharge.idLabel', 'ID')}: {caseData?.nationalId}
               </p>
               <p className="text-gray-500 text-sm mt-0.5">
-                Date: {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}
+                {t('discharge.dateLabel', 'Date')}: {new Date().toLocaleDateString(isRTL ? 'he-IL' : 'en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}
               </p>
               <hr className="mt-4 border-gray-300" />
             </div>

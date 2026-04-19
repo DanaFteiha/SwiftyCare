@@ -732,7 +732,8 @@ const resources = {
         description: "NLP summarization with medical-ontology tagging, red-flag highlighting, and chronic-condition identification",
         noSummary: "No AI summary available yet",
         generate: "Generate AI Summary",
-        error: "Failed to generate AI summary. Please try again."
+        error: "Failed to generate AI summary. Please try again.",
+        timeout: "Generation is taking longer than expected. The summary may already be ready — the page will refresh automatically."
       },
       aiDiagnosis: {
         title: "AI Differential-Diagnosis & Test Recommendations",
@@ -740,6 +741,9 @@ const resources = {
         noDiagnosis: "No AI diagnosis available yet",
         generate: "Generate Diagnosis",
         error: "Failed to generate AI diagnosis. Please try again.",
+        timeout: "Generation is taking longer than expected. The diagnosis may already be ready — the page will refresh automatically.",
+        ordered: "Tests for {{name}} have been ordered.",
+        orderError: "Failed to order tests.",
         differentialDiagnoses: "Differential Diagnoses",
         testRecommendations: "Test Recommendations",
         orderTests: "Order Selected Tests",
@@ -837,7 +841,13 @@ const resources = {
       confirmFinalize: "This will close the case. Confirm?",
       confirmYes: "Yes, Finalize",
       cancel: "Cancel",
-      finalizing: "Finalizing..."
+      finalizing: "Finalizing...",
+      loadErrorTitle: "Could not load case",
+      loadErrorDescription: "We were unable to load this discharge report. Please check your connection and try again.",
+      printTitle: "Emergency Department Discharge Summary",
+      patient: "Patient",
+      idLabel: "ID",
+      dateLabel: "Date"
     }
   },
   he: {
@@ -1481,7 +1491,8 @@ const resources = {
         description: "סיכום NLP עם תיוג אונטולוגיה רפואית, הדגשת דגלים אדומים וזיהוי מצבים כרוניים",
         noSummary: "אין תקציר AI זמין עדיין",
         generate: "צור תקציר AI",
-        error: "יצירת תקציר AI נכשלה. נא לנסות שוב."
+        error: "יצירת תקציר AI נכשלה. נא לנסות שוב.",
+        timeout: "היצירה אורכת יותר מהצפוי. ייתכן שהתקציר כבר מוכן — הדף יתרענן באופן אוטומטי."
       },
       aiDiagnosis: {
         title: "אבחנה דיפרנציאלית והמלצות בדיקות של AI",
@@ -1489,6 +1500,9 @@ const resources = {
         noDiagnosis: "אין אבחנת AI זמינה עדיין",
         generate: "צור אבחנה",
         error: "יצירת אבחנת AI נכשלה. נא לנסות שוב.",
+        timeout: "היצירה אורכת יותר מהצפוי. ייתכן שהאבחנה כבר מוכנה — הדף יתרענן באופן אוטומטי.",
+        ordered: "הבדיקות עבור {{name}} הוזמנו.",
+        orderError: "הזמנת הבדיקות נכשלה.",
         differentialDiagnoses: "אבחנות דיפרנציאליות",
         testRecommendations: "המלצות בדיקות",
         orderTests: "הזמן בדיקות נבחרות",
@@ -1593,7 +1607,13 @@ const resources = {
       confirmFinalize: "פעולה זו תסגור את המקרה. לאשר?",
       confirmYes: "כן, סיים",
       cancel: "ביטול",
-      finalizing: "מסיים..."
+      finalizing: "מסיים...",
+      loadErrorTitle: "טעינת המקרה נכשלה",
+      loadErrorDescription: "לא הצלחנו לטעון את דוח השחרור. בדוק את החיבור ונסה שוב.",
+      printTitle: "סיכום שחרור ממלר\"ד",
+      patient: "מטופל",
+      idLabel: "ת.ז.",
+      dateLabel: "תאריך"
     }
   }
 }

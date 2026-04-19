@@ -49,13 +49,25 @@ function CasePage() {
     enabled: !!id
   });
 
-  // Generate AI summary mutation
+  // Helper: detect whether an error was caused by the client timing out.
+  // When we abort, the server may still complete the work, so we just invalidate
+  // the cache and show a friendly hint instead of a hard failure.
+  const isAbortError = (err: unknown): boolean => {
+    const e = err as { name?: string; message?: string };
+    return e?.name === 'AbortError' || (typeof e?.message === 'string' && /abort/i.test(e.message));
+  };
+
+  // Generate AI summary mutation — AI calls can take 20-40 s, so use 90 s timeout
   const generateSummary = useMutation({
     mutationFn: async () => {
-      const response = await apiFetch(`/cases/${id}/summary`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      });
+      const response = await apiFetch(
+        `/cases/${id}/summary`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        },
+        90_000
+      );
       if (!response.ok) {
         const payload = await response.json().catch(() => null);
         const serverMsg = payload?.message || payload?.error || `Server error ${response.status}`;
@@ -68,17 +80,31 @@ function CasePage() {
     },
     onError: (error: Error) => {
       console.error('Error generating summary:', error);
+      if (isAbortError(error)) {
+        queryClient.invalidateQueries({ queryKey: ['case', id] });
+        alert(
+          t(
+            'case.aiSummary.timeout',
+            'Generation is taking longer than expected. The summary may already be ready — the page will refresh automatically.'
+          )
+        );
+        return;
+      }
       alert(`${t('case.aiSummary.error', 'Failed to generate AI summary.')}\n\n${error.message}`);
     }
   });
 
-  // Generate AI diagnosis mutation
+  // Generate AI diagnosis mutation — 90 s timeout + AbortError handling
   const generateDiagnosis = useMutation({
     mutationFn: async () => {
-      const response = await apiFetch(`/cases/${id}/diagnosis`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      });
+      const response = await apiFetch(
+        `/cases/${id}/diagnosis`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        },
+        90_000
+      );
       if (!response.ok) {
         const payload = await response.json().catch(() => null);
         const serverMsg = payload?.message || payload?.error || `Server error ${response.status}`;
@@ -91,6 +117,16 @@ function CasePage() {
     },
     onError: (error: Error) => {
       console.error('Error generating diagnosis:', error);
+      if (isAbortError(error)) {
+        queryClient.invalidateQueries({ queryKey: ['case', id] });
+        alert(
+          t(
+            'case.aiDiagnosis.timeout',
+            'Generation is taking longer than expected. The diagnosis may already be ready — the page will refresh automatically.'
+          )
+        );
+        return;
+      }
       alert(`${t('case.aiDiagnosis.error', 'Failed to generate AI diagnosis.')}\n\n${error.message}`);
     }
   });
@@ -111,11 +147,15 @@ function CasePage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['case', id] });
       queryClient.invalidateQueries({ queryKey: ['cases'] });
-      alert(`Success — Tests for ${caseData?.patientName || 'patient'} have been ordered.`);
+      alert(
+        t('case.aiDiagnosis.ordered', 'Tests for {{name}} have been ordered.', {
+          name: caseData?.patientName || t('dashboard.unknownPatient', 'the patient'),
+        })
+      );
       navigate('/doctor');
     },
     onError: (error: Error) => {
-      alert(error.message || 'Failed to order tests');
+      alert(error.message || t('case.aiDiagnosis.orderError', 'Failed to order tests.'));
     }
   });
 
@@ -913,8 +953,8 @@ function CasePage() {
                                       className="bg-green-600 hover:bg-green-700"
                                     >
                                       {orderTestsMutation.isPending
-                                        ? t('aiDiagnosis.orderingTests', 'Ordering tests...')
-                                        : t('aiDiagnosis.orderTests', 'Order Selected Tests')}
+                                        ? t('case.aiDiagnosis.orderingTests', 'Ordering tests...')
+                                        : t('case.aiDiagnosis.orderTests', 'Order Selected Tests')}
                                     </Button>
                                   </div>
                                 </div>

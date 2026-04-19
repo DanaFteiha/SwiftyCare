@@ -23,21 +23,21 @@ function ScanPage() {
   const navigate = useNavigate()
   const { t, i18n } = useTranslation()
   
-  // List of major Israeli hospitals
+  // List of major Israeli hospitals — labels pulled from i18n (en/he)
   const hospitals = [
-    { key: 'hadassahEinKerem', name: 'Hadassah Ein Kerem Hospital' },
-    { key: 'hadassahMountScopus', name: 'Hadassah Mount Scopus Hospital' },
-    { key: 'ichilov', name: 'Ichilov Hospital (Tel Aviv)' },
-    { key: 'sheba', name: 'Sheba Hospital (Tel Hashomer)' },
-    { key: 'rambam', name: 'Rambam Hospital (Haifa)' },
-    { key: 'soroka', name: 'Soroka Hospital (Beer Sheva)' },
-    { key: 'kaplan', name: 'Kaplan Hospital (Rehovot)' },
-    { key: 'assafHarofeh', name: 'Assaf Harofeh Hospital (Tzrifin)' },
-    { key: 'shaareZedek', name: 'Shaare Zedek Hospital (Jerusalem)' },
-    { key: 'billinson', name: 'Billinson Hospital (Petah Tikva)' },
-    { key: 'meir', name: 'Meir Hospital (Kfar Saba)' },
-    { key: 'hillelYaffe', name: 'Hillel Yaffe Hospital (Hadera)' },
-    { key: 'nahariya', name: 'Nahariya Hospital' }
+    { key: 'hadassahEinKerem' },
+    { key: 'hadassahMountScopus' },
+    { key: 'ichilov' },
+    { key: 'sheba' },
+    { key: 'rambam' },
+    { key: 'soroka' },
+    { key: 'kaplan' },
+    { key: 'assafHarofeh' },
+    { key: 'shaareZedek' },
+    { key: 'billinson' },
+    { key: 'meir' },
+    { key: 'hillelYaffe' },
+    { key: 'nahariya' },
   ]
 
   const [formData, setFormData] = useState<FormData>({
@@ -106,6 +106,7 @@ function ScanPage() {
         body: JSON.stringify({
           patientName: formData.fullName.trim(),
           nationalId: formData.nationalId.trim(),
+          hospital: formData.hospital.trim(),
           status: 'open'
         })
       })
@@ -166,10 +167,12 @@ function ScanPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-4" dir={i18n.language === 'he' ? 'rtl' : 'ltr'}>
       {/* Language Toggle */}
-      <div className="absolute top-6 right-6 z-10">
+      <div className={`absolute top-6 ${i18n.language === 'he' ? 'left-6' : 'right-6'} z-10`}>
         <button
+          type="button"
           onClick={toggleLanguage}
-          className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:text-gray-800 bg-white/90 hover:bg-white rounded-lg shadow-sm border border-gray-200 transition-all duration-200"
+          aria-label={i18n.language === 'he' ? 'Switch to English' : 'החלף לעברית'}
+          className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:text-gray-800 bg-white/90 hover:bg-white rounded-lg shadow-sm border border-gray-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <Globe className="h-4 w-4" />
           <span>{i18n.language === 'he' ? 'EN' : 'עִבְרִית'}</span>
@@ -219,7 +222,7 @@ function ScanPage() {
                     <option value="">{t('form.hospitalPlaceholder', 'Select Hospital')}</option>
                     {hospitals.map((hospital) => (
                       <option key={hospital.key} value={hospital.key}>
-                        {hospital.name}
+                        {t(`hospitals.${hospital.key}`)}
                       </option>
                     ))}
                   </select>
@@ -306,7 +309,7 @@ function ScanPage() {
         {/* Footer */}
         <div className="text-center mt-8">
           <p className="text-xs text-gray-500 font-medium">
-            © Swifty Medical 2025. All rights reserved.
+            {t('footer.copyright', '© Swifty Medical 2025. All rights reserved.')}
           </p>
         </div>
       </div>

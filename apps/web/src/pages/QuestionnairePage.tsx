@@ -378,6 +378,42 @@ function QuestionnairePage() {
     return true;
   };
 
+  // Validate currently-visible required pathway questions before moving forward.
+  // Returns true when all required questions for the active pathway are answered.
+  const validatePathwayScreen = (): boolean => {
+    const pathway = activePathways[step2PathwayIndex];
+    if (!pathway) return true;
+    const responses = pathwayResponses[pathway.id] || {};
+    const visible = pathway.questions.filter(q => isQuestionVisible(q, responses));
+    const missing: string[] = [];
+    for (const q of visible) {
+      if (!q.required) continue;
+      const v = responses[q.id];
+      const isAnswered = (() => {
+        if (v === undefined || v === null) return false;
+        if (q.type === 'slider') return typeof v === 'number';
+        if (q.type === 'multiSelect') return Array.isArray(v) && v.length > 0;
+        if (q.type === 'text') return typeof v === 'string' && v.trim().length > 0;
+        if (q.type === 'locationPicker') {
+          const loc = v as LocationSelection | undefined;
+          return !!loc && (
+            (Array.isArray(loc.regionIds) && loc.regionIds.length > 0) ||
+            (typeof loc.laterality === 'string' && loc.laterality.length > 0)
+          );
+        }
+        return v !== '';
+      })();
+      if (!isAnswered) missing.push(q.id);
+    }
+    if (missing.length > 0) {
+      setErrors({
+        pathway: t('questionnaire.errors.pathwayRequired', 'Please answer all required questions marked with *'),
+      });
+      return false;
+    }
+    return true;
+  };
+
   // isPersonalValid — used for live Next-button disable state on Screen A
   const isPersonalValid =
     !!formData.personalInfo.formFilledBy &&
@@ -400,12 +436,18 @@ function QuestionnairePage() {
   });
 
   const submitQuestionnaire = useMutation({
-    mutationFn: (answers: any) =>
-      apiFetch(`/cases/${caseId}/questionnaire`, {
+    mutationFn: async (answers: any) => {
+      const res = await apiFetch(`/cases/${caseId}/questionnaire`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ answers }),
-      }),
+      });
+      if (!res.ok) {
+        const payload = await res.json().catch(() => null);
+        throw new Error(payload?.message || payload?.error || `Server error ${res.status}`);
+      }
+      return res.json();
+    },
   });
 
   // ─── Navigation ────────────────────────────────────────────────────────────
@@ -433,7 +475,8 @@ function QuestionnairePage() {
         setCurrentStep(2);
       }
     } else {
-      // Step 2: navigate sub-steps or submit on last
+      // Step 2: enforce required answers before moving on or submitting
+      if (!validatePathwayScreen()) return;
       if (step2PathwayIndex < activePathways.length - 1) {
         setStep2PathwayIndex(prev => prev + 1);
       } else {
@@ -502,11 +545,15 @@ function QuestionnairePage() {
         adaptiveQuestions: buildAdaptiveQuestionsData(),
       };
       await submitQuestionnaire.mutateAsync(payload);
-      await apiFetch(`/cases/${caseId}/status`, {
+      const statusRes = await apiFetch(`/cases/${caseId}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: 'open' }),
       });
+      if (!statusRes.ok) {
+        const payload = await statusRes.json().catch(() => null);
+        throw new Error(payload?.message || payload?.error || `Status update failed (${statusRes.status})`);
+      }
       setIsSubmitted(true);
     } catch (error) {
       console.error('Error submitting form:', error);
@@ -582,12 +629,12 @@ function QuestionnairePage() {
               key={opt.value}
               type="button"
               onClick={() => updateFormData('personalInfo', field, opt.value)}
-              className={`px-3 py-3 rounded-xl border-2 text-sm font-medium transition-all text-left
+              className={`px-3 py-3 rounded-xl border-2 text-sm font-medium transition-all text-start
                 ${value === opt.value
                   ? 'border-blue-500 bg-blue-50 text-blue-700'
                   : 'border-gray-200 bg-white text-gray-700 hover:border-blue-300'}`}
             >
-              {value === opt.value && <Check className="inline w-3.5 h-3.5 mr-1 text-blue-500" />}
+              {value === opt.value && <Check className="inline w-3.5 h-3.5 me-1 text-blue-500" />}
               {opt.label}
             </button>
           ))}
@@ -775,7 +822,7 @@ function QuestionnairePage() {
                 key={key}
                 type="button"
                 onClick={() => handleConditionToggle(key, !isChecked)}
-                className={`flex items-center gap-2 px-3 py-3 rounded-xl border-2 text-sm font-medium transition-all text-left
+                className={`flex items-center gap-2 px-3 py-3 rounded-xl border-2 text-sm font-medium transition-all text-start
                   ${isChecked
                     ? isNoneKey
                       ? 'border-gray-400 bg-gray-50 text-gray-700'
@@ -810,7 +857,7 @@ function QuestionnairePage() {
                       className={`px-3 py-2 rounded-lg border-2 text-xs font-medium transition-all text-center
                         ${sel ? 'border-blue-500 bg-white text-blue-700' : 'border-gray-200 bg-white text-gray-600 hover:border-blue-300'}`}
                     >
-                      {sel && <Check className="inline w-3 h-3 mr-1" />}
+                      {sel && <Check className="inline w-3 h-3 me-1" />}
                       {t(`questionnaire.medicalHistory.cancerStatus_${val}`)}
                     </button>
                   );
@@ -883,7 +930,7 @@ function QuestionnairePage() {
                     : 'border-green-500 bg-green-50 text-green-700'
                   : 'border-gray-200 bg-white text-gray-700 hover:border-blue-300'}`}
             >
-              {selected && <Check className="inline w-4 h-4 mr-1" />}
+              {selected && <Check className="inline w-4 h-4 me-1" />}
               {val === 'yes' ? t('questionnaire.medications.allergies.yes') : t('questionnaire.medications.allergies.no')}
             </button>
           );
@@ -920,7 +967,7 @@ function QuestionnairePage() {
             updateFormData('medications', 'doesNotRememberMedications',
               !formData.medications.doesNotRememberMedications)
           }
-          className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border-2 text-sm font-medium transition-all text-left
+          className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border-2 text-sm font-medium transition-all text-start
             ${formData.medications.doesNotRememberMedications
               ? 'border-amber-400 bg-amber-50 text-amber-800'
               : 'border-gray-200 bg-white text-gray-700 hover:border-amber-300'}`}
@@ -964,7 +1011,7 @@ function QuestionnairePage() {
                 key={med.id}
                 type="button"
                 onClick={() => toggleMedication(groupKey, med.brandName, !selected)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border-2 text-left transition-all
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border-2 text-start transition-all
                   ${selected
                     ? 'border-blue-500 bg-blue-50 text-blue-700'
                     : 'border-gray-200 bg-white text-gray-800 hover:border-blue-300'}`}
@@ -976,7 +1023,7 @@ function QuestionnairePage() {
                 <div className="flex-1 min-w-0">
                   <span className="font-semibold text-sm">{med.brandName}</span>
                   {med.genericName && (
-                    <span className="text-xs text-gray-500 ml-1">({med.genericName})</span>
+                    <span className="text-xs text-gray-500 ms-1">({med.genericName})</span>
                   )}
                 </div>
               </button>
@@ -1067,7 +1114,7 @@ function QuestionnairePage() {
                 type="button"
                 disabled={disabled}
                 onClick={() => toggleIllness(key, !selected)}
-                className={`flex items-center gap-2 px-3 py-3 rounded-xl border-2 text-sm font-medium transition-all text-left
+                className={`flex items-center gap-2 px-3 py-3 rounded-xl border-2 text-sm font-medium transition-all text-start
                   ${selected
                     ? 'border-blue-500 bg-blue-50 text-blue-700'
                     : disabled
@@ -1157,9 +1204,9 @@ function QuestionnairePage() {
         return (
           <div key={question.id} className="space-y-2">
             <label className={labelClass}>
-              {isRedFlagTriggered && <AlertTriangle className="inline w-3.5 h-3.5 mr-1 text-red-500" />}
+              {isRedFlagTriggered && <AlertTriangle className="inline w-3.5 h-3.5 me-1 text-red-500" />}
               {t(`questionnaire.pathway.${pathwayId}.${question.id}`, question.label)}
-              {question.required && <span className="text-red-400 ml-1">*</span>}
+              {question.required && <span className="text-red-400 ms-1">*</span>}
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {question.options?.map(opt => {
@@ -1170,7 +1217,7 @@ function QuestionnairePage() {
                     key={opt.id}
                     type="button"
                     onClick={() => updatePathwayResponse(pathwayId, question.id, opt.id)}
-                    className={`flex items-center gap-2 px-3 py-3 rounded-xl border-2 text-sm font-medium transition-all text-left
+                    className={`flex items-center gap-2 px-3 py-3 rounded-xl border-2 text-sm font-medium transition-all text-start
                       ${selected
                         ? isOptRedFlag
                           ? 'border-red-400 bg-red-50 text-red-700'
@@ -1195,7 +1242,7 @@ function QuestionnairePage() {
             <label className={labelClass}>
               {t(`questionnaire.pathway.${pathwayId}.${question.id}`, question.label)}
               {question.maxSelections && (
-                <span className="ml-2 text-xs font-normal text-gray-400">
+                <span className="ms-2 text-xs font-normal text-gray-400">
                   ({selectedArr.length}/{question.maxSelections})
                 </span>
               )}
@@ -1216,7 +1263,7 @@ function QuestionnairePage() {
                     type="button"
                     disabled={isDisabled}
                     onClick={() => togglePathwayMultiSelect(pathwayId, question.id, opt.id, question.maxSelections)}
-                    className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border-2 text-sm font-medium transition-all text-left
+                    className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border-2 text-sm font-medium transition-all text-start
                       ${isChecked
                         ? isOptRedFlag
                           ? 'border-red-400 bg-red-50 text-red-700'
@@ -1240,14 +1287,18 @@ function QuestionnairePage() {
       }
 
       case 'slider': {
-        const sliderVal = (val as number) ?? 5;
-        const sliderColor =
-          sliderVal >= 8 ? 'text-red-600' : sliderVal >= 5 ? 'text-amber-600' : 'text-green-600';
+        // Slider has no default value until the patient interacts with it.
+        // This prevents silently recording "5" as an untouched severity.
+        const hasValue = typeof val === 'number';
+        const sliderVal = hasValue ? (val as number) : (question.min ?? 0);
+        const sliderColor = !hasValue
+          ? 'text-gray-300'
+          : sliderVal >= 8 ? 'text-red-600' : sliderVal >= 5 ? 'text-amber-600' : 'text-green-600';
         return (
           <div key={question.id} className="space-y-3">
             <label className={labelClass}>
               {t(`questionnaire.pathway.${pathwayId}.${question.id}`, question.label)}
-              {question.required && <span className="text-red-400 ml-1">*</span>}
+              {question.required && <span className="text-red-400 ms-1">*</span>}
             </label>
             <div className="flex items-center gap-4">
               <input
@@ -1258,11 +1309,17 @@ function QuestionnairePage() {
                 value={sliderVal}
                 onChange={e => updatePathwayResponse(pathwayId, question.id, Number(e.target.value))}
                 className="flex-1 h-2 rounded-lg cursor-pointer accent-blue-600 bg-gray-200"
+                aria-label={question.label}
               />
               <span className={`text-2xl font-bold w-10 text-center tabular-nums ${sliderColor}`}>
-                {sliderVal}
+                {hasValue ? sliderVal : '—'}
               </span>
             </div>
+            {!hasValue && question.required && (
+              <p className="text-xs text-gray-400">
+                {t('questionnaire.step2.sliderTapToRate', 'Drag the slider to rate')}
+              </p>
+            )}
             <div className="flex justify-between text-xs text-gray-400">
               <span>{t('questionnaire.step2.sliderNone', 'None')}</span>
               <span className="text-amber-500">{t('questionnaire.step2.sliderModerate', 'Moderate')}</span>
@@ -1284,7 +1341,7 @@ function QuestionnairePage() {
         return (
           <div key={question.id} className="space-y-2">
             <label className={`block text-sm font-semibold ${question.isRedFlag ? 'text-gray-700' : 'text-gray-700'} mb-2`}>
-              {question.isRedFlag && <AlertTriangle className="inline w-3.5 h-3.5 mr-1 text-amber-500" />}
+              {question.isRedFlag && <AlertTriangle className="inline w-3.5 h-3.5 me-1 text-amber-500" />}
               {t(`questionnaire.pathway.${pathwayId}.${question.id}`, question.label)}
             </label>
             <div className="grid grid-cols-2 gap-3">
@@ -1303,7 +1360,7 @@ function QuestionnairePage() {
                           : 'border-green-500 bg-green-50 text-green-700'
                         : 'border-gray-200 bg-white text-gray-700 hover:border-blue-300'}`}
                   >
-                    {isSelected && <Check className="inline w-4 h-4 mr-1" />}
+                    {isSelected && <Check className="inline w-4 h-4 me-1" />}
                     {boolVal
                       ? t('questionnaire.step2.yes', 'Yes')
                       : t('questionnaire.step2.no', 'No')}
@@ -1330,7 +1387,7 @@ function QuestionnairePage() {
             <div key={question.id} className="space-y-2">
               <label className={labelClass}>
                 {t(`questionnaire.pathway.${pathwayId}.${question.id}`, question.label)}
-                {question.required && <span className="text-red-400 ml-1">*</span>}
+                {question.required && <span className="text-red-400 ms-1">*</span>}
               </label>
               <AbdomenLocationPicker
                 value={locVal}
@@ -1344,7 +1401,7 @@ function QuestionnairePage() {
             <div key={question.id} className="space-y-2">
               <label className={labelClass}>
                 {t(`questionnaire.pathway.${pathwayId}.${question.id}`, question.label)}
-                {question.required && <span className="text-red-400 ml-1">*</span>}
+                {question.required && <span className="text-red-400 ms-1">*</span>}
               </label>
               <HeadacheLocationPicker
                 value={locVal}
@@ -1384,8 +1441,8 @@ function QuestionnairePage() {
         <div className="space-y-6 text-center">
           <h2 className="text-xl font-bold text-gray-900">{t('questionnaire.step2.symptoms', 'Current Symptoms')}</h2>
           <div className="text-gray-500 space-y-2">
-            <p className="text-base">{t('adaptive.noSymptomsSelected', 'No symptoms selected')}</p>
-            <p className="text-sm">{t('adaptive.goBackToStep1', 'Please go back and select your symptoms')}</p>
+            <p className="text-base">{t('questionnaire.adaptive.noSymptomsSelected', 'No symptoms selected')}</p>
+            <p className="text-sm">{t('questionnaire.adaptive.goBackToStep1', 'Please go back to Step 1 and select your symptoms')}</p>
           </div>
           <Button onClick={() => { setCurrentStep(1); setScreen(SCREEN_ILLNESS); }} variant="outline">
             {t('common.back')}
@@ -1428,7 +1485,11 @@ function QuestionnairePage() {
             <div>
               <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">
                 {activePathways.length > 1
-                  ? t('questionnaire.step2.pathwayOf', `Symptom ${step2PathwayIndex + 1} of ${activePathways.length}`, { current: step2PathwayIndex + 1, total: activePathways.length })
+                  ? t('questionnaire.step2.pathwayOf', {
+                      defaultValue: 'Symptom {{current}} of {{total}}',
+                      current: step2PathwayIndex + 1,
+                      total: activePathways.length,
+                    })
                   : t('questionnaire.step2.symptoms', 'Current Symptoms')
                 }
               </p>
@@ -1446,14 +1507,14 @@ function QuestionnairePage() {
 
         {/* Red flag banner */}
         {redFlagsForPathway.length > 0 && (
-          <div className="flex items-start gap-3 px-4 py-3 bg-red-50 border border-red-300 rounded-xl">
+          <div className="flex items-start gap-3 px-4 py-3 bg-red-50 border border-red-300 rounded-xl" role="alert">
             <AlertTriangle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-bold text-red-700">
-                {t('adaptive.redFlagAlert', '⚠️ Red Flag Alert')}
+                {t('questionnaire.adaptive.redFlagAlert', '⚠️ Red Flag Alert')}
               </p>
               <p className="text-xs text-red-600 mt-0.5">
-                {t('adaptive.redFlagMessage', 'Critical symptoms detected. Please inform the medical staff immediately.')}
+                {t('questionnaire.adaptive.redFlagMessage', 'Critical symptoms detected. Immediate medical attention may be required.')}
               </p>
             </div>
           </div>
@@ -1464,16 +1525,26 @@ function QuestionnairePage() {
           {visibleQuestions.map(question => renderPathwayQuestion(question, responses, currentPathway.id))}
         </div>
 
+        {errors.pathway && (
+          <div
+            className="flex items-start gap-2 px-4 py-3 bg-amber-50 border border-amber-300 rounded-xl text-amber-800 text-sm"
+            role="alert"
+          >
+            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+            <span>{errors.pathway}</span>
+          </div>
+        )}
+
         {/* Optional additional details */}
         <div className="space-y-2 pt-2 border-t border-gray-100">
           <label className="block text-sm font-semibold text-gray-700">
-            {t('adaptive.additionalDetails', 'Additional Details')}
-            <span className="ml-1 text-xs font-normal text-gray-400">({t('questionnaire.step2.optional', 'optional')})</span>
+            {t('questionnaire.adaptive.additionalDetails', 'Additional Details')}
+            <span className="ms-1 text-xs font-normal text-gray-400">({t('questionnaire.step2.optional', 'optional')})</span>
           </label>
           <textarea
             value={(responses['_additionalDetails'] as string) || ''}
             onChange={e => updatePathwayResponse(currentPathway.id, '_additionalDetails', e.target.value)}
-            placeholder={t('adaptive.additionalDetailsPlaceholder', 'Any other information you would like to share...')}
+            placeholder={t('questionnaire.adaptive.additionalDetailsPlaceholder', 'Please provide any additional information')}
             rows={3}
             className="w-full px-3 py-2 text-sm border border-gray-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
           />
@@ -1567,9 +1638,9 @@ function QuestionnairePage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center" dir={isRTL ? 'rtl' : 'ltr'}>
         <div className="text-center">
           <Shield className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-gray-900 mb-2">{t('common.error')}</h2>
-          <p className="text-gray-600 mb-4">{t('questionnaire.errors.saveError')}</p>
-          <Button onClick={() => window.location.reload()}>{t('common.retry')}</Button>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">{t('common.error', 'Something went wrong')}</h2>
+          <p className="text-gray-600 mb-4">{t('questionnaire.errors.loadError', 'We could not load your case. Please check your connection and try again.')}</p>
+          <Button onClick={() => window.location.reload()}>{t('common.retry', 'Retry')}</Button>
         </div>
       </div>
     );
@@ -1580,8 +1651,9 @@ function QuestionnairePage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center" dir={isRTL ? 'rtl' : 'ltr'}>
         <div className="text-center">
           <Shield className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-gray-900 mb-2">{t('case.questionnaire.noData')}</h2>
-          <Button onClick={() => navigate('/scan')}>{t('common.back')}</Button>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">{t('questionnaire.errors.caseNotFound', 'Case not found')}</h2>
+          <p className="text-gray-600 mb-4 text-sm">{t('questionnaire.errors.caseNotFoundHint', 'The patient case you are looking for does not exist or has been removed.')}</p>
+          <Button onClick={() => navigate('/patient')}>{t('common.back', 'Back')}</Button>
         </div>
       </div>
     );
@@ -1630,7 +1702,7 @@ function QuestionnairePage() {
           <Shield className="h-10 w-10 text-blue-600 mx-auto mb-3" />
           <h1 className="text-2xl font-bold text-gray-900">{t('questionnaire.title')}</h1>
           <p className="text-gray-500 mt-1 text-sm">
-            {t('questionnaire.greeting', { name: caseData?.patientName || 'Patient' })}
+            {t('questionnaire.greeting', { name: caseData?.patientName || t('questionnaire.defaultPatientName', 'Patient') })}
           </p>
         </div>
 
