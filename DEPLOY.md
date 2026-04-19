@@ -33,10 +33,10 @@ In the Render service dashboard → **Environment**, add:
 
 | Key | Value |
 |---|---|
-| `MONGODB_URI` | `mongodb+srv://swiftycare:swiftycare@cluster0.deeuojc.mongodb.net/swiftycare?retryWrites=true&w=majority&appName=Cluster0` |
-| `OPENAI_API_KEY` | your key from `apps/api/.env` |
+| `MONGODB_URI` | the value from your local `apps/api/.env` (never commit this) |
+| `OPENAI_API_KEY` | the value from your local `apps/api/.env` (never commit this) |
 
-> If you don't want the password `swiftycare` in production, reset it in Atlas → Database Access and paste the new one here. The repo's `.env` stays for local dev.
+> Treat both values as secrets. Rotate the Atlas password and the OpenAI key immediately if either is ever committed to the repo or pasted into a shared document.
 
 ### 1c. Allow Render to reach Atlas
 
