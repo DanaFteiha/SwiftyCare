@@ -1,0 +1,1464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="SwiftyCare — Recover time, regain value. ED workflow optimization: self-service intake, AI-assisted documentation, structured discharge. Team, market strategy, and legal overview for clients." />
+  <meta name="theme-color" content="#0c1222" />
+  <title>SwiftyCare — Clinical documentation, intelligently assisted</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #0c1222;
+      --ink-soft: #1e293b;
+      --muted: #64748b;
+      --faint: #94a3b8;
+      --line: rgba(148, 163, 184, 0.35);
+      --surface: #ffffff;
+      --surface-2: #f8fafc;
+      --accent: #0d9488;
+      --accent-glow: rgba(13, 148, 136, 0.35);
+      --accent-2: #3b82f6;
+      --legal-bg: #fffbeb;
+      --legal-border: #f59e0b;
+      --radius: 16px;
+      --radius-sm: 10px;
+      --shadow: 0 4px 24px rgba(12, 18, 34, 0.06);
+      --shadow-lg: 0 24px 64px rgba(12, 18, 34, 0.12);
+      --nav-h: 72px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Manrope", system-ui, sans-serif;
+      font-size: 1.0625rem;
+      line-height: 1.7;
+      color: var(--ink-soft);
+      background: var(--surface-2);
+    }
+
+    .skip-link {
+      position: absolute;
+      top: -100px;
+      left: 1rem;
+      padding: 0.5rem 1rem;
+      background: var(--ink);
+      color: #fff;
+      border-radius: 8px;
+      z-index: 9999;
+      transition: top 0.2s;
+    }
+    .skip-link:focus { top: 1rem; }
+
+    /* —— Nav —— */
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: var(--nav-h);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 1.5rem;
+      background: rgba(248, 250, 252, 0.72);
+      backdrop-filter: blur(16px) saturate(180%);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .nav-inner {
+      width: min(1120px, 100%);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      text-decoration: none;
+      color: var(--ink);
+      font-weight: 700;
+      font-size: 1.05rem;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-mark {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #0d9488 0%, #0f766e 45%, #134e4a 100%);
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-size: 0.65rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+    }
+
+    .nav-links {
+      display: none;
+      align-items: center;
+      gap: 0.2rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    @media (min-width: 768px) {
+      .nav-links { display: flex; }
+    }
+
+    .nav-links a {
+      padding: 0.5rem 0.85rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--muted);
+      text-decoration: none;
+      border-radius: 8px;
+      transition: color 0.15s, background 0.15s;
+    }
+
+    .nav-links a:hover {
+      color: var(--ink);
+      background: rgba(15, 23, 42, 0.06);
+    }
+
+    .nav-cta {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      padding: 0.55rem 1rem;
+      border-radius: 999px;
+      background: var(--ink);
+      color: #fff !important;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .nav-cta:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(12, 18, 34, 0.2);
+    }
+
+    /* —— Hero —— */
+    .hero {
+      position: relative;
+      min-height: min(92vh, 880px);
+      padding: calc(var(--nav-h) + 3rem) 1.5rem 4rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: var(--ink);
+      color: #e2e8f0;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 55% at 50% -10%, rgba(13, 148, 136, 0.45), transparent 55%),
+        radial-gradient(ellipse 50% 40% at 100% 40%, rgba(59, 130, 246, 0.22), transparent 50%),
+        radial-gradient(ellipse 45% 35% at 0% 80%, rgba(20, 184, 166, 0.18), transparent 50%);
+      pointer-events: none;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      width: min(880px, 100%);
+      text-align: center;
+      animation: heroIn 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    @keyframes heroIn {
+      from { opacity: 0; transform: translateY(28px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 1rem 0.35rem 0.45rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #99f6e4;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-badge span.dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #2dd4bf;
+      box-shadow: 0 0 12px var(--accent-glow);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .hero h1 {
+      font-family: "Fraunces", Georgia, serif;
+      font-size: clamp(2.35rem, 6vw, 3.65rem);
+      font-weight: 500;
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      margin: 0 0 1.25rem;
+      color: #f8fafc;
+    }
+
+    .hero h1 em {
+      font-style: italic;
+      background: linear-gradient(120deg, #5eead4, #7dd3fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-lead {
+      font-size: clamp(1.05rem, 2.2vw, 1.2rem);
+      line-height: 1.65;
+      color: #94a3b8;
+      max-width: 36em;
+      margin: 0 auto 2rem;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      justify-content: center;
+      margin-bottom: 3rem;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.85rem 1.5rem;
+      border-radius: 999px;
+      font-family: inherit;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      background: linear-gradient(135deg, #14b8a6, #0d9488);
+      color: #fff;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 12px 40px rgba(13, 148, 136, 0.35);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 48px rgba(13, 148, 136, 0.45);
+    }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.85rem 1.35rem;
+      border-radius: 999px;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: #cbd5e1;
+      text-decoration: none;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: rgba(255, 255, 255, 0.04);
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .btn-ghost:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.28);
+    }
+
+    .hero-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      max-width: 640px;
+      margin: 0 auto;
+      padding-top: 0.5rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    @media (max-width: 560px) {
+      .hero-metrics { grid-template-columns: 1fr; text-align: center; }
+    }
+
+    .metric {
+      padding: 0.75rem 0.5rem;
+    }
+
+    .metric strong {
+      display: block;
+      font-family: "Fraunces", Georgia, serif;
+      font-size: 1.35rem;
+      font-weight: 500;
+      color: #f1f5f9;
+      margin-bottom: 0.2rem;
+    }
+
+    .metric span {
+      font-size: 0.8125rem;
+      color: #64748b;
+      line-height: 1.4;
+    }
+
+    /* —— Main shell —— */
+    main {
+      position: relative;
+      margin-top: -3rem;
+      z-index: 2;
+    }
+
+    .shell {
+      width: min(1120px, 100%);
+      margin: 0 auto;
+      padding: 0 1.5rem 4rem;
+    }
+
+    .panel {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--line);
+      padding: clamp(2rem, 5vw, 3.25rem);
+      margin-bottom: 2rem;
+    }
+
+    .section-head {
+      margin-bottom: 1.75rem;
+    }
+
+    .section-eyebrow {
+      font-size: 0.6875rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+
+    .section-head h2 {
+      font-family: "Fraunces", Georgia, serif;
+      font-size: clamp(1.65rem, 3.5vw, 2.15rem);
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      margin: 0 0 0.5rem;
+      line-height: 1.2;
+    }
+
+    .section-head p.deck {
+      margin: 0;
+      font-size: 1.05rem;
+      color: var(--muted);
+      max-width: 52ch;
+    }
+
+    .prose p {
+      margin: 0 0 1.1rem;
+    }
+
+    .prose p:last-child { margin-bottom: 0; }
+
+    .prose strong { color: var(--ink); font-weight: 600; }
+
+    /* —— Feature grid —— */
+    .grid-3 {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    }
+
+    .feature-card {
+      padding: 1.35rem 1.4rem;
+      border-radius: var(--radius-sm);
+      background: var(--surface-2);
+      border: 1px solid var(--line);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .feature-card:hover {
+      border-color: rgba(13, 148, 136, 0.35);
+      box-shadow: var(--shadow);
+    }
+
+    .feature-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 0.85rem;
+      background: linear-gradient(145deg, rgba(13, 148, 136, 0.12), rgba(59, 130, 246, 0.08));
+      color: #0f766e;
+    }
+
+    .feature-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin: 0 0 0.4rem;
+      letter-spacing: -0.01em;
+    }
+
+    .feature-card p {
+      margin: 0;
+      font-size: 0.9375rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* —— Audience list —— */
+    .audience {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .audience li {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      padding: 1.1rem 1.25rem;
+      border-radius: var(--radius-sm);
+      background: var(--surface-2);
+      border: 1px solid var(--line);
+    }
+
+    .audience li::before {
+      content: "";
+      flex-shrink: 0;
+      width: 6px;
+      height: 6px;
+      margin-top: 0.55rem;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.2);
+    }
+
+    .audience strong { color: var(--ink); }
+
+    /* —— Workflow timeline —— */
+    ol.timeline {
+      position: relative;
+      padding: 0;
+      margin: 0;
+      list-style: none;
+      counter-reset: timeline-step;
+    }
+
+    ol.timeline li {
+      position: relative;
+      counter-increment: timeline-step;
+      padding-left: 2.75rem;
+      padding-bottom: 1.75rem;
+    }
+
+    ol.timeline li:last-child { padding-bottom: 0; }
+
+    /* vertical connector line */
+    ol.timeline li::after {
+      content: "";
+      position: absolute;
+      left: 0.6rem;
+      top: 2.1rem;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(180deg, var(--accent), rgba(13, 148, 136, 0.12));
+    }
+
+    ol.timeline li:last-child::after { display: none; }
+
+    .step-num {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1.35rem;
+      height: 1.35rem;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 2px solid var(--accent);
+      font-size: 0.62rem;
+      font-weight: 800;
+      color: var(--accent);
+      display: grid;
+      place-items: center;
+    }
+
+    .step-num::before {
+      content: counter(timeline-step);
+    }
+
+    ol.timeline li .step-card {
+      padding: 1.15rem 1.35rem;
+      border-radius: var(--radius-sm);
+      background: var(--surface-2);
+      border: 1px solid var(--line);
+    }
+
+    ol.timeline li .step-card strong {
+      display: block;
+      font-size: 0.9375rem;
+      color: var(--ink);
+      margin-bottom: 0.35rem;
+    }
+
+    ol.timeline li .step-card span {
+      font-size: 0.9375rem;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    /* —— Capability pills + list hybrid —— */
+    .cap-grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+
+    .cap-item {
+      display: flex;
+      gap: 0.85rem;
+      padding: 1rem 1.1rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--line);
+      background: var(--surface);
+    }
+
+    .cap-item svg {
+      flex-shrink: 0;
+      width: 22px;
+      height: 22px;
+      color: var(--accent);
+      margin-top: 0.15rem;
+    }
+
+    .cap-item p {
+      margin: 0;
+      font-size: 0.9375rem;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .cap-item strong { color: var(--ink); }
+
+    /* —— Tech strip —— */
+    .tech-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1.25rem;
+    }
+
+    .tech-pill {
+      padding: 0.45rem 0.9rem;
+      border-radius: 999px;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      background: var(--surface-2);
+      border: 1px solid var(--line);
+      color: var(--ink-soft);
+    }
+
+    /* —— Legal (full content preserved) —— */
+    .legal-panel {
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid rgba(245, 158, 11, 0.45);
+      background: linear-gradient(165deg, var(--legal-bg) 0%, #fff8ed 100%);
+      box-shadow: 0 4px 32px rgba(245, 158, 11, 0.12);
+    }
+
+    .legal-panel-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1.35rem 1.75rem;
+      background: rgba(255, 255, 255, 0.65);
+      border-bottom: 1px solid rgba(245, 158, 11, 0.25);
+    }
+
+    .legal-shield {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      display: grid;
+      place-items: center;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .legal-shield svg {
+      width: 26px;
+      height: 26px;
+    }
+
+    .legal-panel-header h2 {
+      font-family: "Fraunces", Georgia, serif;
+      font-size: 1.35rem;
+      font-weight: 600;
+      margin: 0;
+      color: #78350f;
+      letter-spacing: -0.02em;
+    }
+
+    .legal-panel-header p {
+      margin: 0.2rem 0 0;
+      font-size: 0.8125rem;
+      color: #92400e;
+      font-weight: 500;
+    }
+
+    .legal-body {
+      padding: 1.75rem 1.75rem 2rem;
+      font-size: 0.9375rem;
+      line-height: 1.75;
+      color: #451a03;
+    }
+
+    .legal-body p {
+      margin: 0 0 1.15rem;
+      padding-left: 1rem;
+      border-left: 3px solid rgba(245, 158, 11, 0.5);
+    }
+
+    .legal-body p:last-child { margin-bottom: 0; }
+
+    .legal-body strong {
+      display: block;
+      margin-bottom: 0.25rem;
+      color: #78350f;
+      font-weight: 700;
+      border-left: none;
+      padding-left: 0;
+    }
+
+    /* —— Footer —— */
+    .site-footer {
+      text-align: center;
+      padding: 3rem 1.5rem;
+      color: var(--muted);
+      font-size: 0.8125rem;
+      line-height: 1.6;
+      border-top: 1px solid var(--line);
+      background: var(--surface);
+    }
+
+    .site-footer strong { color: var(--ink-soft); }
+
+    /* —— Pitch-deck refinements —— */
+    .hero-tagline {
+      font-family: "Fraunces", Georgia, serif;
+      font-size: clamp(1.05rem, 2.5vw, 1.35rem);
+      font-weight: 500;
+      font-style: italic;
+      color: #99f6e4;
+      letter-spacing: 0.02em;
+      margin: 0 0 1rem;
+      opacity: 0.95;
+    }
+
+    .stat-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .stat-pill {
+      padding: 0.65rem 1rem;
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      border: 1px solid var(--line);
+      font-size: 0.875rem;
+    }
+
+    .stat-pill strong {
+      display: block;
+      font-size: 1.25rem;
+      font-family: "Fraunces", Georgia, serif;
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    .stat-pill span {
+      color: var(--muted);
+      font-size: 0.8125rem;
+    }
+
+    .er-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 0.6rem;
+      margin-top: 1.25rem;
+    }
+
+    .er-step {
+      text-align: center;
+      padding: 0.85rem 0.5rem;
+      border-radius: var(--radius-sm);
+      background: var(--surface-2);
+      border: 1px solid var(--line);
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+    }
+
+    .er-step em {
+      display: block;
+      font-style: normal;
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: var(--accent);
+      margin-top: 0.35rem;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    .solution-list {
+      list-style: none;
+      padding: 0;
+      margin: 1rem 0 0;
+      display: grid;
+      gap: 0.65rem;
+    }
+
+    .solution-list li {
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+      padding: 0.85rem 1rem;
+      border-radius: var(--radius-sm);
+      background: var(--surface-2);
+      border: 1px solid var(--line);
+      font-size: 0.9375rem;
+    }
+
+    .solution-list li::before {
+      content: "✓";
+      flex-shrink: 0;
+      width: 1.35rem;
+      height: 1.35rem;
+      border-radius: 6px;
+      background: rgba(13, 148, 136, 0.15);
+      color: var(--accent);
+      font-weight: 800;
+      font-size: 0.65rem;
+      display: grid;
+      place-items: center;
+    }
+
+    .team-grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    }
+
+    .team-card {
+      padding: 1.35rem 1.4rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--line);
+      background: var(--surface);
+    }
+
+    .team-card h3 {
+      margin: 0 0 0.25rem;
+      font-size: 1.05rem;
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    .team-card .role {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+
+    .team-card p {
+      margin: 0;
+      font-size: 0.875rem;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .compare-wrap {
+      overflow-x: auto;
+      margin-top: 1.25rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--line);
+    }
+
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8125rem;
+      min-width: 520px;
+    }
+
+    .compare-table th,
+    .compare-table td {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .compare-table th {
+      background: var(--surface-2);
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .compare-table tr:last-child td { border-bottom: none; }
+
+    .compare-table td:first-child {
+      font-weight: 600;
+      color: var(--ink-soft);
+    }
+
+    .cell-yes { color: #0f766e; font-weight: 700; }
+    .cell-no { color: var(--muted); }
+
+    .compare-note {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 0.75rem;
+      line-height: 1.5;
+    }
+
+    .landscape-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .landscape-card {
+      padding: 1rem;
+      border-radius: var(--radius-sm);
+      background: var(--surface-2);
+      border: 1px solid var(--line);
+      font-size: 0.8125rem;
+    }
+
+    .landscape-card strong {
+      display: block;
+      color: var(--ink);
+      margin-bottom: 0.25rem;
+      font-size: 0.875rem;
+    }
+
+    .landscape-card span {
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .gtm-phases {
+      display: grid;
+      gap: 0.75rem;
+      margin-top: 1.25rem;
+    }
+
+    @media (min-width: 768px) {
+      .gtm-phases {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .gtm-phase {
+      padding: 1.35rem 1.2rem 1.15rem;
+      margin-top: 0.35rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--line);
+      background: var(--surface);
+      position: relative;
+    }
+
+    .gtm-phase::before {
+      content: attr(data-phase);
+      position: absolute;
+      top: -0.5rem;
+      left: 1rem;
+      background: var(--ink);
+      color: #fff;
+      font-size: 0.65rem;
+      font-weight: 800;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      letter-spacing: 0.06em;
+    }
+
+    .gtm-phase h3 {
+      margin: 0.5rem 0 0.35rem;
+      font-size: 0.9375rem;
+      color: var(--ink);
+    }
+
+    .gtm-phase p {
+      margin: 0;
+      font-size: 0.8125rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .milestone-grid {
+      display: grid;
+      gap: 0.65rem;
+      margin-top: 1rem;
+    }
+
+    @media (min-width: 640px) {
+      .milestone-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .milestone {
+      padding: 1rem 1.1rem;
+      border-radius: var(--radius-sm);
+      border: 1px dashed var(--line);
+      background: var(--surface-2);
+      font-size: 0.8125rem;
+    }
+
+    .milestone strong {
+      display: block;
+      color: var(--ink);
+      margin-bottom: 0.25rem;
+      font-size: 0.875rem;
+    }
+
+    .contact-grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+
+    .contact-card {
+      padding: 1.5rem 1.6rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, #fff 0%, var(--surface-2) 100%);
+    }
+
+    .contact-card h3 {
+      margin: 0 0 0.15rem;
+      font-size: 1.05rem;
+      color: var(--ink);
+    }
+
+    .contact-card .contact-role {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+
+    .contact-card a {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--accent-2);
+      text-decoration: none;
+      margin-bottom: 0.35rem;
+      word-break: break-word;
+    }
+
+    .contact-card a:hover { text-decoration: underline; }
+
+    .contact-card .phone {
+      font-variant-numeric: tabular-nums;
+      color: var(--ink-soft);
+    }
+
+    .contact-shared {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--line);
+      font-size: 0.8125rem;
+      color: var(--muted);
+    }
+
+    .contact-shared a {
+      display: inline;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="nav" role="banner">
+    <div class="nav-inner">
+      <a class="brand" href="#top" aria-label="SwiftyCare home">
+        <span class="brand-mark" aria-hidden="true">SC</span>
+        SwiftyCare
+      </a>
+      <nav class="nav-links" aria-label="Page sections">
+        <a href="#problem">Problem</a>
+        <a href="#overview">Solution</a>
+        <a href="#team">Team</a>
+        <a href="#workflow">Workflow</a>
+        <a href="#differentiators">Differentiators</a>
+        <a href="#market">Market</a>
+        <a href="#contact">Contact</a>
+        <a href="#legal">Legal</a>
+      </nav>
+      <a class="nav-cta" href="#contact">Get in touch</a>
+    </div>
+  </header>
+
+  <div id="top" class="hero" role="region" aria-label="Introduction">
+    <div class="hero-content">
+      <div class="hero-badge"><span class="dot" aria-hidden="true"></span> Enterprise briefing</div>
+      <p class="hero-tagline">Recover time — regain value.</p>
+      <h1>Clinical documentation, <em>intelligently assisted</em></h1>
+      <p class="hero-lead">
+        SwiftyCare is an <strong style="color:#e2e8f0;">AI platform for ED workflow optimization</strong>: self-service patient history, integrated data, automated physician documentation, and intake-to-discharge efficiency—so your team can draft summaries, reason through differentials, and produce discharge records with AI support while <strong style="color:#cbd5e1;">you stay in control</strong> of every clinical decision.
+      </p>
+      <div class="hero-actions">
+        <a class="btn-primary" href="#overview">Explore the platform</a>
+        <a class="btn-ghost" href="#legal">Legal &amp; compliance</a>
+      </div>
+      <div class="hero-metrics" role="list">
+        <div class="metric" role="listitem">
+          <strong>EN · HE</strong>
+          <span>Bilingual interface for diverse patient populations</span>
+        </div>
+        <div class="metric" role="listitem">
+          <strong>Human-in-the-loop</strong>
+          <span>AI drafts; licensed clinicians review &amp; finalize</span>
+        </div>
+        <div class="metric" role="listitem">
+          <strong>ED workflow</strong>
+          <span>Optimizing physician time — maximizing ER capacity &amp; value</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <main id="main">
+    <div class="shell">
+      <section id="problem" class="panel" aria-labelledby="problem-title">
+        <div class="section-head">
+          <p class="section-eyebrow">The problem</p>
+          <h2 id="problem-title">Documentation burden is consuming the ED</h2>
+          <p class="deck">Clinicians need time with patients—not keyboards. Administrative load directly impacts throughput, experience, and economics.</p>
+        </div>
+        <div class="prose">
+          <p>
+            Roughly <strong>one-third of emergency physician time</strong> is spent on documentation. That delays patient intake and discharge, underutilizes ER capacity, and contributes to <strong>hospital revenue loss</strong> at scale. Large U.S. hospitals have been estimated to face on the order of <strong>tens of millions of dollars</strong> in annual losses tied to these dynamics (per SwiftyCare market materials).
+          </p>
+        </div>
+        <div class="stat-row">
+          <div class="stat-pill">
+            <strong>~⅓</strong>
+            <span>of ER physician time on documentation</span>
+          </div>
+          <div class="stat-pill">
+            <strong>Throughput</strong>
+            <span>Intake &amp; discharge delayed when charts lag</span>
+          </div>
+          <div class="stat-pill">
+            <strong>Capacity</strong>
+            <span>Underused ED resources &amp; revenue at risk</span>
+          </div>
+        </div>
+        <p class="deck" style="margin-top:1.5rem;">Classic ED journey (simplified) — every step depends on timely information and documentation:</p>
+        <div class="er-strip" aria-label="ED journey steps">
+          <div class="er-step">1 · Arrival<em>Registration</em></div>
+          <div class="er-step">2 · Triage<em>Door to first provider ≤ 15 min</em></div>
+          <div class="er-step">3 · Physician<em>Door to doctor</em></div>
+          <div class="er-step">4 · Care<em>Investigation &amp; treatment</em></div>
+          <div class="er-step">5 · Discharge<em>Disposition to departure</em></div>
+        </div>
+      </section>
+
+      <section id="overview" class="panel" aria-labelledby="overview-title">
+        <div class="section-head">
+          <p class="section-eyebrow">The solution</p>
+          <h2 id="overview-title">An AI platform built for the emergency department</h2>
+          <p class="deck">SwiftyCare connects self-service intake, clinical data, and physician workflows so documentation keeps pace with patient flow.</p>
+        </div>
+        <div class="prose">
+          <p>
+            SwiftyCare is a software platform that combines a <strong>patient-facing questionnaire</strong>, <strong>vital sign capture</strong>, and a <strong>clinician workspace</strong>. Large language models draft clinical text—summaries, differential-style reasoning with suggested investigations, and structured discharge documentation—while the <strong>licensed clinician</strong> reviews, edits, and finalizes every record.
+          </p>
+          <p>
+            The product is <strong>bilingual (English and Hebrew)</strong> and is implemented as a modern web application with a dedicated API and database—ready to evolve toward deeper hospital integration.
+          </p>
+        </div>
+        <p class="deck" style="margin-top:1.25rem;">At a glance, the platform is designed to:</p>
+        <ul class="solution-list">
+          <li><strong>Self-reliant patient history entering</strong> — structured intake before or at the bedside.</li>
+          <li><strong>Integrate patient data</strong> — vitals, questionnaire, and case state in one clinical view.</li>
+          <li><strong>Automate physician documentation</strong> — AI-assisted drafts that clinicians control.</li>
+          <li><strong>Optimize intake-to-discharge workflows</strong> — keep the case open through investigations; close when discharge is finalized.</li>
+        </ul>
+        <div class="grid-3" style="margin-top:2rem;">
+          <article class="feature-card">
+            <div class="feature-icon" aria-hidden="true">
+              <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            </div>
+            <h3>AI-driven prioritization support</h3>
+            <p>Surface differential thinking and suggested investigations so teams can align on what to order next—faster.</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-icon" aria-hidden="true">
+              <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+            </div>
+            <h3>Less typing, less paperwork friction</h3>
+            <p>Reduce repetitive keyboard work by drafting narrative and structured sections physicians can edit in place.</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-icon" aria-hidden="true">
+              <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            </div>
+            <h3>Discharge readiness</h3>
+            <p>Automate and summarize structured discharge documentation before the patient leaves the ER—under physician sign-off.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="audience" class="panel" aria-labelledby="audience-title">
+        <div class="section-head">
+          <p class="section-eyebrow">Who we serve</p>
+          <h2 id="audience-title">Built for teams evaluating the future of ED documentation</h2>
+          <p class="deck">Whether you are piloting innovation or briefing executive sponsors, SwiftyCare demonstrates a realistic, end-to-end path.</p>
+        </div>
+        <ul class="audience">
+          <li><strong>Emergency departments and urgent care</strong> exploring faster, more consistent documentation.</li>
+          <li><strong>Innovation and IT teams</strong> evaluating AI-assisted documentation pilots.</li>
+          <li><strong>Hospital executives and operational leaders</strong> focused on throughput, capacity, and revenue protection.</li>
+          <li><strong>Educators and demo audiences</strong> who need a concrete workflow to discuss benefits and limits of clinical AI.</li>
+        </ul>
+      </section>
+
+      <section id="team" class="panel" aria-labelledby="team-title">
+        <div class="section-head">
+          <p class="section-eyebrow">Leadership</p>
+          <h2 id="team-title">Founding team</h2>
+          <p class="deck">Clinicians and engineers working together—exactly what serious health technology requires.</p>
+        </div>
+        <div class="team-grid">
+          <article class="team-card">
+            <h3>Dr. Tariq Kaloty</h3>
+            <p class="role">CEO · Founder</p>
+            <p>Family physician; emergency primary care clinic experience—bridging frontline practice with product vision.</p>
+          </article>
+          <article class="team-card">
+            <h3>Dr. Yazeed Hamadeh</h3>
+            <p class="role">COO · Founder · General Manager</p>
+            <p>Emergency physician; Head of ER Department—operational and clinical leadership in high-acuity settings.</p>
+          </article>
+          <article class="team-card">
+            <h3>Dana Fteiha</h3>
+            <p class="role">CTO</p>
+            <p>Computer engineer; engineering leadership in mobile and product delivery—scaling the technical foundation.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="workflow" class="panel" aria-labelledby="workflow-title">
+        <div class="section-head">
+          <p class="section-eyebrow">Clinical journey</p>
+          <h2 id="workflow-title">How the workflow fits together</h2>
+          <p class="deck">End-to-end, a typical path through SwiftyCare looks like this—from first touch to a finalized discharge record.</p>
+        </div>
+        <ol class="timeline">
+          <li>
+            <span class="step-num" aria-hidden="true"></span>
+            <div class="step-card">
+              <strong>Patient entry</strong>
+              <span>The patient opens a link or scans a code, enters identifying information, and a case is created in the system.</span>
+            </div>
+          </li>
+          <li>
+            <span class="step-num" aria-hidden="true"></span>
+            <div class="step-card">
+              <strong>Structured intake</strong>
+              <span>A guided questionnaire captures demographics, medical history, medications, presenting complaints, and follow-up questions that adapt to reported symptoms.</span>
+            </div>
+          </li>
+          <li>
+            <span class="step-num" aria-hidden="true"></span>
+            <div class="step-card">
+              <strong>Triage vitals</strong>
+              <span>Staff can record blood pressure, heart rate, oxygen saturation, temperature, respiratory rate, and pain score on the case.</span>
+            </div>
+          </li>
+          <li>
+            <span class="step-num" aria-hidden="true"></span>
+            <div class="step-card">
+              <strong>Clinician review</strong>
+              <span>On the doctor dashboard, the team opens the case, generates or refreshes an AI-assisted narrative summary and differential-style analysis, and selects diagnostic investigations from recommendations (investigations only—not disease names as “tests”).</span>
+            </div>
+          </li>
+          <li>
+            <span class="step-num" aria-hidden="true"></span>
+            <div class="step-card">
+              <strong>Orders on the record</strong>
+              <span>Selected tests are stored on the case. The case remains <strong>open</strong> while results are awaited; ordering does not close the encounter.</span>
+            </div>
+          </li>
+          <li>
+            <span class="step-num" aria-hidden="true"></span>
+            <div class="step-card">
+              <strong>Discharge record</strong>
+              <span>The clinician generates a structured discharge document (multiple clinical sections), edits it, and when satisfied, <strong>finalizes</strong> it. Finalization is the step that aligns with closing the case in this MVP.</span>
+            </div>
+          </li>
+        </ol>
+      </section>
+
+      <section id="differentiators" class="panel" aria-labelledby="diff-title">
+        <div class="section-head">
+          <p class="section-eyebrow">Competitive landscape</p>
+          <h2 id="diff-title">Why SwiftyCare is different</h2>
+          <p class="deck">Many tools optimize notes or ambient scribing. SwiftyCare is oriented around the <strong>full ED journey</strong>—from structured intake through investigations to discharge documentation.</p>
+        </div>
+        <p class="deck">Capability comparison (summary from company materials; for discussion purposes only—verify independently for procurement):</p>
+        <div class="compare-wrap">
+          <table class="compare-table">
+            <thead>
+              <tr>
+                <th>Capability</th>
+                <th>Heidi Health</th>
+                <th>Nabla Health</th>
+                <th>Suki Health</th>
+                <th>SwiftyCare</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Self-service patient intake</td>
+                <td class="cell-no">No</td>
+                <td class="cell-no">No</td>
+                <td class="cell-no">No</td>
+                <td class="cell-yes">Yes</td>
+              </tr>
+              <tr>
+                <td>Automated discharge documentation</td>
+                <td class="cell-no">No</td>
+                <td class="cell-no">No</td>
+                <td class="cell-no">No</td>
+                <td class="cell-yes">Yes</td>
+              </tr>
+              <tr>
+                <td>ED-focused workflow</td>
+                <td class="cell-no">No</td>
+                <td class="cell-no">No</td>
+                <td class="cell-no">No</td>
+                <td class="cell-yes">Yes</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="compare-note">Positioning reference from SwiftyCare pitch materials: Heidi Health — AI medical scribe; Nabla Health — clinical assistant; Suki Health — voice documentation; <strong>SwiftyCare — ED workflow optimization</strong>.</p>
+        <div class="landscape-row">
+          <div class="landscape-card"><strong>Heidi Health</strong><span>AI medical scribe</span></div>
+          <div class="landscape-card"><strong>Nabla Health</strong><span>Clinical assistant</span></div>
+          <div class="landscape-card"><strong>Suki Health</strong><span>Voice documentation</span></div>
+          <div class="landscape-card"><strong>SwiftyCare</strong><span>ED workflow optimization</span></div>
+        </div>
+      </section>
+
+      <section id="capabilities" class="panel" aria-labelledby="capabilities-title">
+        <div class="section-head">
+          <p class="section-eyebrow">Current capabilities</p>
+          <h2 id="capabilities-title">What the software does today</h2>
+          <p class="deck">A transparent snapshot of functionality you can validate in a live demonstration environment.</p>
+        </div>
+        <div class="cap-grid">
+          <div class="cap-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <p><strong>Adaptive questionnaire.</strong> Multi-step patient intake with validation and symptom-driven follow-up pathways.</p>
+          </div>
+          <div class="cap-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+            <p><strong>Clinician dashboard.</strong> Case list and detail views (demo access via configurable passcode).</p>
+          </div>
+          <div class="cap-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+            <p><strong>AI-assisted analysis.</strong> Clinical summary and differential-style output with urgency-tagged <strong>diagnostic test</strong> suggestions.</p>
+          </div>
+          <div class="cap-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+            <p><strong>Investigation selection.</strong> Explicit ordering of selected investigations plus free-text “other” tests.</p>
+          </div>
+          <div class="cap-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <p><strong>Discharge documentation.</strong> Structured discharge record with refinement tools, explicit regenerate, and full physician editing.</p>
+          </div>
+          <div class="cap-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            <p><strong>Persistent state.</strong> Drafts and finalized discharge records are stored with the case for continuity.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="market" class="panel" aria-labelledby="market-title">
+        <div class="section-head">
+          <p class="section-eyebrow">Go-to-market</p>
+          <h2 id="market-title">Phased expansion</h2>
+          <p class="deck">A staged geographic rollout as described in SwiftyCare planning materials—subject to regulatory, partnership, and funding milestones.</p>
+        </div>
+        <div class="gtm-phases">
+          <div class="gtm-phase" data-phase="Phase 1">
+            <h3>Urban U.S. hospitals</h3>
+            <p>Initial focus on dense, high-volume emergency care environments where documentation throughput has outsized impact.</p>
+          </div>
+          <div class="gtm-phase" data-phase="Phase 2">
+            <h3>Western countries</h3>
+            <p>Broader adoption in comparable health systems and regulatory environments.</p>
+          </div>
+          <div class="gtm-phase" data-phase="Phase 3">
+            <h3>Global expansion</h3>
+            <p>Scale to additional markets as operations, localization, and compliance allow.</p>
+          </div>
+        </div>
+        <div class="section-head" style="margin-top:2.5rem;">
+          <p class="section-eyebrow">Milestones</p>
+          <h2 id="milestones-title" style="font-size:1.35rem;">Illustrative roadmap (from company deck)</h2>
+          <p class="deck">Timelines are directional; actual execution depends on pilots, funding, and regulatory readiness.</p>
+        </div>
+        <div class="milestone-grid">
+          <div class="milestone">
+            <strong>1 · Business plan &amp; technical specification</strong>
+            Foundational planning and product definition.
+          </div>
+          <div class="milestone">
+            <strong>2 · Pre-seed — app development</strong>
+            ~6 months focused build cycle.
+          </div>
+          <div class="milestone">
+            <strong>3 · Pilot &amp; initial users</strong>
+            ~3–6 months to validate in real workflows.
+          </div>
+          <div class="milestone">
+            <strong>4 · Seed — scale operations</strong>
+            Run the company, deepen market penetration, marketing, continued development—target break-even trajectory (deck cites up to ~36 months horizon).
+          </div>
+          <div class="milestone" style="grid-column: 1 / -1;">
+            <strong>5 · Expansion to additional markets</strong>
+            Geographic and segment growth beyond initial beachhead.
+          </div>
+        </div>
+      </section>
+
+      <section id="technology" class="panel" aria-labelledby="technology-title">
+        <div class="section-head">
+          <p class="section-eyebrow">Architecture</p>
+          <h2 id="technology-title">Technology (high level)</h2>
+          <p class="deck">A clean separation between experience, API, data, and model providers—so your security and procurement teams know where each concern lives.</p>
+        </div>
+        <div class="prose">
+          <p>
+            The system is a <strong>React</strong> single-page application talking to an <strong>Express</strong> API, with <strong>MongoDB</strong> for persistence and <strong>OpenAI</strong> models for text generation. This separation keeps clinical data and AI calls on the server side under your control, subject to your hosting and contractual choices.
+          </p>
+        </div>
+        <div class="tech-strip" aria-label="Technology stack">
+          <span class="tech-pill">React</span>
+          <span class="tech-pill">TypeScript</span>
+          <span class="tech-pill">Node.js / Express</span>
+          <span class="tech-pill">MongoDB</span>
+          <span class="tech-pill">OpenAI</span>
+          <span class="tech-pill">REST API</span>
+        </div>
+      </section>
+
+      <section id="contact" class="panel" aria-labelledby="contact-title">
+        <div class="section-head">
+          <p class="section-eyebrow">Contact</p>
+          <h2 id="contact-title">Connect with SwiftyCare</h2>
+          <p class="deck">For demos, partnerships, and pilot discussions—reach the founding team directly.</p>
+        </div>
+        <div class="contact-grid">
+          <div class="contact-card">
+            <h3>Dr. Tariq Kaloty</h3>
+            <p class="contact-role">CEO · Founder</p>
+            <a href="mailto:Tariq_kaloty@hotmail.com">Tariq_kaloty@hotmail.com</a>
+            <a class="phone" href="tel:+972546979028">+972 54-697-9028</a>
+            <div class="contact-shared">
+              Shared inbox: <a href="mailto:Swiftycare.md@gmail.com">Swiftycare.md@gmail.com</a>
+            </div>
+          </div>
+          <div class="contact-card">
+            <h3>Dr. Yazeed Hamadeh</h3>
+            <p class="contact-role">Founder · General Manager</p>
+            <a href="mailto:Dryazeed@outlook.com">Dryazeed@outlook.com</a>
+            <a class="phone" href="tel:+972504420304">+972 50-442-0304</a>
+            <div class="contact-shared">
+              Shared inbox: <a href="mailto:Swiftycare.md@gmail.com">Swiftycare.md@gmail.com</a>
+            </div>
+          </div>
+        </div>
+        <p class="compare-note" style="margin-top:1.25rem;">Contact details are reproduced from SwiftyCare business card materials (2025). Prefer institutional email and data rooms for regulated pilot discussions.</p>
+      </section>
+
+      <section id="legal" class="legal-panel" aria-labelledby="legal-title">
+        <div class="legal-panel-header">
+          <div class="legal-shield" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/></svg>
+          </div>
+          <div>
+            <h2 id="legal-title">Legal, privacy, and medical disclaimer</h2>
+            <p>Please review with your compliance and clinical governance teams.</p>
+          </div>
+        </div>
+        <div class="legal-body">
+          <p><strong>Not medical advice.</strong> SwiftyCare does not provide medical advice, diagnosis, or treatment. All AI-generated text is draft material for review by qualified professionals. Clinical decisions remain the sole responsibility of the treating clinician and institution.</p>
+          <p><strong>Regulatory status.</strong> Features described here may constitute software used in a healthcare context. Before use with real patients or PHI, your organization should assess applicable regulations (for example, medical device rules, privacy laws such as GDPR or HIPAA, and local health-data requirements) and obtain appropriate approvals, agreements, and DPIAs.</p>
+          <p><strong>Data processing.</strong> When AI features are enabled, prompts and context may be sent to third-party model providers under their terms. You should have contracts, data processing agreements, and retention policies that match your jurisdiction and risk posture.</p>
+          <p><strong>Demo vs. production.</strong> A demonstration environment may use synthetic data, limited PHI, or de-identified scenarios. Do not use production patient data in a pilot until legal and security review is complete.</p>
+          <p><strong>No warranty.</strong> This overview is for informational purposes. It is not legal advice; consult your counsel for compliance questions.</p>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer" role="contentinfo">
+    <p><strong>SwiftyCare</strong> — ED workflow optimization and AI-assisted documentation. Content on this page incorporates SwiftyCare pitch deck and business card materials; figures and competitive summaries are for discussion and should be verified for any formal process. The live product may evolve.</p>
+    <p style="margin-top:0.75rem;">© SwiftyCare. All rights reserved.</p>
+  </footer>
+</body>
+</html>
