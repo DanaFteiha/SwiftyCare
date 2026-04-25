@@ -548,7 +548,7 @@ function QuestionnairePage() {
       const statusRes = await apiFetch(`/cases/${caseId}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'open' }),
+        body: JSON.stringify({ status: 'awaiting_vitals' }),
       });
       if (!statusRes.ok) {
         const payload = await statusRes.json().catch(() => null);

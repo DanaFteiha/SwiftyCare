@@ -8,6 +8,9 @@ import CasePage from './pages/CasePage'
 import DischargeReportPage from './pages/DischargeReportPage'
 import DoctorLoginPage from './pages/DoctorLoginPage'
 import DoctorRoute from './components/DoctorRoute'
+import NurseLoginPage from './pages/NurseLoginPage'
+import NurseDashboardPage from './pages/NurseDashboardPage'
+import NurseRoute from './components/NurseRoute'
 
 const queryClient = new QueryClient()
 
@@ -24,9 +27,28 @@ function App() {
             <Route path="/questionnaire/:caseId" element={<QuestionnairePage />} />
             <Route path="/patient/questionnaire/:caseId" element={<QuestionnairePage />} />
 
-            {/* Triage */}
+            {/* Triage (legacy / direct links) */}
             <Route path="/vitals/:caseId" element={<VitalsEntryPage />} />
             <Route path="/triage/vitals/:caseId" element={<VitalsEntryPage />} />
+
+            {/* Nurse */}
+            <Route path="/nurse/login" element={<NurseLoginPage />} />
+            <Route
+              path="/nurse"
+              element={
+                <NurseRoute>
+                  <NurseDashboardPage />
+                </NurseRoute>
+              }
+            />
+            <Route
+              path="/nurse/case/:caseId/vitals"
+              element={
+                <NurseRoute>
+                  <VitalsEntryPage />
+                </NurseRoute>
+              }
+            />
 
             {/* Doctor */}
             <Route path="/doctor/login" element={<DoctorLoginPage />} />

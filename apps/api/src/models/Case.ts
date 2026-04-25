@@ -52,8 +52,10 @@ const CaseSchema = new Schema<ICase>({
   status: {
     type: String,
     default: "open",
+    // awaiting_vitals: nurse triage pending (default for new cases after questionnaire)
+    // open: vitals captured, awaiting doctor review
     // tests_ordered: tests selected by doctor, awaiting results before discharge
-    enum: ["open", "in_progress", "tests_ordered", "closed", "cancelled"],
+    enum: ["awaiting_vitals", "open", "in_progress", "tests_ordered", "closed", "cancelled"],
     trim: true
   },
   vitals: {

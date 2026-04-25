@@ -61,6 +61,7 @@ function DashboardPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
+      case 'awaiting_vitals': return 'bg-emerald-100 text-emerald-800';
       case 'open': return 'bg-blue-100 text-blue-800';
       case 'in_progress': return 'bg-indigo-100 text-indigo-800';
       case 'tests_ordered': return 'bg-amber-100 text-amber-800';
@@ -72,6 +73,7 @@ function DashboardPage() {
 
   const getStatusText = (status: string) => {
     switch (status) {
+      case 'awaiting_vitals': return t('dashboard.status.awaiting_vitals', 'Awaiting vitals');
       case 'open': return t('dashboard.status.open', 'Open');
       case 'in_progress': return t('dashboard.status.in_progress', 'In progress');
       case 'tests_ordered': return t('dashboard.status.tests_ordered', 'Tests ordered');

@@ -646,7 +646,12 @@ const resources = {
         pendingDoctorReview: "Waiting for doctor's review",
         inReview: "In Review",
         completed: "Completed",
-        cancelled: "Cancelled"
+        cancelled: "Cancelled",
+        awaiting_vitals: "Awaiting vitals",
+        open: "Open",
+        in_progress: "In progress",
+        tests_ordered: "Tests ordered",
+        closed: "Closed"
       },
       table: {
         patientName: "Patient Name",
@@ -848,6 +853,47 @@ const resources = {
       patient: "Patient",
       idLabel: "ID",
       dateLabel: "Date"
+    },
+    nurseLogin: {
+      title: "Nurse Access",
+      subtitle: "Enter your access code to continue.",
+      passcodePlaceholder: "Access code",
+      continue: "Continue",
+      invalidCode: "Invalid access code."
+    },
+    nurseDashboard: {
+      title: "Triage Board",
+      subtitle: "Patients waiting for vital signs to be recorded",
+      loading: "Loading triage queue...",
+      error: "Could not load cases.",
+      unknownPatient: "Unknown patient",
+      minutes: "{{n}} min",
+      handedOff: "Handed off",
+      tabs: {
+        awaiting: "Awaiting vitals",
+        done: "Sent to doctor"
+      },
+      search: {
+        placeholder: "Search by name or ID..."
+      },
+      table: {
+        patient: "Patient",
+        id: "ID",
+        arrived: "Arrived",
+        waiting: "Waiting",
+        actions: "Action"
+      },
+      actions: {
+        recordVitals: "Record vitals",
+        updateVitals: "Update vitals",
+        logout: "Log out"
+      },
+      empty: {
+        title: "No patients in the queue",
+        noMatch: "No cases match your search.",
+        noAwaiting: "All caught up — no patients are currently waiting for triage.",
+        noDone: "No cases have been handed off to the doctor yet."
+      }
     }
   },
   he: {
@@ -1402,7 +1448,10 @@ const resources = {
       status: {
         open: "פתוח",
         closed: "סגור",
-        cancelled: "בוטל"
+        cancelled: "בוטל",
+        awaiting_vitals: "ממתין למדדים",
+        in_progress: "בטיפול",
+        tests_ordered: "הוזמנו בדיקות"
       },
       table: {
         patientName: "שם מטופל",
@@ -1614,6 +1663,47 @@ const resources = {
       patient: "מטופל",
       idLabel: "ת.ז.",
       dateLabel: "תאריך"
+    },
+    nurseLogin: {
+      title: "כניסת אחות",
+      subtitle: "הזן קוד גישה כדי להמשיך.",
+      passcodePlaceholder: "קוד גישה",
+      continue: "המשך",
+      invalidCode: "קוד גישה לא תקין."
+    },
+    nurseDashboard: {
+      title: "לוח טריאז'",
+      subtitle: "מטופלים הממתינים לרישום מדדי חיים",
+      loading: "טוען את תור הטריאז'...",
+      error: "טעינת המקרים נכשלה.",
+      unknownPatient: "מטופל לא ידוע",
+      minutes: "{{n}} דק׳",
+      handedOff: "הועבר לרופא",
+      tabs: {
+        awaiting: "ממתינים למדדים",
+        done: "נשלחו לרופא"
+      },
+      search: {
+        placeholder: "חיפוש לפי שם או ת.ז..."
+      },
+      table: {
+        patient: "מטופל",
+        id: "ת.ז.",
+        arrived: "הגיע ב",
+        waiting: "המתנה",
+        actions: "פעולה"
+      },
+      actions: {
+        recordVitals: "רשום מדדים",
+        updateVitals: "עדכן מדדים",
+        logout: "התנתק"
+      },
+      empty: {
+        title: "אין מטופלים בתור",
+        noMatch: "אין מקרים התואמים את החיפוש.",
+        noAwaiting: "הכל מעודכן — אין כרגע מטופלים הממתינים לטריאז'.",
+        noDone: "טרם הועברו מקרים לרופא."
+      }
     }
   }
 }

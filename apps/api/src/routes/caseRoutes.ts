@@ -157,7 +157,7 @@ router.patch("/:id/status", async (req, res) => {
 
     // "closed" may only be set by the discharge-report/finalize endpoint.
     // Any other code path (e.g. the dashboard) must not be able to close a case directly.
-    const allowedStatuses = ["open", "in_progress", "tests_ordered", "cancelled"];
+    const allowedStatuses = ["awaiting_vitals", "open", "in_progress", "tests_ordered", "cancelled"];
     if (!status || !allowedStatuses.includes(status)) {
       return res.status(400).json({
         error: "Invalid status",
@@ -272,10 +272,17 @@ router.post("/:id/vitals", async (req, res) => {
     const currentVitals = existingCase.vitals || {};
     const updatedVitals = { ...currentVitals, ...vitalsData };
 
-    // Update the case with new vitals
+    // Triage hand-off: when the nurse records vitals on a case that was waiting
+    // for triage, transition the case to "open" so it appears on the doctor's
+    // dashboard. Cases that were already past triage keep their current status.
+    const update: Record<string, any> = { vitals: updatedVitals };
+    if (existingCase.status === "awaiting_vitals") {
+      update.status = "open";
+    }
+
     const updatedCase = await Case.findByIdAndUpdate(
       caseId,
-      { vitals: updatedVitals },
+      update,
       { new: true, runValidators: true }
     );
 

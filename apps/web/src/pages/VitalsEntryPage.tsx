@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useMutation } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
@@ -7,6 +7,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Shield, Save, Globe, ArrowLeft } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
+
+const isAbortError = (err: unknown): boolean => {
+  const e = err as { name?: string; message?: string };
+  return e?.name === 'AbortError' || (typeof e?.message === 'string' && /abort/i.test(e.message));
+};
 
 interface VitalsData {
   bloodPressure: string;
@@ -27,7 +32,17 @@ const initialVitals: VitalsData = {
 function VitalsEntryPage() {
   const { caseId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'he';
+
+  // Detect whether the nurse opened this page from the triage board
+  // (via /nurse/case/:id/vitals or with state.from === 'nurse'). When true,
+  // we navigate back to the nurse dashboard and use nurse-flavoured copy.
+  const fromNurse =
+    location.pathname.startsWith('/nurse') ||
+    (location.state as { from?: string } | null)?.from === 'nurse';
+
   const [vitalsData, setVitalsData] = useState<VitalsData>(initialVitals);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -73,27 +88,54 @@ function VitalsEntryPage() {
 
   const submitVitalsMutation = useMutation({
     mutationFn: async (vitals: any) => {
-      const response = await apiFetch(`/cases/${caseId}/vitals`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          bp: vitals.bloodPressure,
-          hr: parseInt(vitals.pulse),
-          spo2: parseInt(vitals.oxygenSaturation),
-          temp: parseFloat(vitals.temperature),
-          painScore: parseInt(vitals.painScale)
-        })
-      });
-      if (!response.ok) throw new Error('Failed to submit vitals');
+      const response = await apiFetch(
+        `/cases/${caseId}/vitals`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            bp: vitals.bloodPressure,
+            hr: parseInt(vitals.pulse),
+            spo2: parseInt(vitals.oxygenSaturation),
+            temp: parseFloat(vitals.temperature),
+            painScore: parseInt(vitals.painScale)
+          })
+        },
+        30_000
+      );
+      if (!response.ok) {
+        const payload = await response.json().catch(() => null);
+        throw new Error(
+          payload?.message || payload?.error || `Server error ${response.status}`
+        );
+      }
       return response.json();
     },
     onSuccess: () => {
-      console.log('Vitals submitted successfully!');
-      navigate(`/doctor/case/${caseId}`);
+      if (fromNurse) {
+        // Hand the case off to the doctor and return to the nurse queue.
+        navigate('/nurse', { replace: true });
+      } else {
+        navigate(`/doctor/case/${caseId}`);
+      }
     },
     onError: (error: Error) => {
       console.error('Error submitting vitals:', error);
-      alert(t('vitals.errors.submitError', 'Error submitting vitals. Please check your connection.'));
+      if (isAbortError(error)) {
+        alert(
+          t(
+            'vitals.errors.timeout',
+            'The request timed out. Please check your connection and try again.'
+          )
+        );
+        return;
+      }
+      alert(
+        `${t(
+          'vitals.errors.submitError',
+          'Error submitting vitals. Please check your connection.'
+        )}\n\n${error.message}`
+      );
     }
   });
 
@@ -104,20 +146,22 @@ function VitalsEntryPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50" dir={i18n.language === 'he' ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen bg-gray-50" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <Shield className="w-8 h-8 text-blue-600" />
-              <h1 className="text-2xl font-bold text-gray-900">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <Shield className={`w-8 h-8 ${fromNurse ? 'text-emerald-600' : 'text-blue-600'}`} />
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
                 {t('vitals.title', 'Vital Signs Entry')}
               </h1>
             </div>
             <button
+              type="button"
               onClick={toggleLanguage}
-              className="flex items-center space-x-2 px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+              aria-label={isRTL ? 'Switch to English' : 'החלף לעברית'}
+              className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <Globe className="w-4 h-4" />
               <span>{i18n.language === 'he' ? 'EN' : 'עִבְרִית'}</span>
@@ -251,19 +295,22 @@ function VitalsEntryPage() {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex justify-between items-center mt-8 pt-6 border-t">
+            <div className="flex justify-between items-center mt-8 pt-6 border-t gap-3">
               <Button
+                type="button"
                 variant="outline"
-                onClick={() => navigate('/doctor')}
-                className="flex items-center space-x-2"
+                onClick={() => navigate(fromNurse ? '/nurse' : '/doctor')}
+                className="flex items-center gap-2"
               >
-                <ArrowLeft className="w-4 h-4" />
+                <ArrowLeft className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
                 <span>{t('common.back', 'Back')}</span>
               </Button>
               <Button
                 onClick={handleSubmit}
                 disabled={submitVitalsMutation.isPending || !isFormValid()}
-                className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700"
+                className={`flex items-center gap-2 ${
+                  fromNurse ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-blue-600 hover:bg-blue-700'
+                }`}
               >
                 {submitVitalsMutation.isPending ? (
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
