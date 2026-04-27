@@ -2,1707 +2,1598 @@ import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import LanguageDetector from 'i18next-browser-languagedetector'
 
-// Translation resources
+// Translation resources. All keys live under the default `translation` namespace
+// so `useTranslation()` in pages works out of the box for both EN and HE.
 const resources = {
-  en: {
-    translation: {
-      // ScanPage translations
-      welcome: {
-        title: "Welcome to SwiftyCare",
-        description: "Please enter your details to begin the medical registration process"
+  "en": {
+    "translation": {
+      "welcome": {
+        "title": "Welcome to SwiftyCare",
+        "description": "Please enter your details to begin the medical registration process"
       },
-      form: {
-        title: "Patient Information",
-        description: "Please fill in your details below",
-        hospital: "Hospital",
-        hospitalRequired: "Hospital name is required",
-        hospitalMinLength: "Hospital name must contain at least 2 characters",
-        hospitalPlaceholder: "Select Hospital",
-        fullName: "Full Name",
-        fullNameRequired: "Full name is required",
-        fullNameMinLength: "Full name must contain at least 2 characters",
-        fullNameMaxLength: "Full name cannot exceed 100 characters",
-        fullNameInvalid: "Full name can only contain Hebrew, English letters, spaces, hyphens and apostrophes",
-        fullNamePlaceholder: "Enter full name",
-        nationalId: "National ID",
-        nationalIdRequired: "National ID is required",
-        nationalIdMinLength: "National ID must contain at least 5 digits",
-        nationalIdMaxLength: "National ID cannot exceed 20 digits",
-        nationalIdInvalid: "National ID can only contain digits",
-        nationalIdPlaceholder: "Enter National ID",
-        submitButton: "Start Questionnaire",
-        submitButtonLoading: "Creating case...",
-        formReady: "Form ready to submit",
-        submitError: "Error creating case. Please try again.",
-        networkError: "Network error. Please try again."
+      "form": {
+        "title": "Patient Information",
+        "description": "Please fill in your details below",
+        "hospital": "Hospital",
+        "hospitalRequired": "Hospital name is required",
+        "hospitalMinLength": "Hospital name must contain at least 2 characters",
+        "hospitalPlaceholder": "Select Hospital",
+        "fullName": "Full Name",
+        "fullNameRequired": "Full name is required",
+        "fullNameMinLength": "Full name must contain at least 2 characters",
+        "fullNameMaxLength": "Full name cannot exceed 100 characters",
+        "fullNameInvalid": "Full name can only contain Hebrew, English letters, spaces, hyphens and apostrophes",
+        "fullNamePlaceholder": "Enter full name",
+        "nationalId": "National ID",
+        "nationalIdRequired": "National ID is required",
+        "nationalIdMinLength": "National ID must contain at least 5 digits",
+        "nationalIdMaxLength": "National ID cannot exceed 20 digits",
+        "nationalIdInvalid": "National ID can only contain digits",
+        "nationalIdPlaceholder": "Enter National ID",
+        "submitButton": "Start Questionnaire",
+        "submitButtonLoading": "Creating case...",
+        "formReady": "Form ready to submit",
+        "submitError": "Error creating case. Please try again.",
+        "networkError": "Network error. Please try again.",
+        "duplicateCaseError": "It looks like this case already exists. Please verify your details or contact support.",
+        "timeoutError": "The server is taking too long to respond. Please try again in a moment."
       },
-      hospitals: {
-        hadassahEinKerem: "Hadassah Ein Kerem Hospital",
-        hadassahMountScopus: "Hadassah Mount Scopus Hospital",
-        ichilov: "Ichilov Hospital (Tel Aviv)",
-        sheba: "Sheba Hospital (Tel Hashomer)",
-        rambam: "Rambam Hospital (Haifa)",
-        soroka: "Soroka Hospital (Beer Sheva)",
-        kaplan: "Kaplan Hospital (Rehovot)",
-        assafHarofeh: "Assaf Harofeh Hospital (Tzrifin)",
-        shaareZedek: "Shaare Zedek Hospital (Jerusalem)",
-        billinson: "Billinson Hospital (Petah Tikva)",
-        meir: "Meir Hospital (Kfar Saba)",
-        hillelYaffe: "Hillel Yaffe Hospital (Hadera)",
-        nahariya: "Nahariya Hospital",
-        poria: "Poria Hospital (Tiberias)",
-        ziv: "Ziv Hospital (Safed)",
-        barzilai: "Barzilai Hospital (Ashkelon)",
-        yoseftal: "Yoseftal Hospital (Eilat)",
-        laniado: "Laniado Hospital (Netanya)",
-        assuta: "Assuta Hospital (Tel Aviv)",
-        herzliyaMedical: "Herzliya Medical Center"
+      "hospitals": {
+        "hadassahEinKerem": "Hadassah Ein Kerem Hospital",
+        "hadassahMountScopus": "Hadassah Mount Scopus Hospital",
+        "ichilov": "Ichilov Hospital (Tel Aviv)",
+        "sheba": "Sheba Hospital (Tel Hashomer)",
+        "rambam": "Rambam Hospital (Haifa)",
+        "soroka": "Soroka Hospital (Beer Sheva)",
+        "kaplan": "Kaplan Hospital (Rehovot)",
+        "assafHarofeh": "Assaf Harofeh Hospital (Tzrifin)",
+        "shaareZedek": "Shaare Zedek Hospital (Jerusalem)",
+        "billinson": "Billinson Hospital (Petah Tikva)",
+        "meir": "Meir Hospital (Kfar Saba)",
+        "hillelYaffe": "Hillel Yaffe Hospital (Hadera)",
+        "nahariya": "Nahariya Hospital",
+        "poria": "Poria Hospital (Tiberias)",
+        "ziv": "Ziv Hospital (Safed)",
+        "barzilai": "Barzilai Hospital (Ashkelon)",
+        "yoseftal": "Yoseftal Hospital (Eilat)",
+        "laniado": "Laniado Hospital (Netanya)",
+        "assuta": "Assuta Hospital (Tel Aviv)",
+        "herzliyaMedical": "Herzliya Medical Center"
       },
-      footer: {
-        copyright: "© Swifty Medical 2025. All rights reserved."
+      "footer": {
+        "copyright": "© Swifty Medical 2025. All rights reserved."
       },
-      language: {
-        toggle: "עִבְרִית"
+      "language": {
+        "toggle": "עִבְרִית"
       },
-      
-      // QuestionnairePage translations
-      questionnaire: {
-        title: "Medical Questionnaire",
-        subtitle: "Please answer the following questions",
-        greeting: "Hello {{name}}, please fill in the following details.",
-        step1: "Personal Details & Medical History",
-        personalInfo: {
-          title: "Personal Details",
-          age: "Age",
-          agePlaceholder: "Enter age",
-          gender: "Gender",
-          male: "Male",
-          female: "Female",
-          maritalStatus: "Marital Status",
-          married: "Married",
-          single: "Single",
-          divorced: "Divorced",
-          widowed: "Widowed",
-          // Form filler field
-          formFilledBy: "Who is filling out this form?",
-          selfCompleted: "Self-completed",
-          completedByCompanion: "Completed by companion / caregiver",
-          cognitiveState: "Cognitive State",
-          // Cognitive state options (unconscious removed; 3 professional options added)
-          cognitivelyIntact: "Cognitively Intact",
-          cognitivelyImpaired: "Cognitively Impaired",
-          memoryDecline: "Memory Decline",
-          // Kept for backward compatibility with old saved data (not shown in new form)
-          conscious: "Conscious",
-          confused: "Confused",
-          unconscious: "Unconscious",
-          functionalState: "Functional State",
-          independent: "Independent",
-          dependent: "Dependent",
-          selectGender: "Select gender",
-          selectMaritalStatus: "Select marital status",
-          selectCognitiveState: "Select cognitive state",
-          selectFunctionalState: "Select functional state"
+      "questionnaire": {
+        "title": "Medical Questionnaire",
+        "subtitle": "Please answer the following questions",
+        "greeting": "Hello {{name}}, please fill in the following details.",
+        "step1": "Personal Details & Medical History",
+        "personalInfo": {
+          "title": "Personal Details",
+          "age": "Age",
+          "agePlaceholder": "Enter age",
+          "gender": "Gender",
+          "male": "Male",
+          "female": "Female",
+          "maritalStatus": "Marital Status",
+          "married": "Married",
+          "single": "Single",
+          "divorced": "Divorced",
+          "widowed": "Widowed",
+          "formFilledBy": "Who is filling out this form?",
+          "selfCompleted": "Self-completed",
+          "completedByCompanion": "Completed by companion / caregiver",
+          "cognitiveState": "Cognitive State",
+          "cognitivelyIntact": "Cognitively Intact",
+          "cognitivelyImpaired": "Cognitively Impaired",
+          "memoryDecline": "Memory Decline",
+          "conscious": "Conscious",
+          "confused": "Confused",
+          "unconscious": "Unconscious",
+          "functionalState": "Functional State",
+          "independent": "Independent",
+          "dependent": "Dependent",
+          "selectGender": "Select gender",
+          "selectMaritalStatus": "Select marital status",
+          "selectCognitiveState": "Select cognitive state",
+          "selectFunctionalState": "Select functional state"
         },
-        medicalHistory: {
-          title: "Medical History",
-          none: "None",
-          diabetes: "Diabetes",
-          hypertension: "High Blood Pressure",
-          // dyslipidemia key preserved; label updated to "High Blood Lipids"
-          dyslipidemia: "High Blood Lipids",
-          asthma: "Asthma",
-          ischemicHeartDisease: "Ischemic Heart Disease",
-          heartFailure: "Heart Failure",
-          atrialFibrillation: "Atrial Fibrillation",
-          cancer: "Cancer",
-          // Cancer sub-fields
-          cancerDetails: "Cancer Details",
-          cancerStatus: "Cancer Status",
-          cancerStatus_active: "Active",
-          cancerStatus_pastHistory: "Past History",
-          cancerType: "Cancer Type",
-          cancerTypePlaceholder: "e.g. Breast, Lung, Colon...",
-          previousStroke: "Previous Stroke",
-          hypothyroidism: "Hypothyroidism",
-          copd: "COPD",
-          renalFailure: "Renal Failure",
-          smoking: "Smoking",
-          immunocompromised: "Immunocompromised",
-          otherDiseases: "Other Underlying Diseases",
-          otherDiseasesPlaceholder: "Please specify",
-          previousSurgeries: "Previous Surgeries"
+        "medicalHistory": {
+          "title": "Medical History",
+          "none": "None",
+          "diabetes": "Diabetes",
+          "hypertension": "High Blood Pressure",
+          "dyslipidemia": "High Blood Lipids",
+          "asthma": "Asthma",
+          "ischemicHeartDisease": "Ischemic Heart Disease",
+          "heartFailure": "Heart Failure",
+          "atrialFibrillation": "Atrial Fibrillation",
+          "cancer": "Cancer",
+          "cancerDetails": "Cancer Details",
+          "cancerStatus": "Cancer Status",
+          "cancerStatus_active": "Active",
+          "cancerStatus_pastHistory": "Past History",
+          "cancerType": "Cancer Type",
+          "cancerTypePlaceholder": "e.g. Breast, Lung, Colon...",
+          "previousStroke": "Previous Stroke",
+          "hypothyroidism": "Hypothyroidism",
+          "copd": "COPD",
+          "renalFailure": "Renal Failure",
+          "smoking": "Smoking",
+          "immunocompromised": "Immunocompromised",
+          "otherDiseases": "Other Underlying Diseases",
+          "otherDiseasesPlaceholder": "Please specify",
+          "previousSurgeries": "Previous Surgeries"
         },
-        currentIllness: {
-          title: "Current Illness",
-          instruction: "Please select all relevant symptoms.",
-          // ── Pain group ──
-          chestPain: "Chest pain",
-          headache: "Headache",
-          abdominalPain: "Abdominal pain",
-          backPain: "Back pain",
-          flankPain: "Flank pain",
-          neckPain: "Neck pain",
-          jointPain: "Joint pain",
-          painInLimbs: "Pain in limbs",
-          earPain: "Ear pain",
-          injectionSitePain: "Pain at the injection/blood draw site",
-          // ── Respiratory / systemic ──
-          fever: "Fever",
-          shortnessOfBreath: "Shortness of breath",
-          cough: "Cough",
-          // ── GI ──
-          nausea: "Nausea",
-          vomiting: "Vomiting",
-          diarrhea: "Diarrhea",
-          rash: "Rash",
-          // ── Neurological / general ──
-          dizziness: "Dizziness",
-          // fatigueWeakness label simplified — "neurological" removed
-          fatigueWeakness: "General weakness",
-          syncope: "Syncope (Fainting)",
-          alteredMentalStatus: "Altered Mental Status",
-          changeInConsciousness: "Change in consciousness",
-          // ── Trauma / other ──
-          swellingEdema: "Swelling / Edema",
-          eyeProblems: "Eye problems",
-          injuryTrauma: "Injury / Trauma",
-          headInjury: "Head injury",
-          abnormalBloodTests: "Abnormal blood test results",
-          // chestPainSternum removed per product requirement
-          maxSelected: "Maximum 2 conditions selected — deselect one to choose another"
+        "currentIllness": {
+          "title": "Current Illness",
+          "instruction": "Please select all relevant symptoms.",
+          "chestPain": "Chest pain",
+          "headache": "Headache",
+          "abdominalPain": "Abdominal pain",
+          "backPain": "Back pain",
+          "flankPain": "Flank pain",
+          "neckPain": "Neck pain",
+          "jointPain": "Joint pain",
+          "painInLimbs": "Pain in limbs",
+          "earPain": "Ear pain",
+          "injectionSitePain": "Pain at the injection/blood draw site",
+          "fever": "Fever",
+          "shortnessOfBreath": "Shortness of breath",
+          "cough": "Cough",
+          "nausea": "Nausea",
+          "vomiting": "Vomiting",
+          "diarrhea": "Diarrhea",
+          "rash": "Rash",
+          "dizziness": "Dizziness",
+          "fatigueWeakness": "General weakness",
+          "syncope": "Syncope (Fainting)",
+          "alteredMentalStatus": "Altered Mental Status",
+          "changeInConsciousness": "Change in consciousness",
+          "swellingEdema": "Swelling / Edema",
+          "eyeProblems": "Eye problems",
+          "injuryTrauma": "Injury / Trauma",
+          "headInjury": "Head injury",
+          "abnormalBloodTests": "Abnormal blood test results",
+          "maxSelected": "Maximum 2 conditions selected — deselect one to choose another"
         },
-        adaptive: {
-          selectChiefComplaint: "Select Chief Complaint",
-          detailsFor: "Details for",
-          addDetail: "Add detail",
-          hideDetail: "Hide detail",
-          detailPlaceholder: "Please provide additional details...",
-          selectOption: "Select an option",
-          additionalDetails: "Additional Details",
-          additionalDetailsPlaceholder: "Please provide any additional information",
-          redFlagAlert: "⚠️ Red Flag Alert",
-          redFlagMessage: "Critical symptoms detected. Immediate medical attention may be required.",
-          noSymptomsSelected: "No symptoms selected",
-          goBackToStep1: "Please go back to Step 1 and select your symptoms",
-          selectedSymptoms: "Selected Symptoms",
-          pathways: {
-            chestPain: "Chest Pain",
-            chestPainDescription: "Pain or discomfort in the chest area",
-            fever: "Fever",
-            feverDescription: "Elevated body temperature"
+        "adaptive": {
+          "selectChiefComplaint": "Select Chief Complaint",
+          "detailsFor": "Details for",
+          "addDetail": "Add detail",
+          "hideDetail": "Hide detail",
+          "detailPlaceholder": "Please provide additional details...",
+          "selectOption": "Select an option",
+          "additionalDetails": "Additional Details",
+          "additionalDetailsPlaceholder": "Please provide any additional information",
+          "redFlagAlert": "⚠️ Red Flag Alert",
+          "redFlagMessage": "Critical symptoms detected. Immediate medical attention may be required.",
+          "noSymptomsSelected": "No symptoms selected",
+          "goBackToStep1": "Please go back to Step 1 and select your symptoms",
+          "selectedSymptoms": "Selected Symptoms",
+          "pathways": {
+            "chestPain": "Chest Pain",
+            "chestPainDescription": "Pain or discomfort in the chest area",
+            "fever": "Fever",
+            "feverDescription": "Elevated body temperature"
           },
-          painCharacteristics: {
-            label: "Pain Characteristics",
-            pressing: "Pressing",
-            burning: "Burning",
-            sharp: "Sharp",
-            radiating: "Radiating"
+          "painCharacteristics": {
+            "label": "Pain Characteristics",
+            "pressing": "Pressing",
+            "burning": "Burning",
+            "sharp": "Sharp",
+            "radiating": "Radiating"
           },
-          location: {
-            label: "Location",
-            center: "Center",
-            leftSide: "Left Side",
-            behindBreastbone: "Behind Breastbone"
+          "location": {
+            "label": "Location",
+            "center": "Center",
+            "leftSide": "Left Side",
+            "behindBreastbone": "Behind Breastbone"
           },
-          onset: {
-            label: "Onset",
-            sudden: "Sudden",
-            gradual: "Gradual",
-            intermittent: "Intermittent"
+          "onset": {
+            "label": "Onset",
+            "sudden": "Sudden",
+            "gradual": "Gradual",
+            "intermittent": "Intermittent"
           },
-          duration: {
-            label: "Duration",
-            lessThan30min: "Less than 30 minutes",
-            min30To2hours: "30 minutes to 2 hours",
-            moreThan2hours: "More than 2 hours",
-            everyHalfHour: "Every half hour"
+          "duration": {
+            "label": "Duration",
+            "lessThan30min": "Less than 30 minutes",
+            "min30To2hours": "30 minutes to 2 hours",
+            "moreThan2hours": "More than 2 hours",
+            "everyHalfHour": "Every half hour"
           },
-          radiationDetails: {
-            label: "Radiation Details",
-            placeholder: "Where does the pain radiate to?"
+          "radiationDetails": {
+            "label": "Radiation Details",
+            "placeholder": "Where does the pain radiate to?"
           },
-          cardiacQuestions: {
-            label: "Associated Symptoms",
-            shortnessOfBreath: "Shortness of Breath",
-            nausea: "Nausea",
-            sweating: "Sweating",
-            dizziness: "Dizziness"
+          "cardiacQuestions": {
+            "label": "Associated Symptoms",
+            "shortnessOfBreath": "Shortness of Breath",
+            "nausea": "Nausea",
+            "sweating": "Sweating",
+            "dizziness": "Dizziness"
           },
-          respiratoryQuestions: {
-            label: "Breathing Difficulty",
-            mild: "Mild",
-            moderate: "Moderate",
-            severe: "Severe"
+          "respiratoryQuestions": {
+            "label": "Breathing Difficulty",
+            "mild": "Mild",
+            "moderate": "Moderate",
+            "severe": "Severe"
           },
-          acuteQuestions: {
-            label: "Acute Symptoms",
-            severePain: "Severe Pain (8-10/10)",
-            lossOfConsciousness: "Loss of Consciousness",
-            acuteDistress: "Acute Distress"
+          "acuteQuestions": {
+            "label": "Acute Symptoms",
+            "severePain": "Severe Pain (8-10/10)",
+            "lossOfConsciousness": "Loss of Consciousness",
+            "acuteDistress": "Acute Distress"
           },
-          frequencyQuestions: {
-            label: "Frequency Details",
-            placeholder: "Describe the frequency pattern"
+          "frequencyQuestions": {
+            "label": "Frequency Details",
+            "placeholder": "Describe the frequency pattern"
           },
-          associatedSymptoms: {
-            label: "Associated Symptoms",
-            headache: "Headache",
-            bodyAches: "Body Aches",
-            chills: "Chills",
-            fatigue: "Fatigue"
+          "associatedSymptoms": {
+            "label": "Associated Symptoms",
+            "headache": "Headache",
+            "bodyAches": "Body Aches",
+            "chills": "Chills",
+            "fatigue": "Fatigue"
           },
-          headacheQuestions: {
-            label: "Headache Severity",
-            mild: "Mild",
-            moderate: "Moderate",
-            severe: "Severe"
+          "headacheQuestions": {
+            "label": "Headache Severity",
+            "mild": "Mild",
+            "moderate": "Moderate",
+            "severe": "Severe"
           },
-          highFeverQuestions: {
-            label: "High Fever Symptoms",
-            alteredMentalStatus: "Altered Mental Status",
-            neckStiffness: "Neck Stiffness",
-            rash: "Rash"
+          "highFeverQuestions": {
+            "label": "High Fever Symptoms",
+            "alteredMentalStatus": "Altered Mental Status",
+            "neckStiffness": "Neck Stiffness",
+            "rash": "Rash"
           },
-          chronicFeverQuestions: {
-            label: "Chronic Fever Details",
-            placeholder: "Describe any additional symptoms"
+          "chronicFeverQuestions": {
+            "label": "Chronic Fever Details",
+            "placeholder": "Describe any additional symptoms"
           },
-          rashQuestions: {
-            label: "Rash Description",
-            placeholder: "Describe the rash appearance and location"
+          "rashQuestions": {
+            "label": "Rash Description",
+            "placeholder": "Describe the rash appearance and location"
           },
-          temperature: {
-            label: "Temperature Range",
-            lowGrade: "Low Grade (37.1-38.0°C)",
-            moderate: "Moderate (38.1-39.0°C)",
-            high: "High (39.1-40.0°C)",
-            veryHigh: "Very High (>40.0°C)"
+          "temperature": {
+            "label": "Temperature Range",
+            "lowGrade": "Low Grade (37.1-38.0°C)",
+            "moderate": "Moderate (38.1-39.0°C)",
+            "high": "High (39.1-40.0°C)",
+            "veryHigh": "Very High (>40.0°C)"
           }
         },
-        medications: {
-          allergies: {
-            title: "Medication Allergies",
-            question: "Are there any drug allergies?",
-            yes: "Yes",
-            no: "No",
-            detailsPlaceholder: "Please specify the allergies"
+        "medications": {
+          "allergies": {
+            "title": "Medication Allergies",
+            "question": "Are there any drug allergies?",
+            "yes": "Yes",
+            "no": "No",
+            "detailsPlaceholder": "Please specify the allergies"
           },
-          doesNotRemember: "I do not remember my medications",
-          doesNotRememberNote: "The doctor will be informed that medication history is unavailable.",
-          groups: {
-            title: "Medication Groups",
-            bloodPressure: "Blood Pressure",
-            diabetes: "Diabetes",
-            bloodThinners: "Blood Thinners",
-            immunosuppressants: "Immunosuppressants",
-            miscellaneous: "Miscellaneous",
-            cardiac: "Cardiac"
+          "doesNotRemember": "I do not remember my medications",
+          "doesNotRememberNote": "The doctor will be informed that medication history is unavailable.",
+          "groups": {
+            "title": "Medication Groups",
+            "bloodPressure": "Blood Pressure",
+            "diabetes": "Diabetes",
+            "bloodThinners": "Blood Thinners",
+            "immunosuppressants": "Immunosuppressants",
+            "miscellaneous": "Miscellaneous",
+            "cardiac": "Cardiac"
           }
         },
-        symptoms: {
-          chiefComplaint: "Chief Complaint",
-          symptomDuration: "How long have you had these symptoms?",
-          severity: "Severity (1-10)",
-          additionalSymptoms: "Additional Symptoms"
+        "symptoms": {
+          "chiefComplaint": "Chief Complaint",
+          "symptomDuration": "How long have you had these symptoms?",
+          "severity": "Severity (1-10)",
+          "additionalSymptoms": "Additional Symptoms"
         },
-        vitals: {
-          bloodPressure: "Blood Pressure",
-          heartRate: "Heart Rate",
-          temperature: "Temperature",
-          oxygenSaturation: "Oxygen Saturation"
+        "vitals": {
+          "bloodPressure": "Blood Pressure",
+          "heartRate": "Heart Rate",
+          "temperature": "Temperature",
+          "oxygenSaturation": "Oxygen Saturation"
         },
-        navigation: {
-          next: "Next",
-          previous: "Previous",
-          finish: "Finish",
-          loading: "Saving..."
+        "navigation": {
+          "next": "Next",
+          "previous": "Previous",
+          "finish": "Finish",
+          "loading": "Saving..."
         },
-        wizard: {
-          personalDetails: "Personal",
-          medicalHistory: "History",
-          allergies: "Allergies",
-          medications: "Medications",
-          currentIllness: "Illness",
-          personalSubtitle: "Tell us a bit about yourself",
-          historySubtitle: "Select all conditions that apply to you",
-          allergiesSubtitle: "Drug allergy information",
-          medicationsSubtitle: "Select any medications you currently take (optional)",
-          medicationsOptional: "This section is optional — skip if none apply",
-          illnessSubtitle: "Select up to 2 main reasons for your visit today",
-          allergyDetailsLabel: "Please describe your allergies"
+        "wizard": {
+          "personalDetails": "Personal",
+          "medicalHistory": "History",
+          "allergies": "Allergies",
+          "medications": "Medications",
+          "currentIllness": "Illness",
+          "personalSubtitle": "Tell us a bit about yourself",
+          "historySubtitle": "Select all conditions that apply to you",
+          "allergiesSubtitle": "Drug allergy information",
+          "medicationsSubtitle": "Select any medications you currently take (optional)",
+          "medicationsOptional": "This section is optional — skip if none apply",
+          "illnessSubtitle": "Select up to 2 main reasons for your visit today",
+          "allergyDetailsLabel": "Please describe your allergies"
         },
-        medGroup: {
-          otherLabel: "Other (please specify)",
-          otherPlaceholder: "Enter medication name"
+        "medGroup": {
+          "otherLabel": "Other (please specify)",
+          "otherPlaceholder": "Enter medication name"
         },
-        confirmationTitle: "Thank you",
-        confirmationMessage: "Thank you for filling out your information. A doctor will review your case shortly.",
-        step2: {
-          symptoms: "Current Symptoms",
-          optional: "optional",
-          pathwayOf: "Symptom {{current}} of {{total}}",
-          yes: "Yes",
-          no: "No",
-          sliderNone: "None",
-          sliderModerate: "Moderate",
-          sliderWorst: "Worst",
-          maxSelected: "Maximum selections reached",
-          highSeverityWarning: "Severity level indicates urgent care may be needed",
-          redFlagWarning: "This symptom requires immediate medical attention",
-          // Abdominal pain pathway
-          abdominalPain: {
-            painLocation: "Where is the pain located?",
-            onsetWhen: "When did the pain start?",
-            onsetToday: "Today",
-            onset1to3: "1–3 days ago",
-            onset3to7: "3–7 days ago",
-            onsetOverWeek: "More than a week ago",
-            onsetType: "How did the pain start?",
-            onsetSudden: "Sudden (came on quickly)",
-            onsetGradual: "Gradual (built up slowly)",
-            character: "How would you describe the pain?",
-            charSharp: "Sharp / Stabbing",
-            charCrampy: "Crampy / Colicky",
-            charDull: "Dull / Aching",
-            charBurning: "Burning",
-            charPressure: "Pressure / Squeezing",
-            radiation: "Does the pain spread anywhere?",
-            radBack: "Back",
-            radRightShoulder: "Right shoulder",
-            radLeftShoulder: "Left shoulder",
-            radGroin: "Groin",
-            radChest: "Chest",
-            radNone: "Does not spread",
-            aggravating: "What makes the pain worse?",
-            aggEating: "Eating",
-            aggMovement: "Movement",
-            aggDeepBreath: "Deep breathing",
-            aggLyingFlat: "Lying flat",
-            relieving: "What helps relieve the pain?",
-            relEating: "Eating",
-            relAntacids: "Antacids",
-            relPassingGas: "Passing gas / stool",
-            relLyingStill: "Lying still",
-            associated: "Any other symptoms you are experiencing?",
-            assocConstipation: "Constipation",
-            assocJaundice: "Yellowing of skin/eyes (jaundice)",
-            assocBloodStool: "Blood in stool",
-            assocDarkUrine: "Dark urine",
-            assocLossOfAppetite: "Loss of appetite",
-            assocBloating: "Bloating",
-            rfFever: "Do you have a fever above 38.5°C?",
-            rfBlood: "Is there any blood in your vomit or stool?",
-            rfUnableToEat: "Have you been unable to eat or drink for more than 24 hours?",
-            rfPregnancy: "Are you known to be pregnant, or could you be pregnant?",
+        "confirmationTitle": "Thank you",
+        "confirmationMessage": "Thank you for filling out your information. A doctor will review your case shortly.",
+        "step2": {
+          "symptoms": "Current Symptoms",
+          "optional": "optional",
+          "pathwayOf": "Symptom {{current}} of {{total}}",
+          "yes": "Yes",
+          "no": "No",
+          "sliderNone": "None",
+          "sliderModerate": "Moderate",
+          "sliderWorst": "Worst",
+          "maxSelected": "Maximum selections reached",
+          "highSeverityWarning": "Severity level indicates urgent care may be needed",
+          "redFlagWarning": "This symptom requires immediate medical attention",
+          "abdominalPain": {
+            "painLocation": "Where is the pain located?",
+            "onsetWhen": "When did the pain start?",
+            "onsetToday": "Today",
+            "onset1to3": "1–3 days ago",
+            "onset3to7": "3–7 days ago",
+            "onsetOverWeek": "More than a week ago",
+            "onsetType": "How did the pain start?",
+            "onsetSudden": "Sudden (came on quickly)",
+            "onsetGradual": "Gradual (built up slowly)",
+            "character": "How would you describe the pain?",
+            "charSharp": "Sharp / Stabbing",
+            "charCrampy": "Crampy / Colicky",
+            "charDull": "Dull / Aching",
+            "charBurning": "Burning",
+            "charPressure": "Pressure / Squeezing",
+            "radiation": "Does the pain spread anywhere?",
+            "radBack": "Back",
+            "radRightShoulder": "Right shoulder",
+            "radLeftShoulder": "Left shoulder",
+            "radGroin": "Groin",
+            "radChest": "Chest",
+            "radNone": "Does not spread",
+            "aggravating": "What makes the pain worse?",
+            "aggEating": "Eating",
+            "aggMovement": "Movement",
+            "aggDeepBreath": "Deep breathing",
+            "aggLyingFlat": "Lying flat",
+            "relieving": "What helps relieve the pain?",
+            "relEating": "Eating",
+            "relAntacids": "Antacids",
+            "relPassingGas": "Passing gas / stool",
+            "relLyingStill": "Lying still",
+            "associated": "Any other symptoms you are experiencing?",
+            "assocConstipation": "Constipation",
+            "assocJaundice": "Yellowing of skin/eyes (jaundice)",
+            "assocBloodStool": "Blood in stool",
+            "assocDarkUrine": "Dark urine",
+            "assocLossOfAppetite": "Loss of appetite",
+            "assocBloating": "Bloating",
+            "rfFever": "Do you have a fever above 38.5°C?",
+            "rfBlood": "Is there any blood in your vomit or stool?",
+            "rfUnableToEat": "Have you been unable to eat or drink for more than 24 hours?",
+            "rfPregnancy": "Are you known to be pregnant, or could you be pregnant?"
           },
-          // Headache pathway
-          headache: {
-            location: "Where on your head is the pain?",
-            onsetWhen: "When did the headache start?",
-            onsetType: "How did it start?",
-            onsetThunderclap: "Thunderclap — reached maximum intensity within seconds",
-            onsetGradual: "Gradual — built up over minutes or hours",
-            character: "What does the headache feel like?",
-            charThrobbing: "Throbbing / Pulsating",
-            charPressure: "Pressure / Squeezing (band-like)",
-            charSharp: "Sharp / Stabbing",
-            charDull: "Dull / Constant aching",
-            pattern: "What is the pattern of your headache?",
-            patternConstant: "Constant",
-            patternComesAndGoes: "Comes and goes",
-            patternWorsening: "Getting progressively worse",
-            aggravating: "What makes the headache worse?",
-            aggLight: "Light sensitivity (photophobia)",
-            aggNoise: "Noise sensitivity (phonophobia)",
-            aggMovement: "Movement / physical activity",
-            aggBending: "Bending forward",
-            associated: "Any other symptoms you are experiencing?",
-            assocNausea: "Nausea or vomiting",
-            assocVisualAura: "Visual aura (zig-zags, blind spot)",
-            assocNeckStiffness: "Neck stiffness",
-            assocFever: "Fever",
-            assocDizziness: "Dizziness",
-            assocWeakness: "Weakness or numbness",
-            assocSlurredSpeech: "Slurred speech",
-            assocEyeRedness: "Eye redness or pain",
-            rfWorstEver: "Is this the worst headache of your life?",
-            rfNewType: "Is this a new type of headache you have never had before?",
-            rfFeverNeck: "Do you have fever AND stiff neck together?",
-            rfConfusion: "Are you experiencing confusion or decreased alertness?",
-            rfWeakness: "Any new weakness, numbness, or difficulty speaking?",
-          }
+          "headache": {
+            "location": "Where on your head is the pain?",
+            "onsetWhen": "When did the headache start?",
+            "onsetType": "How did it start?",
+            "onsetThunderclap": "Thunderclap — reached maximum intensity within seconds",
+            "onsetGradual": "Gradual — built up over minutes or hours",
+            "character": "What does the headache feel like?",
+            "charThrobbing": "Throbbing / Pulsating",
+            "charPressure": "Pressure / Squeezing (band-like)",
+            "charSharp": "Sharp / Stabbing",
+            "charDull": "Dull / Constant aching",
+            "pattern": "What is the pattern of your headache?",
+            "patternConstant": "Constant",
+            "patternComesAndGoes": "Comes and goes",
+            "patternWorsening": "Getting progressively worse",
+            "aggravating": "What makes the headache worse?",
+            "aggLight": "Light sensitivity (photophobia)",
+            "aggNoise": "Noise sensitivity (phonophobia)",
+            "aggMovement": "Movement / physical activity",
+            "aggBending": "Bending forward",
+            "associated": "Any other symptoms you are experiencing?",
+            "assocNausea": "Nausea or vomiting",
+            "assocVisualAura": "Visual aura (zig-zags, blind spot)",
+            "assocNeckStiffness": "Neck stiffness",
+            "assocFever": "Fever",
+            "assocDizziness": "Dizziness",
+            "assocWeakness": "Weakness or numbness",
+            "assocSlurredSpeech": "Slurred speech",
+            "assocEyeRedness": "Eye redness or pain",
+            "rfWorstEver": "Is this the worst headache of your life?",
+            "rfNewType": "Is this a new type of headache you have never had before?",
+            "rfFeverNeck": "Do you have fever AND stiff neck together?",
+            "rfConfusion": "Are you experiencing confusion or decreased alertness?",
+            "rfWeakness": "Any new weakness, numbness, or difficulty speaking?"
+          },
+          "sliderTapToRate": "Drag the slider to rate"
         },
-        errors: {
-          required: "This field is required",
-          invalidFormat: "Invalid format",
-          saveError: "Error saving questionnaire. Please try again.",
-          ageRequired: "Age is required",
-          ageInvalid: "Age must be a valid number",
-          ageRange: "Age must be between 0 and 120",
-          formFilledByRequired: "Please indicate who is filling this form",
-          genderRequired: "Gender is required",
-          maritalStatusRequired: "Marital status is required",
-          cognitiveStateRequired: "Cognitive state is required",
-          functionalStateRequired: "Functional state is required",
-          medicalHistoryRequired: "Please select at least one medical history option",
-          allergiesRequired: "Please indicate whether you have allergies",
-          illnessRequired: "Please select at least one symptom"
+        "errors": {
+          "required": "This field is required",
+          "invalidFormat": "Invalid format",
+          "saveError": "Error saving questionnaire. Please try again.",
+          "ageRequired": "Age is required",
+          "ageInvalid": "Age must be a valid number",
+          "ageRange": "Age must be between 0 and 120",
+          "formFilledByRequired": "Please indicate who is filling this form",
+          "genderRequired": "Gender is required",
+          "maritalStatusRequired": "Marital status is required",
+          "cognitiveStateRequired": "Cognitive state is required",
+          "functionalStateRequired": "Functional state is required",
+          "medicalHistoryRequired": "Please select at least one medical history option",
+          "allergiesRequired": "Please indicate whether you have allergies",
+          "illnessRequired": "Please select at least one symptom",
+          "pathwayRequired": "Please answer all required questions marked with *",
+          "loadError": "We could not load your case. Please check your connection and try again.",
+          "caseNotFound": "Case not found",
+          "caseNotFoundHint": "The patient case you are looking for does not exist or has been removed."
+        },
+        "step4": "Vital Signs",
+        "defaultPatientName": "Patient"
+      },
+      "dashboard": {
+        "title": "Doctor's Dashboard",
+        "subtitle": "Search and manage medical cases",
+        "loading": "Loading cases...",
+        "error": "Error loading cases",
+        "retry": "Retry",
+        "search": {
+          "placeholder": "Search by patient name or ID..."
+        },
+        "filters": {
+          "all": "All Cases",
+          "pendingDoctorReview": "Waiting for doctor's review",
+          "inReview": "In Review",
+          "completed": "Completed",
+          "cancelled": "Cancelled"
+        },
+        "status": {
+          "pendingDoctorReview": "Waiting for doctor's review",
+          "inReview": "In Review",
+          "completed": "Completed",
+          "cancelled": "Cancelled",
+          "awaiting_vitals": "Awaiting vitals",
+          "open": "Open",
+          "in_progress": "In progress",
+          "tests_ordered": "Tests ordered",
+          "closed": "Closed"
+        },
+        "table": {
+          "patientName": "Patient Name",
+          "id": "ID",
+          "status": "Status",
+          "receptionDate": "Reception Date",
+          "actions": "Actions"
+        },
+        "actions": {
+          "newCase": "New Case",
+          "openFile": "Open File",
+          "delete": "Delete",
+          "deleteConfirm": "Delete this case? This cannot be undone.",
+          "deleteError": "Failed to delete case",
+          "logout": "Log out"
+        },
+        "empty": {
+          "title": "No cases found",
+          "description": "No cases match your current search criteria.",
+          "noMatch": "No cases match your current search criteria.",
+          "noOpen": "No open cases right now. New cases will appear here.",
+          "noClosed": "No closed or cancelled cases yet."
+        },
+        "unknownPatient": "Unknown Patient",
+        "tabs": {
+          "open": "Open",
+          "closed": "Closed"
         }
       },
-
-      // DashboardPage translations
-      dashboard: {
-        title: "Physician Dashboard",
-        subtitle: "Manage patient cases",
-        stats: {
-          totalCases: "Total Cases",
-          openCases: "Open Cases",
-          inProgress: "In Progress",
-          closed: "Closed"
+      "case": {
+        "title": "Case Management",
+        "id": "ID",
+        "age": "Age",
+        "status": "Status",
+        "loading": "Loading case...",
+        "error": "Error loading case",
+        "backToDashboard": "Back to Dashboard",
+        "backToList": "Back to list",
+        "statusLabel": {
+          "open": "Open",
+          "in_progress": "In Progress",
+          "tests_ordered": "Tests Ordered",
+          "closed": "Closed",
+          "cancelled": "Cancelled"
         },
-        filters: {
-          all: "All Cases",
-          open: "Open",
-          inProgress: "In Progress",
-          closed: "Closed",
-          cancelled: "Cancelled"
+        "testsOrderedBanner": "Tests have been ordered.",
+        "testsOrderedHint": "Review the results when available, then prepare and finalize the discharge report to close this case.",
+        "closedBanner": "This case has been closed. The discharge report has been finalized.",
+        "tabs": {
+          "summary": "Summary and Vital Signs",
+          "physical": "Physical Examination",
+          "diagnosis": "Diagnosis and Tests",
+          "results": "Results",
+          "treatment": "Treatment and Summary"
         },
-        actions: {
-          viewCase: "View Case",
-          generateSummary: "Generate AI Summary",
-          loading: "Loading...",
-          newCase: "New Case"
+        "vitals": {
+          "title": "Vital Signs",
+          "description": "Vital signs measurements taken.",
+          "bloodPressure": "Blood Pressure",
+          "bloodPressurePlaceholder": "Enter systolic/diastolic (e.g., 120/80)",
+          "pulse": "Pulse",
+          "pulsePlaceholder": "Enter heart rate (bpm)",
+          "oxygenSaturation": "Saturation (SpO2)",
+          "temperature": "Temperature",
+          "painScale": "Pain Scale (1-10)",
+          "save": "Save Vital Signs",
+          "notRecorded": "Not recorded",
+          "respiratoryRate": "Respiratory Rate",
+          "painScore": "Pain Score"
         },
-        noCases: "No cases found",
-        loading: "Loading cases..."
+        "personalDetails": {
+          "title": "Personal Details",
+          "fullName": "Full Name",
+          "id": "ID No.",
+          "gender": "Gender",
+          "age": "Age",
+          "maritalStatus": "Marital Status",
+          "cognitiveStatus": "Cognitive Status",
+          "functionalStatus": "Functional Status",
+          "notProvided": "Not provided"
+        },
+        "medicalHistory": {
+          "title": "Medical History",
+          "backgroundDiseases": "Background Diseases",
+          "noData": "No medical history data available"
+        },
+        "currentIllness": {
+          "title": "Current Illness - Complaints and Details",
+          "noData": "No current illness data available"
+        },
+        "hideDetails": "Hide Details",
+        "showDetails": "Show Details",
+        "evidence": "Evidence",
+        "urgency": "Urgency",
+        "aiSummary": {
+          "title": "AI-Generated Symptom & Exam Summary",
+          "description": "NLP summarization with medical-ontology tagging, red-flag highlighting, and chronic-condition identification",
+          "noSummary": "No AI summary available yet",
+          "generate": "Generate AI Summary",
+          "error": "Failed to generate AI summary. Please try again.",
+          "timeout": "Generation is taking longer than expected. The summary may already be ready — the page will refresh automatically."
+        },
+        "aiDiagnosis": {
+          "title": "AI Differential-Diagnosis & Test Recommendations",
+          "description": "Evidence-weighted diagnosis list with contextual test recommendations",
+          "noDiagnosis": "No AI diagnosis available yet",
+          "generate": "Generate Diagnosis",
+          "error": "Failed to generate AI diagnosis. Please try again.",
+          "timeout": "Generation is taking longer than expected. The diagnosis may already be ready — the page will refresh automatically.",
+          "ordered": "Tests for {{name}} have been ordered.",
+          "orderError": "Failed to order tests.",
+          "differentialDiagnoses": "Differential Diagnoses",
+          "testRecommendations": "Test Recommendations",
+          "orderTests": "Order Selected Tests",
+          "orderingTests": "Ordering tests: {{tests}}",
+          "interactiveDiagnoses": "Interactive Diagnosis Review",
+          "interactiveDescription": "Review and select tests based on the AI analysis above",
+          "recommendedTests": "Recommended Tests",
+          "otherTest": "Other (specify)",
+          "otherTestPlaceholder": "Enter test name or description...",
+          "caseClosed": "Case is closed. Ordering tests is disabled.",
+          "testsOrdered": "Tests have been ordered. You can update the selection before finalizing the discharge report.",
+          "clickToExpand": "Click \"Show Details\" above to view AI diagnosis",
+          "diagnoses": {
+            "acuteMi": "Acute Myocardial Infarction",
+            "unstableAngina": "Unstable Angina",
+            "gerd": "Gastroesophageal Reflux Disease",
+            "musculoskeletalPain": "Musculoskeletal Chest Pain"
+          },
+          "tests": {
+            "ecg": "Electrocardiogram (ECG)",
+            "troponin": "Cardiac Troponin",
+            "ckmb": "CK-MB",
+            "chestXray": "Chest X-Ray",
+            "echo": "Echocardiogram",
+            "stressTest": "Stress Test",
+            "endoscopy": "Upper Endoscopy",
+            "phMonitor": "pH Monitoring",
+            "muscleTest": "Muscle Function Test"
+          },
+          "evidence": {
+            "chestPain": "Chest pain",
+            "elevatedTroponin": "Elevated troponin",
+            "ecgChanges": "ECG changes",
+            "riskFactors": "Risk factors",
+            "heartburn": "Heartburn",
+            "noEcgChanges": "No ECG changes",
+            "muscleTenderness": "Muscle tenderness",
+            "noCardiacMarkers": "No cardiac markers"
+          },
+          "testDescriptions": {
+            "ecg": "Assess cardiac rhythm and detect ischemia",
+            "troponin": "Detect myocardial injury",
+            "ckmb": "Creatine kinase myocardial band",
+            "chestXray": "Evaluate lung fields and cardiac silhouette",
+            "echo": "Assess cardiac function and wall motion",
+            "stressTest": "Evaluate cardiac function under stress",
+            "endoscopy": "Evaluate esophageal and gastric conditions",
+            "phMonitor": "Monitor acid reflux patterns",
+            "muscleTest": "Evaluate musculoskeletal function"
+          },
+          "interactiveUnavailable": "Interactive review requires recognizable diagnosis and test lists in the AI output."
+        },
+        "detailsTab": "Patient Details"
       },
-      
-      // CasePage translations
-      case: {
-        title: "Case Details",
-        tabs: {
-          overview: "Overview",
-          questionnaire: "Questionnaire",
-          vitals: "Vital Signs",
-          summary: "AI Summary"
-        },
-        overview: {
-          patientName: "Patient Name",
-          nationalId: "National ID",
-          status: "Status",
-          createdAt: "Created At",
-          updatedAt: "Updated At"
-        },
-        questionnaire: {
-          title: "Questionnaire Responses",
-          noData: "No questionnaire data available"
-        },
-        vitals: {
-          title: "Vital Signs",
-          noData: "No vital signs recorded",
-          bloodPressure: "Blood Pressure",
-          heartRate: "Heart Rate",
-          temperature: "Temperature",
-          oxygenSaturation: "Oxygen Saturation",
-          respiratoryRate: "Respiratory Rate",
-          painScore: "Pain Score"
-        },
-        summary: {
-          title: "AI Medical Summary",
-          generate: "Generate Summary",
-          generating: "Generating...",
-          noSummary: "No summary available",
-          error: "Error generating summary"
-        },
-        actions: {
-          backToDashboard: "Back to Dashboard",
-          loading: "Loading..."
+      "common": {
+        "loading": "Loading...",
+        "error": "Error",
+        "success": "Success",
+        "cancel": "Cancel",
+        "save": "Save",
+        "edit": "Edit",
+        "delete": "Delete",
+        "confirm": "Confirm",
+        "back": "Back",
+        "next": "Next",
+        "previous": "Previous",
+        "finish": "Finish",
+        "close": "Close",
+        "retry": "Retry",
+        "step": "Step",
+        "of": "of",
+        "evidence": "Evidence",
+        "urgency": "Urgency",
+        "high": "high",
+        "medium": "medium",
+        "low": "low",
+        "backToDashboard": "Back to Dashboard"
+      },
+      "vitals": {
+        "title": "Vital Signs Entry",
+        "caseInfo": "Case Information",
+        "caseId": "Case ID",
+        "formTitle": "Enter Patient Vital Signs",
+        "bloodPressure": "Blood Pressure",
+        "bloodPressurePrompt": "Enter systolic/diastolic pressure (e.g., 120/80)",
+        "bloodPressurePlaceholder": "120/80",
+        "pulse": "Pulse",
+        "pulsePrompt": "Enter heart rate in beats per minute",
+        "pulsePlaceholder": "80",
+        "oxygenSaturation": "Oxygen Saturation (SpO₂)",
+        "oxygenPrompt": "Enter oxygen saturation percentage",
+        "oxygenPlaceholder": "98",
+        "temperature": "Temperature",
+        "temperaturePrompt": "Enter body temperature in Celsius",
+        "temperaturePlaceholder": "36.7",
+        "painScale": "Pain Scale (1–10)",
+        "painPrompt": "Rate patient's pain level from 1 (no pain) to 10 (severe pain)",
+        "painPlaceholder": "3",
+        "submit": "Submit Vitals",
+        "submitting": "Submitting...",
+        "back": "Back",
+        "errors": {
+          "bloodPressureRequired": "Blood pressure is required",
+          "bloodPressureFormat": "Format: 120/80",
+          "bloodPressureRange": "Systolic: 70-250, Diastolic: 40-150",
+          "pulseRequired": "Pulse is required",
+          "pulseRange": "Pulse must be between 30-200 bpm",
+          "oxygenRequired": "Oxygen saturation is required",
+          "oxygenRange": "Oxygen saturation must be between 50-100%",
+          "temperatureRequired": "Temperature is required",
+          "temperatureRange": "Temperature must be between 30-45°C",
+          "painRequired": "Pain scale is required",
+          "painRange": "Pain scale must be between 1-10",
+          "submitFailed": "Failed to submit vitals. Please try again.",
+          "submitError": "Error submitting vitals. Please check your connection.",
+          "timeout": "The request timed out. Please check your connection and try again."
         }
       },
-      
-      // Common translations
-      common: {
-        loading: "Loading...",
-        error: "Error",
-        success: "Success",
-        cancel: "Cancel",
-        save: "Save",
-        edit: "Edit",
-        delete: "Delete",
-        confirm: "Confirm",
-        back: "Back",
-        next: "Next",
-        previous: "Previous",
-        finish: "Finish",
-        close: "Close",
-        retry: "Retry",
-        step: "Step",
-        of: "of",
-        evidence: "Evidence",
-        urgency: "Urgency",
-        high: "high",
-        medium: "medium",
-        low: "low"
+      "discharge": {
+        "title": "Discharge Report",
+        "proceedButton": "Proceed to Discharge Report",
+        "prepareReport": "Prepare Discharge Report",
+        "viewReport": "View Discharge Report",
+        "loading": "Loading...",
+        "finalized": "Finalized",
+        "finalizedOn": "Finalized on",
+        "aiActions": "AI Report Tools",
+        "aiActionsHint": "Improve or shorten the existing report. Your edits are preserved.",
+        "aiActionsHintEmpty": "Generate a report using all available case data.",
+        "generateFull": "Generate Full Report",
+        "improveLanguage": "Improve Medical Language",
+        "shortenReport": "Shorten Report",
+        "regenerate": "Regenerate from Scratch",
+        "regenerateWarning": "This will replace the current report.",
+        "confirmRegenerate": "Yes, Regenerate",
+        "generating": "Generating...",
+        "aiGenerating": "Generating structured discharge record...",
+        "aiGeneratingHint": "This may take up to 30 seconds — please keep this page open.",
+        "generationTimeout": "Generation is taking longer than expected. The report may already be ready — the page will refresh automatically.",
+        "aiImproving": "Improving medical language...",
+        "aiShortening": "Creating concise version...",
+        "reportCardTitle": "Discharge Report",
+        "reportContent": "Report Content",
+        "edit": "Edit",
+        "cancelEdit": "Cancel",
+        "saveChanges": "Save Changes",
+        "saving": "Saving...",
+        "saved": "Saved",
+        "legend": "Key",
+        "structuredReport": "Structured Discharge Record",
+        "legendDemo": "Demographics",
+        "legendValues": "Clinical Values",
+        "legendRecs": "Recommendations",
+        "legendTreatment": "Treatment",
+        "legendDx": "Diagnosis Terms",
+        "noReport": "No report generated yet.",
+        "noReportHint": "Click \"Generate Full Report\" above to create one.",
+        "returnToCase": "Return to Case",
+        "print": "Print / Export PDF",
+        "finalizeDischarge": "Finalize Discharge",
+        "confirmFinalize": "This will close the case. Confirm?",
+        "confirmYes": "Yes, Finalize",
+        "cancel": "Cancel",
+        "finalizing": "Finalizing...",
+        "loadErrorTitle": "Could not load case",
+        "loadErrorDescription": "We were unable to load this discharge report. Please check your connection and try again.",
+        "printTitle": "Emergency Department Discharge Summary",
+        "patient": "Patient",
+        "idLabel": "ID",
+        "dateLabel": "Date"
       },
-      // AI Diagnosis translations
-      aiDiagnosis: {
-        diagnoses: {
-          acuteMi: "Acute Myocardial Infarction",
-          unstableAngina: "Unstable Angina",
-          gerd: "Gastroesophageal Reflux Disease",
-          musculoskeletalPain: "Musculoskeletal Pain"
+      "nurseLogin": {
+        "title": "Nurse Access",
+        "subtitle": "Enter your access code to continue.",
+        "passcodePlaceholder": "Access code",
+        "continue": "Continue",
+        "invalidCode": "Invalid access code."
+      },
+      "nurseDashboard": {
+        "title": "Triage Board",
+        "subtitle": "Patients waiting for vital signs to be recorded",
+        "loading": "Loading triage queue...",
+        "error": "Could not load cases.",
+        "unknownPatient": "Unknown patient",
+        "minutes": "{{n}} min",
+        "handedOff": "Handed off",
+        "tabs": {
+          "awaiting": "Awaiting vitals",
+          "done": "Sent to doctor"
         },
-        evidence: {
-          chestPain: "Chest Pain",
-          elevatedTroponin: "Elevated Troponin",
-          ecgChanges: "ECG Changes",
-          riskFactors: "Risk Factors",
-          heartburn: "Heartburn",
-          noEcgChanges: "No ECG Changes",
-          muscleTenderness: "Muscle Tenderness",
-          noCardiacMarkers: "No Cardiac Markers"
+        "search": {
+          "placeholder": "Search by name or ID..."
         },
-        tests: {
-          ecg: "ECG",
-          troponin: "Troponin",
-          ckmb: "CK-MB",
-          chestXray: "Chest X-ray",
-          echo: "Echocardiogram",
-          stressTest: "Stress Test",
-          endoscopy: "Endoscopy",
-          phMonitor: "pH Monitor",
-          muscleTest: "Muscle Function Test"
+        "table": {
+          "patient": "Patient",
+          "id": "ID",
+          "arrived": "Arrived",
+          "waiting": "Waiting",
+          "actions": "Action"
         },
-        testDescriptions: {
-          ecg: "Electrocardiogram to assess heart rhythm and electrical activity",
-          troponin: "Blood test to detect heart muscle damage",
-          ckmb: "Creatine kinase-MB enzyme test for heart damage",
-          chestXray: "X-ray imaging of the chest to check for lung/heart issues",
-          echo: "Ultrasound of the heart to assess function and structure",
-          stressTest: "Exercise test to evaluate heart function under stress",
-          endoscopy: "Visual examination of the esophagus and stomach",
-          phMonitor: "24-hour monitoring of stomach acid levels",
-          muscleTest: "Assessment of muscle strength and function"
+        "actions": {
+          "recordVitals": "Record vitals",
+          "updateVitals": "Update vitals",
+          "logout": "Log out"
+        },
+        "empty": {
+          "title": "No patients in the queue",
+          "noMatch": "No cases match your search.",
+          "noAwaiting": "All caught up — no patients are currently waiting for triage.",
+          "noDone": "No cases have been handed off to the doctor yet."
         }
-      }
-    },
-    vitals: {
-      title: "Vital Signs Entry",
-      caseInfo: "Case Information",
-      caseId: "Case ID",
-      formTitle: "Enter Patient Vital Signs",
-      bloodPressure: "Blood Pressure",
-      bloodPressurePrompt: "Enter systolic/diastolic pressure (e.g., 120/80)",
-      bloodPressurePlaceholder: "120/80",
-      pulse: "Pulse",
-      pulsePrompt: "Enter heart rate in beats per minute",
-      pulsePlaceholder: "80",
-      oxygenSaturation: "Oxygen Saturation (SpO₂)",
-      oxygenPrompt: "Enter oxygen saturation percentage",
-      oxygenPlaceholder: "98",
-      temperature: "Temperature",
-      temperaturePrompt: "Enter body temperature in Celsius",
-      temperaturePlaceholder: "36.7",
-      painScale: "Pain Scale (1–10)",
-      painPrompt: "Rate patient's pain level from 1 (no pain) to 10 (severe pain)",
-      painPlaceholder: "3",
-      submit: "Submit Vitals",
-      submitting: "Submitting...",
-      back: "Back",
-      errors: {
-        bloodPressureRequired: "Blood pressure is required",
-        bloodPressureFormat: "Format: 120/80",
-        bloodPressureRange: "Systolic: 70-250, Diastolic: 40-150",
-        pulseRequired: "Pulse is required",
-        pulseRange: "Pulse must be between 30-200 bpm",
-        oxygenRequired: "Oxygen saturation is required",
-        oxygenRange: "Oxygen saturation must be between 50-100%",
-        temperatureRequired: "Temperature is required",
-        temperatureRange: "Temperature must be between 30-45°C",
-        painRequired: "Pain scale is required",
-        painRange: "Pain scale must be between 1-10",
-        submitFailed: "Failed to submit vitals. Please try again.",
-        submitError: "Error submitting vitals. Please check your connection."
-      }
-    },
-    dashboard: {
-      title: "Doctor's Dashboard",
-      subtitle: "Search and manage medical cases",
-      loading: "Loading cases...",
-      error: "Error loading cases",
-      retry: "Retry",
-      search: {
-        placeholder: "Search by patient name or ID..."
       },
-      filters: {
-        all: "All Cases",
-        pendingDoctorReview: "Waiting for doctor's review",
-        inReview: "In Review",
-        completed: "Completed",
-        cancelled: "Cancelled"
-      },
-      status: {
-        pendingDoctorReview: "Waiting for doctor's review",
-        inReview: "In Review",
-        completed: "Completed",
-        cancelled: "Cancelled",
-        awaiting_vitals: "Awaiting vitals",
-        open: "Open",
-        in_progress: "In progress",
-        tests_ordered: "Tests ordered",
-        closed: "Closed"
-      },
-      table: {
-        patientName: "Patient Name",
-        id: "ID",
-        status: "Status",
-        receptionDate: "Reception Date",
-        actions: "Actions"
-      },
-      actions: {
-        newCase: "New Case",
-        openFile: "Open File"
-      },
-      empty: {
-        title: "No cases found",
-        description: "No cases match your current search criteria."
-      }
-    },
-    case: {
-      title: "Case Management",
-      id: "ID",
-      age: "Age",
-      status: "Status",
-      loading: "Loading case...",
-      error: "Error loading case",
-      backToDashboard: "Back to Dashboard",
-      backToList: "Back to list",
-      statusLabel: {
-        open: "Open",
-        in_progress: "In Progress",
-        tests_ordered: "Tests Ordered",
-        closed: "Closed",
-        cancelled: "Cancelled"
-      },
-      testsOrderedBanner: "Tests have been ordered.",
-      testsOrderedHint: "Review the results when available, then prepare and finalize the discharge report to close this case.",
-      closedBanner: "This case has been closed. The discharge report has been finalized.",
-      tabs: {
-        summary: "Summary and Vital Signs",
-        physical: "Physical Examination",
-        diagnosis: "Diagnosis and Tests",
-        results: "Results",
-        treatment: "Treatment and Summary"
-      },
-      vitals: {
-        title: "Vital Signs",
-        description: "Vital signs measurements taken.",
-        bloodPressure: "Blood Pressure",
-        bloodPressurePlaceholder: "Enter systolic/diastolic (e.g., 120/80)",
-        pulse: "Pulse",
-        pulsePlaceholder: "Enter heart rate (bpm)",
-        oxygenSaturation: "Saturation (SpO2)",
-        temperature: "Temperature",
-        painScale: "Pain Scale (1-10)",
-        save: "Save Vital Signs",
-        notRecorded: "Not recorded"
-      },
-      personalDetails: {
-        title: "Personal Details",
-        fullName: "Full Name",
-        id: "ID No.",
-        gender: "Gender",
-        age: "Age",
-        maritalStatus: "Marital Status",
-        cognitiveStatus: "Cognitive Status",
-        functionalStatus: "Functional Status",
-        notProvided: "Not provided"
-      },
-      medicalHistory: {
-        title: "Medical History",
-        backgroundDiseases: "Background Diseases",
-        noData: "No medical history data available"
-      },
-      currentIllness: {
-        title: "Current Illness - Complaints and Details",
-        noData: "No current illness data available"
-      },
-      hideDetails: "Hide Details",
-      showDetails: "Show Details",
-      evidence: "Evidence",
-      urgency: "Urgency",
-      aiSummary: {
-        title: "AI-Generated Symptom & Exam Summary",
-        description: "NLP summarization with medical-ontology tagging, red-flag highlighting, and chronic-condition identification",
-        noSummary: "No AI summary available yet",
-        generate: "Generate AI Summary",
-        error: "Failed to generate AI summary. Please try again.",
-        timeout: "Generation is taking longer than expected. The summary may already be ready — the page will refresh automatically."
-      },
-      aiDiagnosis: {
-        title: "AI Differential-Diagnosis & Test Recommendations",
-        description: "Evidence-weighted diagnosis list with contextual test recommendations",
-        noDiagnosis: "No AI diagnosis available yet",
-        generate: "Generate Diagnosis",
-        error: "Failed to generate AI diagnosis. Please try again.",
-        timeout: "Generation is taking longer than expected. The diagnosis may already be ready — the page will refresh automatically.",
-        ordered: "Tests for {{name}} have been ordered.",
-        orderError: "Failed to order tests.",
-        differentialDiagnoses: "Differential Diagnoses",
-        testRecommendations: "Test Recommendations",
-        orderTests: "Order Selected Tests",
-        orderingTests: "Ordering tests: {{tests}}",
-        interactiveDiagnoses: "Interactive Diagnosis Review",
-        interactiveDescription: "Review and select tests based on the AI analysis above",
-        recommendedTests: "Recommended Tests",
-        otherTest: "Other (specify)",
-        otherTestPlaceholder: "Enter test name or description...",
-        caseClosed: "Case is closed. Ordering tests is disabled.",
-        testsOrdered: "Tests have been ordered. You can update the selection before finalizing the discharge report.",
-        clickToExpand: "Click \"Show Details\" above to view AI diagnosis",
-        diagnoses: {
-          acuteMi: "Acute Myocardial Infarction",
-          unstableAngina: "Unstable Angina",
-          gerd: "Gastroesophageal Reflux Disease",
-          musculoskeletalPain: "Musculoskeletal Chest Pain"
-        },
-        tests: {
-          ecg: "Electrocardiogram (ECG)",
-          troponin: "Cardiac Troponin",
-          ckmb: "CK-MB",
-          chestXray: "Chest X-Ray",
-          echo: "Echocardiogram",
-          stressTest: "Stress Test",
-          endoscopy: "Upper Endoscopy",
-          phMonitor: "pH Monitoring",
-          muscleTest: "Muscle Function Test"
-        },
-        evidence: {
-          chestPain: "Chest pain",
-          elevatedTroponin: "Elevated troponin",
-          ecgChanges: "ECG changes",
-          riskFactors: "Risk factors",
-          heartburn: "Heartburn",
-          noEcgChanges: "No ECG changes",
-          muscleTenderness: "Muscle tenderness",
-          noCardiacMarkers: "No cardiac markers"
-        },
-        testDescriptions: {
-          ecg: "Assess cardiac rhythm and detect ischemia",
-          troponin: "Detect myocardial injury",
-          ckmb: "Creatine kinase myocardial band",
-          chestXray: "Evaluate lung fields and cardiac silhouette",
-          echo: "Assess cardiac function and wall motion",
-          stressTest: "Evaluate cardiac function under stress",
-          endoscopy: "Evaluate esophageal and gastric conditions",
-          phMonitor: "Monitor acid reflux patterns",
-          muscleTest: "Evaluate musculoskeletal function"
-        }
-      }
-    },
-    discharge: {
-      title: "Discharge Report",
-      proceedButton: "Proceed to Discharge Report",
-      prepareReport: "Prepare Discharge Report",
-      viewReport: "View Discharge Report",
-      loading: "Loading...",
-      finalized: "Finalized",
-      finalizedOn: "Finalized on",
-      aiActions: "AI Report Tools",
-      aiActionsHint: "Improve or shorten the existing report. Your edits are preserved.",
-      aiActionsHintEmpty: "Generate a report using all available case data.",
-      generateFull: "Generate Full Report",
-      improveLanguage: "Improve Medical Language",
-      shortenReport: "Shorten Report",
-      regenerate: "Regenerate from Scratch",
-      regenerateWarning: "This will replace the current report.",
-      confirmRegenerate: "Yes, Regenerate",
-      generating: "Generating...",
-      aiGenerating: "Generating structured discharge record...",
-      aiGeneratingHint: "This may take up to 30 seconds — please keep this page open.",
-      generationTimeout: "Generation is taking longer than expected. The report may already be ready — the page will refresh automatically.",
-      aiImproving: "Improving medical language...",
-      aiShortening: "Creating concise version...",
-      reportCardTitle: "Discharge Report",
-      reportContent: "Report Content",
-      edit: "Edit",
-      cancelEdit: "Cancel",
-      saveChanges: "Save Changes",
-      saving: "Saving...",
-      saved: "Saved",
-      legend: "Key",
-      structuredReport: "Structured Discharge Record",
-      legendDemo: "Demographics",
-      legendValues: "Clinical Values",
-      legendRecs: "Recommendations",
-      legendTreatment: "Treatment",
-      legendDx: "Diagnosis Terms",
-      noReport: "No report generated yet.",
-      noReportHint: "Click \"Generate Full Report\" above to create one.",
-      returnToCase: "Return to Case",
-      print: "Print / Export PDF",
-      finalizeDischarge: "Finalize Discharge",
-      confirmFinalize: "This will close the case. Confirm?",
-      confirmYes: "Yes, Finalize",
-      cancel: "Cancel",
-      finalizing: "Finalizing...",
-      loadErrorTitle: "Could not load case",
-      loadErrorDescription: "We were unable to load this discharge report. Please check your connection and try again.",
-      printTitle: "Emergency Department Discharge Summary",
-      patient: "Patient",
-      idLabel: "ID",
-      dateLabel: "Date"
-    },
-    nurseLogin: {
-      title: "Nurse Access",
-      subtitle: "Enter your access code to continue.",
-      passcodePlaceholder: "Access code",
-      continue: "Continue",
-      invalidCode: "Invalid access code."
-    },
-    nurseDashboard: {
-      title: "Triage Board",
-      subtitle: "Patients waiting for vital signs to be recorded",
-      loading: "Loading triage queue...",
-      error: "Could not load cases.",
-      unknownPatient: "Unknown patient",
-      minutes: "{{n}} min",
-      handedOff: "Handed off",
-      tabs: {
-        awaiting: "Awaiting vitals",
-        done: "Sent to doctor"
-      },
-      search: {
-        placeholder: "Search by name or ID..."
-      },
-      table: {
-        patient: "Patient",
-        id: "ID",
-        arrived: "Arrived",
-        waiting: "Waiting",
-        actions: "Action"
-      },
-      actions: {
-        recordVitals: "Record vitals",
-        updateVitals: "Update vitals",
-        logout: "Log out"
-      },
-      empty: {
-        title: "No patients in the queue",
-        noMatch: "No cases match your search.",
-        noAwaiting: "All caught up — no patients are currently waiting for triage.",
-        noDone: "No cases have been handed off to the doctor yet."
+      "doctorLogin": {
+        "title": "Doctor Access",
+        "subtitle": "Enter your access code to continue.",
+        "passcodePlaceholder": "Access code",
+        "continue": "Continue",
+        "invalidCode": "Invalid access code."
       }
     }
   },
-  he: {
-    translation: {
-      // ScanPage translations
-      welcome: {
-        title: "ברוכים הבאים ל-SwiftyCare",
-        description: "נא הזן את פרטיך כדי להתחיל בתהליך הרישום הרפואי"
+  "he": {
+    "translation": {
+      "welcome": {
+        "title": "ברוכים הבאים ל-SwiftyCare",
+        "description": "נא הזן את פרטיך כדי להתחיל בתהליך הרישום הרפואי"
       },
-      form: {
-        title: "פרטי המטופל",
-        description: "נא למלא את הפרטים שלך למטה",
-        hospital: "בית חולים",
-        hospitalRequired: "שם בית החולים נדרש",
-        hospitalMinLength: "שם בית החולים חייב להכיל לפחות 2 תווים",
-        hospitalPlaceholder: "בחר בית חולים",
-        fullName: "שם מלא",
-        fullNameRequired: "שם מלא נדרש",
-        fullNameMinLength: "שם מלא חייב להכיל לפחות 2 תווים",
-        fullNameMaxLength: "שם מלא לא יכול להכיל יותר מ-100 תווים",
-        fullNameInvalid: "שם מלא יכול להכיל רק אותיות עבריות, אנגליות, רווחים, מקפים ואפוסטרופים",
-        fullNamePlaceholder: "הזן שם מלא",
-        nationalId: "מספר תעודת זהות",
-        nationalIdRequired: "מספר תעודת זהות נדרש",
-        nationalIdMinLength: "מספר תעודת זהות חייב להכיל לפחות 5 ספרות",
-        nationalIdMaxLength: "מספר תעודת זהות לא יכול להכיל יותר מ-20 ספרות",
-        nationalIdInvalid: "מספר תעודת זהות יכול להכיל רק ספרות",
-        nationalIdPlaceholder: "הזן מספר תעודת זהות",
-        submitButton: "התחל שאלון",
-        submitButtonLoading: "יוצר מקרה...",
-        formReady: "הטופס מוכן לשליחה",
-        submitError: "שגיאה ביצירת המקרה. נסה שוב.",
-        duplicateCaseError: "נראה שהמקרה הזה כבר קיים. אנא ודא את הפרטים שלך או פנה לתמיכה.",
-        networkError: "שגיאת רשת. נסה שוב."
+      "form": {
+        "title": "פרטי המטופל",
+        "description": "נא למלא את הפרטים שלך למטה",
+        "hospital": "בית חולים",
+        "hospitalRequired": "שם בית החולים נדרש",
+        "hospitalMinLength": "שם בית החולים חייב להכיל לפחות 2 תווים",
+        "hospitalPlaceholder": "בחר בית חולים",
+        "fullName": "שם מלא",
+        "fullNameRequired": "שם מלא נדרש",
+        "fullNameMinLength": "שם מלא חייב להכיל לפחות 2 תווים",
+        "fullNameMaxLength": "שם מלא לא יכול להכיל יותר מ-100 תווים",
+        "fullNameInvalid": "שם מלא יכול להכיל רק אותיות עבריות, אנגליות, רווחים, מקפים ואפוסטרופים",
+        "fullNamePlaceholder": "הזן שם מלא",
+        "nationalId": "מספר תעודת זהות",
+        "nationalIdRequired": "מספר תעודת זהות נדרש",
+        "nationalIdMinLength": "מספר תעודת זהות חייב להכיל לפחות 5 ספרות",
+        "nationalIdMaxLength": "מספר תעודת זהות לא יכול להכיל יותר מ-20 ספרות",
+        "nationalIdInvalid": "מספר תעודת זהות יכול להכיל רק ספרות",
+        "nationalIdPlaceholder": "הזן מספר תעודת זהות",
+        "submitButton": "התחל שאלון",
+        "submitButtonLoading": "יוצר מקרה...",
+        "formReady": "הטופס מוכן לשליחה",
+        "submitError": "שגיאה ביצירת המקרה. נסה שוב.",
+        "duplicateCaseError": "נראה שהמקרה הזה כבר קיים. אנא ודא את הפרטים שלך או פנה לתמיכה.",
+        "networkError": "שגיאת רשת. נסה שוב.",
+        "timeoutError": "תגובת השרת אורכת זמן רב מדי. אנא נסה שוב בעוד רגע."
       },
-      hospitals: {
-        hadassahEinKerem: "בית החולים הדסה עין כרם",
-        hadassahMountScopus: "בית החולים הדסה הר הצופים",
-        ichilov: "בית החולים איכילוב (תל אביב)",
-        sheba: "בית החולים שיבא (תל השומר)",
-        rambam: "בית החולים רמב\"ם (חיפה)",
-        soroka: "בית החולים סורוקה (באר שבע)",
-        kaplan: "בית החולים קפלן (רחובות)",
-        assafHarofeh: "בית החולים אסף הרופא (צריפין)",
-        shaareZedek: "בית החולים שערי צדק (ירושלים)",
-        billinson: "בית החולים בילינסון (פתח תקווה)",
-        meir: "בית החולים מאיר (כפר סבא)",
-        hillelYaffe: "בית החולים הלל יפה (חדרה)",
-        nahariya: "בית החולים נהריה",
-        poria: "בית החולים פוריה (טבריה)",
-        ziv: "בית החולים זיו (צפת)",
-        barzilai: "בית החולים ברזילי (אשקלון)",
-        yoseftal: "בית החולים יוספטל (אילת)",
-        laniado: "בית החולים לניאדו (נתניה)",
-        assuta: "בית החולים אסותא (תל אביב)",
-        herzliyaMedical: "בית החולים הרצליה מדיקל סנטר"
+      "hospitals": {
+        "hadassahEinKerem": "בית החולים הדסה עין כרם",
+        "hadassahMountScopus": "בית החולים הדסה הר הצופים",
+        "ichilov": "בית החולים איכילוב (תל אביב)",
+        "sheba": "בית החולים שיבא (תל השומר)",
+        "rambam": "בית החולים רמב\"ם (חיפה)",
+        "soroka": "בית החולים סורוקה (באר שבע)",
+        "kaplan": "בית החולים קפלן (רחובות)",
+        "assafHarofeh": "בית החולים אסף הרופא (צריפין)",
+        "shaareZedek": "בית החולים שערי צדק (ירושלים)",
+        "billinson": "בית החולים בילינסון (פתח תקווה)",
+        "meir": "בית החולים מאיר (כפר סבא)",
+        "hillelYaffe": "בית החולים הלל יפה (חדרה)",
+        "nahariya": "בית החולים נהריה",
+        "poria": "בית החולים פוריה (טבריה)",
+        "ziv": "בית החולים זיו (צפת)",
+        "barzilai": "בית החולים ברזילי (אשקלון)",
+        "yoseftal": "בית החולים יוספטל (אילת)",
+        "laniado": "בית החולים לניאדו (נתניה)",
+        "assuta": "בית החולים אסותא (תל אביב)",
+        "herzliyaMedical": "בית החולים הרצליה מדיקל סנטר"
       },
-      footer: {
-        copyright: "© Swifty Medical 2025. כל הזכויות שמורות."
+      "footer": {
+        "copyright": "© Swifty Medical 2025. כל הזכויות שמורות."
       },
-      language: {
-        toggle: "EN"
+      "language": {
+        "toggle": "EN"
       },
-      
-      // QuestionnairePage translations
-      questionnaire: {
-        title: "שאלון רפואי",
-        subtitle: "נא ענה על השאלות הבאות",
-        greeting: "שלום {{name}}, אנא מלא את הפרטים הבאים.",
-        step1: "פרטים אישיים והיסטוריה רפואית",
-        personalInfo: {
-          title: "פרטים אישיים",
-          age: "גיל",
-          agePlaceholder: "הזן גיל",
-          gender: "מין",
-          selectGender: "בחר מין",
-          male: "זכר",
-          female: "נקבה",
-          maritalStatus: "מצב משפחתי",
-          selectMaritalStatus: "בחר מצב משפחתי",
-          married: "נשוי/ה",
-          single: "רווק/ה",
-          divorced: "גרוש/ה",
-          widowed: "אלמן/ה",
-          formFilledBy: "מי ממלא את הטופס?",
-          selfCompleted: "ממולא בידי המטופל/ת עצמו/ה",
-          completedByCompanion: "ממולא בידי מלווה / מטפל/ת",
-          cognitiveState: "מצב קוגניטיבי",
-          selectCognitiveState: "בחר מצב קוגניטיבי",
-          // אפשרויות חדשות - שמור / ירוד / ירידה בזיכרון
-          cognitivelyIntact: "שמור קוגניטיבית",
-          cognitivelyImpaired: "ירוד קוגניטיבית",
-          memoryDecline: "ירידה בזיכרון",
-          // שמורים לתאימות לאחור עם נתונים ישנים
-          conscious: "צלול",
-          confused: "מבולבל",
-          unconscious: "לא בהכרה",
-          functionalState: "מצב תפקודי",
-          selectFunctionalState: "בחר מצב תפקודי",
-          independent: "עצמאי",
-          dependent: "תלוי"
+      "questionnaire": {
+        "title": "שאלון רפואי",
+        "subtitle": "נא ענה על השאלות הבאות",
+        "greeting": "שלום {{name}}, אנא מלא את הפרטים הבאים.",
+        "step1": "פרטים אישיים והיסטוריה רפואית",
+        "personalInfo": {
+          "title": "פרטים אישיים",
+          "age": "גיל",
+          "agePlaceholder": "הזן גיל",
+          "gender": "מין",
+          "selectGender": "בחר מין",
+          "male": "זכר",
+          "female": "נקבה",
+          "maritalStatus": "מצב משפחתי",
+          "selectMaritalStatus": "בחר מצב משפחתי",
+          "married": "נשוי/ה",
+          "single": "רווק/ה",
+          "divorced": "גרוש/ה",
+          "widowed": "אלמן/ה",
+          "formFilledBy": "מי ממלא את הטופס?",
+          "selfCompleted": "ממולא בידי המטופל/ת עצמו/ה",
+          "completedByCompanion": "ממולא בידי מלווה / מטפל/ת",
+          "cognitiveState": "מצב קוגניטיבי",
+          "selectCognitiveState": "בחר מצב קוגניטיבי",
+          "cognitivelyIntact": "שמור קוגניטיבית",
+          "cognitivelyImpaired": "ירוד קוגניטיבית",
+          "memoryDecline": "ירידה בזיכרון",
+          "conscious": "צלול",
+          "confused": "מבולבל",
+          "unconscious": "לא בהכרה",
+          "functionalState": "מצב תפקודי",
+          "selectFunctionalState": "בחר מצב תפקודי",
+          "independent": "עצמאי",
+          "dependent": "תלוי"
         },
-        medicalHistory: {
-          title: "היסטוריה רפואית",
-          none: "אין",
-          diabetes: "סכרת",
-          hypertension: "יתר לחץ דם",
-          // עודכן מ"דיסליפידמיה" ל"שומני דם גבוהים"
-          dyslipidemia: "שומני דם גבוהים",
-          asthma: "אסטמה",
-          ischemicHeartDisease: "מחלת לב איסכמית",
-          heartFailure: "אי ספיקת לב",
-          atrialFibrillation: "פרפור פרוזדורים",
-          cancer: "סרטן",
-          cancerDetails: "פרטי הסרטן",
-          cancerStatus: "סטטוס הסרטן",
-          cancerStatus_active: "פעיל",
-          cancerStatus_pastHistory: "היסטוריה בעבר",
-          cancerType: "סוג הסרטן",
-          cancerTypePlaceholder: "לדוגמה: שד, ריאות, מעי גס...",
-          previousStroke: "שבץ מוחי בעבר",
-          hypothyroidism: "תת פעילות של בלוטת התריס",
-          copd: "COPD",
-          renalFailure: "אי ספיקת כליות",
-          smoking: "עישון",
-          immunocompromised: "כשל חיסוני / מדוכא חיסונית",
-          otherDiseases: "מחלות רקע נוספות",
-          otherDiseasesPlaceholder: "נא לציין",
-          previousSurgeries: "ניתוחים בעבר"
+        "medicalHistory": {
+          "title": "היסטוריה רפואית",
+          "none": "אין",
+          "diabetes": "סכרת",
+          "hypertension": "יתר לחץ דם",
+          "dyslipidemia": "שומני דם גבוהים",
+          "asthma": "אסטמה",
+          "ischemicHeartDisease": "מחלת לב איסכמית",
+          "heartFailure": "אי ספיקת לב",
+          "atrialFibrillation": "פרפור פרוזדורים",
+          "cancer": "סרטן",
+          "cancerDetails": "פרטי הסרטן",
+          "cancerStatus": "סטטוס הסרטן",
+          "cancerStatus_active": "פעיל",
+          "cancerStatus_pastHistory": "היסטוריה בעבר",
+          "cancerType": "סוג הסרטן",
+          "cancerTypePlaceholder": "לדוגמה: שד, ריאות, מעי גס...",
+          "previousStroke": "שבץ מוחי בעבר",
+          "hypothyroidism": "תת פעילות של בלוטת התריס",
+          "copd": "COPD",
+          "renalFailure": "אי ספיקת כליות",
+          "smoking": "עישון",
+          "immunocompromised": "כשל חיסוני / מדוכא חיסונית",
+          "otherDiseases": "מחלות רקע נוספות",
+          "otherDiseasesPlaceholder": "נא לציין",
+          "previousSurgeries": "ניתוחים בעבר"
         },
-        currentIllness: {
-          title: "מחלה נוכחית",
-          instruction: "אנא בחר את כל התלונות הרלוונטיות",
-          // ── כאבים ──
-          chestPain: "כאבים בחזה",
-          headache: "כאב ראש",
-          abdominalPain: "כאבי בטן",
-          backPain: "כאבי גב",
-          flankPain: "כאב גב תחתון / מותן",
-          neckPain: "כאב צוואר",
-          jointPain: "כאב במפרקים",
-          painInLimbs: "כאב בגפיים",
-          earPain: "כאב אוזן",
-          injectionSitePain: "כאב באתר ניקור / בדיקת דם",
-          // ── נשימה / מערכתי ──
-          fever: "חום",
-          shortnessOfBreath: "קוצר נשימה",
-          cough: "שיעול",
-          // ── GI ──
-          nausea: "בחילה",
-          vomiting: "הקאות",
-          diarrhea: "שלשול",
-          rash: "פריחה",
-          // ── נוירולוגי / כללי ──
-          dizziness: "סחרחורת",
-          // חולשה כללית — הוסר "נוירולוגי"
-          fatigueWeakness: "חולשה כללית",
-          syncope: "סינקופה (עילפון)",
-          alteredMentalStatus: "שינוי במצב ההכרה",
-          changeInConsciousness: "שינוי ברמת ההכרה",
-          // ── טראומה / אחר ──
-          swellingEdema: "נפיחות / בצקת",
-          eyeProblems: "בעיות בעיניים",
-          injuryTrauma: "פציעה / טראומה",
-          headInjury: "חבלת ראש",
-          abnormalBloodTests: "תוצאות בדיקות דם חריגות",
-          maxSelected: "נבחרו 2 מצבים — בטל בחירה אחת כדי לבחור אחרת"
+        "currentIllness": {
+          "title": "מחלה נוכחית",
+          "instruction": "אנא בחר את כל התלונות הרלוונטיות",
+          "chestPain": "כאבים בחזה",
+          "headache": "כאב ראש",
+          "abdominalPain": "כאבי בטן",
+          "backPain": "כאבי גב",
+          "flankPain": "כאב גב תחתון / מותן",
+          "neckPain": "כאב צוואר",
+          "jointPain": "כאב במפרקים",
+          "painInLimbs": "כאב בגפיים",
+          "earPain": "כאב אוזן",
+          "injectionSitePain": "כאב באתר ניקור / בדיקת דם",
+          "fever": "חום",
+          "shortnessOfBreath": "קוצר נשימה",
+          "cough": "שיעול",
+          "nausea": "בחילה",
+          "vomiting": "הקאות",
+          "diarrhea": "שלשול",
+          "rash": "פריחה",
+          "dizziness": "סחרחורת",
+          "fatigueWeakness": "חולשה כללית",
+          "syncope": "סינקופה (עילפון)",
+          "alteredMentalStatus": "שינוי במצב ההכרה",
+          "changeInConsciousness": "שינוי ברמת ההכרה",
+          "swellingEdema": "נפיחות / בצקת",
+          "eyeProblems": "בעיות בעיניים",
+          "injuryTrauma": "פציעה / טראומה",
+          "headInjury": "חבלת ראש",
+          "abnormalBloodTests": "תוצאות בדיקות דם חריגות",
+          "maxSelected": "נבחרו 2 מצבים — בטל בחירה אחת כדי לבחור אחרת"
         },
-        adaptive: {
-          selectChiefComplaint: "בחר תלונה עיקרית",
-          detailsFor: "פירוט עבור",
-          addDetail: "הוסף פירוט",
-          hideDetail: "הסתר פירוט",
-          detailPlaceholder: "נא לספק פרטים נוספים...",
-          selectOption: "בחר אפשרות",
-          additionalDetails: "פרטים נוספים",
-          additionalDetailsPlaceholder: "נא לספק מידע נוסף",
-          redFlagAlert: "⚠️ התראת דגל אדום",
-          redFlagMessage: "זוהו תסמינים קריטיים. ייתכן שנדרש טיפול רפואי מיידי.",
-          noSymptomsSelected: "לא נבחרו תסמינים",
-          goBackToStep1: "נא לחזור לשלב 1 ולבחור את התסמינים שלך",
-          selectedSymptoms: "תסמינים נבחרים",
-          pathways: {
-            chestPain: "כאבים בחזה",
-            chestPainDescription: "כאב או אי נוחות באזור החזה",
-            fever: "חום",
-            feverDescription: "טמפרטורת גוף מוגברת"
+        "adaptive": {
+          "selectChiefComplaint": "בחר תלונה עיקרית",
+          "detailsFor": "פירוט עבור",
+          "addDetail": "הוסף פירוט",
+          "hideDetail": "הסתר פירוט",
+          "detailPlaceholder": "נא לספק פרטים נוספים...",
+          "selectOption": "בחר אפשרות",
+          "additionalDetails": "פרטים נוספים",
+          "additionalDetailsPlaceholder": "נא לספק מידע נוסף",
+          "redFlagAlert": "⚠️ התראת דגל אדום",
+          "redFlagMessage": "זוהו תסמינים קריטיים. ייתכן שנדרש טיפול רפואי מיידי.",
+          "noSymptomsSelected": "לא נבחרו תסמינים",
+          "goBackToStep1": "נא לחזור לשלב 1 ולבחור את התסמינים שלך",
+          "selectedSymptoms": "תסמינים נבחרים",
+          "pathways": {
+            "chestPain": "כאבים בחזה",
+            "chestPainDescription": "כאב או אי נוחות באזור החזה",
+            "fever": "חום",
+            "feverDescription": "טמפרטורת גוף מוגברת"
           },
-          painCharacteristics: {
-            label: "מאפייני הכאב",
-            pressing: "לוחץ",
-            burning: "שורף",
-            sharp: "דוקר",
-            radiating: "מקרין"
+          "painCharacteristics": {
+            "label": "מאפייני הכאב",
+            "pressing": "לוחץ",
+            "burning": "שורף",
+            "sharp": "דוקר",
+            "radiating": "מקרין"
           },
-          location: {
-            label: "מיקום",
-            center: "אמצע",
-            leftSide: "צד שמאל",
-            behindBreastbone: "מאחורי עצם החזה"
+          "location": {
+            "label": "מיקום",
+            "center": "אמצע",
+            "leftSide": "צד שמאל",
+            "behindBreastbone": "מאחורי עצם החזה"
           },
-          onset: {
-            label: "התחלה",
-            sudden: "פתאומית",
-            gradual: "הדרגתית",
-            intermittent: "מקוטעת"
+          "onset": {
+            "label": "התחלה",
+            "sudden": "פתאומית",
+            "gradual": "הדרגתית",
+            "intermittent": "מקוטעת"
           },
-          duration: {
-            label: "משך",
-            lessThan30min: "פחות מ-30 דקות",
-            min30To2hours: "30 דקות עד 2 שעות",
-            moreThan2hours: "יותר מ-2 שעות",
-            everyHalfHour: "כל חצי שעה"
+          "duration": {
+            "label": "משך",
+            "lessThan30min": "פחות מ-30 דקות",
+            "min30To2hours": "30 דקות עד 2 שעות",
+            "moreThan2hours": "יותר מ-2 שעות",
+            "everyHalfHour": "כל חצי שעה"
           },
-          radiationDetails: {
-            label: "פירוט הקרנה",
-            placeholder: "לאן מקרין הכאב?"
+          "radiationDetails": {
+            "label": "פירוט הקרנה",
+            "placeholder": "לאן מקרין הכאב?"
           },
-          cardiacQuestions: {
-            label: "תסמינים נלווים",
-            shortnessOfBreath: "קוצר נשימה",
-            nausea: "בחילה",
-            sweating: "הזעה",
-            dizziness: "סחרחורת"
+          "cardiacQuestions": {
+            "label": "תסמינים נלווים",
+            "shortnessOfBreath": "קוצר נשימה",
+            "nausea": "בחילה",
+            "sweating": "הזעה",
+            "dizziness": "סחרחורת"
           },
-          respiratoryQuestions: {
-            label: "קושי נשימתי",
-            mild: "קל",
-            moderate: "בינוני",
-            severe: "חמור"
+          "respiratoryQuestions": {
+            "label": "קושי נשימתי",
+            "mild": "קל",
+            "moderate": "בינוני",
+            "severe": "חמור"
           },
-          acuteQuestions: {
-            label: "תסמינים חריפים",
-            severePain: "כאב חמור (8-10/10)",
-            lossOfConsciousness: "אובדן הכרה",
-            acuteDistress: "מצוקה חריפה"
+          "acuteQuestions": {
+            "label": "תסמינים חריפים",
+            "severePain": "כאב חמור (8-10/10)",
+            "lossOfConsciousness": "אובדן הכרה",
+            "acuteDistress": "מצוקה חריפה"
           },
-          frequencyQuestions: {
-            label: "פירוט תדירות",
-            placeholder: "תאר את דפוס התדירות"
+          "frequencyQuestions": {
+            "label": "פירוט תדירות",
+            "placeholder": "תאר את דפוס התדירות"
           },
-          temperature: {
-            label: "טווח טמפרטורה",
-            lowGrade: "נמוכה (37.1-38.0°C)",
-            moderate: "בינונית (38.1-39.0°C)",
-            high: "גבוהה (39.1-40.0°C)",
-            veryHigh: "גבוהה מאוד (>40.0°C)"
+          "temperature": {
+            "label": "טווח טמפרטורה",
+            "lowGrade": "נמוכה (37.1-38.0°C)",
+            "moderate": "בינונית (38.1-39.0°C)",
+            "high": "גבוהה (39.1-40.0°C)",
+            "veryHigh": "גבוהה מאוד (>40.0°C)"
           },
-          associatedSymptoms: {
-            label: "תסמינים נלווים",
-            headache: "כאב ראש",
-            bodyAches: "כאבי גוף",
-            chills: "צמרמורות",
-            fatigue: "עייפות"
+          "associatedSymptoms": {
+            "label": "תסמינים נלווים",
+            "headache": "כאב ראש",
+            "bodyAches": "כאבי גוף",
+            "chills": "צמרמורות",
+            "fatigue": "עייפות"
           },
-          headacheQuestions: {
-            label: "חומרת כאב הראש",
-            mild: "קל",
-            moderate: "בינוני",
-            severe: "חמור"
+          "headacheQuestions": {
+            "label": "חומרת כאב הראש",
+            "mild": "קל",
+            "moderate": "בינוני",
+            "severe": "חמור"
           },
-          highFeverQuestions: {
-            label: "תסמיני חום גבוה",
-            alteredMentalStatus: "שינוי במצב הנפשי",
-            neckStiffness: "נוקשות צוואר",
-            rash: "פריחה"
+          "highFeverQuestions": {
+            "label": "תסמיני חום גבוה",
+            "alteredMentalStatus": "שינוי במצב הנפשי",
+            "neckStiffness": "נוקשות צוואר",
+            "rash": "פריחה"
           },
-          chronicFeverQuestions: {
-            label: "פירוט חום כרוני",
-            placeholder: "תאר תסמינים נוספים"
+          "chronicFeverQuestions": {
+            "label": "פירוט חום כרוני",
+            "placeholder": "תאר תסמינים נוספים"
           },
-          rashQuestions: {
-            label: "תיאור פריחה",
-            placeholder: "תאר את מראה הפריחה ומיקומה"
+          "rashQuestions": {
+            "label": "תיאור פריחה",
+            "placeholder": "תאר את מראה הפריחה ומיקומה"
           }
         },
-        medications: {
-          allergies: {
-            title: "רגישות לתרופות",
-            question: "האם קיימת רגישות לתרופות?",
-            yes: "כן",
-            no: "לא",
-            detailsPlaceholder: "נא לציין את הרגישויות"
+        "medications": {
+          "allergies": {
+            "title": "רגישות לתרופות",
+            "question": "האם קיימת רגישות לתרופות?",
+            "yes": "כן",
+            "no": "לא",
+            "detailsPlaceholder": "נא לציין את הרגישויות"
           },
-          doesNotRemember: "אינני זוכר/ת את התרופות שלי",
-          doesNotRememberNote: "הרופא יקבל הודעה שהיסטוריית התרופות אינה זמינה.",
-          groups: {
-            title: "תרופות קבועות",
-            bloodPressure: "לחץ דם",
-            diabetes: "סוכרת",
-            bloodThinners: "דילול דם",
-            immunosuppressants: "דיכוי חיסוני",
-            miscellaneous: "שונות",
-            cardiac: "לב"
+          "doesNotRemember": "אינני זוכר/ת את התרופות שלי",
+          "doesNotRememberNote": "הרופא יקבל הודעה שהיסטוריית התרופות אינה זמינה.",
+          "groups": {
+            "title": "תרופות קבועות",
+            "bloodPressure": "לחץ דם",
+            "diabetes": "סוכרת",
+            "bloodThinners": "דילול דם",
+            "immunosuppressants": "דיכוי חיסוני",
+            "miscellaneous": "שונות",
+            "cardiac": "לב"
           }
         },
-        symptoms: {
-          chiefComplaint: "תלונה עיקרית",
-          symptomDuration: "כמה זמן יש לך את התסמינים האלה?",
-          severity: "חומרה (1-10)",
-          additionalSymptoms: "תסמינים נוספים"
+        "symptoms": {
+          "chiefComplaint": "תלונה עיקרית",
+          "symptomDuration": "כמה זמן יש לך את התסמינים האלה?",
+          "severity": "חומרה (1-10)",
+          "additionalSymptoms": "תסמינים נוספים"
         },
-        vitals: {
-          bloodPressure: "לחץ דם",
-          heartRate: "דופק",
-          temperature: "טמפרטורה",
-          oxygenSaturation: "ריווי חמצן"
+        "vitals": {
+          "bloodPressure": "לחץ דם",
+          "heartRate": "דופק",
+          "temperature": "טמפרטורה",
+          "oxygenSaturation": "ריווי חמצן"
         },
-        navigation: {
-          next: "הבא",
-          previous: "הקודם",
-          finish: "סיום",
-          loading: "שומר..."
+        "navigation": {
+          "next": "הבא",
+          "previous": "הקודם",
+          "finish": "סיום",
+          "loading": "שומר..."
         },
-        wizard: {
-          personalDetails: "פרטים",
-          medicalHistory: "היסטוריה",
-          allergies: "אלרגיות",
-          medications: "תרופות",
-          currentIllness: "מחלה",
-          personalSubtitle: "ספר לנו קצת על עצמך",
-          historySubtitle: "בחר את כל המצבים הרלוונטיים",
-          allergiesSubtitle: "מידע על רגישות לתרופות",
-          medicationsSubtitle: "בחר תרופות שאתה נוטל כעת (אופציונלי)",
-          medicationsOptional: "סעיף זה הוא אופציונלי — דלג אם לא רלוונטי",
-          illnessSubtitle: "בחר עד 2 סיבות עיקריות לביקורך היום",
-          allergyDetailsLabel: "אנא תאר את האלרגיות שלך"
+        "wizard": {
+          "personalDetails": "פרטים",
+          "medicalHistory": "היסטוריה",
+          "allergies": "אלרגיות",
+          "medications": "תרופות",
+          "currentIllness": "מחלה",
+          "personalSubtitle": "ספר לנו קצת על עצמך",
+          "historySubtitle": "בחר את כל המצבים הרלוונטיים",
+          "allergiesSubtitle": "מידע על רגישות לתרופות",
+          "medicationsSubtitle": "בחר תרופות שאתה נוטל כעת (אופציונלי)",
+          "medicationsOptional": "סעיף זה הוא אופציונלי — דלג אם לא רלוונטי",
+          "illnessSubtitle": "בחר עד 2 סיבות עיקריות לביקורך היום",
+          "allergyDetailsLabel": "אנא תאר את האלרגיות שלך"
         },
-        medGroup: {
-          otherLabel: "אחר (אנא ציין)",
-          otherPlaceholder: "הזן שם תרופה"
+        "medGroup": {
+          "otherLabel": "אחר (אנא ציין)",
+          "otherPlaceholder": "הזן שם תרופה"
         },
-        confirmationTitle: "תודה",
-        confirmationMessage: "תודה שמילאת את פרטיך. רופא יבדוק את המקרה שלך בקרוב.",
-        step2: {
-          symptoms: "תסמינים נוכחיים",
-          optional: "אופציונלי",
-          pathwayOf: "תסמין {{current}} מתוך {{total}}",
-          yes: "כן",
-          no: "לא",
-          sliderNone: "ללא",
-          sliderModerate: "בינוני",
-          sliderWorst: "חמור מאוד",
-          maxSelected: "הגעת למספר הבחירות המקסימלי",
-          highSeverityWarning: "רמת חומרה זו עשויה להצביע על צורך בטיפול דחוף",
-          redFlagWarning: "תסמין זה דורש תשומת לב רפואית מיידית",
-          abdominalPain: {
-            painLocation: "איפה ממוקם הכאב?",
-            onsetWhen: "מתי התחיל הכאב?",
-            onsetToday: "היום",
-            onset1to3: "לפני 1–3 ימים",
-            onset3to7: "לפני 3–7 ימים",
-            onsetOverWeek: "לפני יותר מ-7 ימים",
-            onsetType: "איך התחיל הכאב?",
-            onsetSudden: "פתאומי (התחיל במהירות)",
-            onsetGradual: "הדרגתי (התפתח לאט)",
-            character: "כיצד תתאר את הכאב?",
-            charSharp: "חד / דוקר",
-            charCrampy: "עוויתי / קוליקי",
-            charDull: "עמום / מכאיב",
-            charBurning: "צורב",
-            charPressure: "לוחץ / מועך",
-            radiation: "האם הכאב מקרין לאחר?",
-            radBack: "גב",
-            radRightShoulder: "כתף ימין",
-            radLeftShoulder: "כתף שמאל",
-            radGroin: "מפשעה",
-            radChest: "חזה",
-            radNone: "לא מקרין",
-            aggravating: "מה מחמיר את הכאב?",
-            aggEating: "אכילה",
-            aggMovement: "תנועה",
-            aggDeepBreath: "נשימה עמוקה",
-            aggLyingFlat: "שכיבה על הגב",
-            relieving: "מה מקל על הכאב?",
-            relEating: "אכילה",
-            relAntacids: "נוגדי חומצה",
-            relPassingGas: "גרוז / עשיית צרכים",
-            relLyingStill: "שכיבה ללא תנועה",
-            associated: "האם יש תסמינים נוספים?",
-            assocConstipation: "עצירות",
-            assocJaundice: "צהבת (צהוב בעור/עיניים)",
-            assocBloodStool: "דם בצואה",
-            assocDarkUrine: "שתן כהה",
-            assocLossOfAppetite: "חוסר תיאבון",
-            assocBloating: "נפיחות בבטן",
-            rfFever: "האם יש לך חום מעל 38.5°C?",
-            rfBlood: "האם יש דם בהקאה או בצואה?",
-            rfUnableToEat: "האם לא הצלחת לאכול או לשתות יותר מ-24 שעות?",
-            rfPregnancy: "האם את בהריון, או שייתכן שאת בהריון?",
+        "confirmationTitle": "תודה",
+        "confirmationMessage": "תודה שמילאת את פרטיך. רופא יבדוק את המקרה שלך בקרוב.",
+        "step2": {
+          "symptoms": "תסמינים נוכחיים",
+          "optional": "אופציונלי",
+          "pathwayOf": "תסמין {{current}} מתוך {{total}}",
+          "yes": "כן",
+          "no": "לא",
+          "sliderNone": "ללא",
+          "sliderModerate": "בינוני",
+          "sliderWorst": "חמור מאוד",
+          "maxSelected": "הגעת למספר הבחירות המקסימלי",
+          "highSeverityWarning": "רמת חומרה זו עשויה להצביע על צורך בטיפול דחוף",
+          "redFlagWarning": "תסמין זה דורש תשומת לב רפואית מיידית",
+          "abdominalPain": {
+            "painLocation": "איפה ממוקם הכאב?",
+            "onsetWhen": "מתי התחיל הכאב?",
+            "onsetToday": "היום",
+            "onset1to3": "לפני 1–3 ימים",
+            "onset3to7": "לפני 3–7 ימים",
+            "onsetOverWeek": "לפני יותר מ-7 ימים",
+            "onsetType": "איך התחיל הכאב?",
+            "onsetSudden": "פתאומי (התחיל במהירות)",
+            "onsetGradual": "הדרגתי (התפתח לאט)",
+            "character": "כיצד תתאר את הכאב?",
+            "charSharp": "חד / דוקר",
+            "charCrampy": "עוויתי / קוליקי",
+            "charDull": "עמום / מכאיב",
+            "charBurning": "צורב",
+            "charPressure": "לוחץ / מועך",
+            "radiation": "האם הכאב מקרין לאחר?",
+            "radBack": "גב",
+            "radRightShoulder": "כתף ימין",
+            "radLeftShoulder": "כתף שמאל",
+            "radGroin": "מפשעה",
+            "radChest": "חזה",
+            "radNone": "לא מקרין",
+            "aggravating": "מה מחמיר את הכאב?",
+            "aggEating": "אכילה",
+            "aggMovement": "תנועה",
+            "aggDeepBreath": "נשימה עמוקה",
+            "aggLyingFlat": "שכיבה על הגב",
+            "relieving": "מה מקל על הכאב?",
+            "relEating": "אכילה",
+            "relAntacids": "נוגדי חומצה",
+            "relPassingGas": "גרוז / עשיית צרכים",
+            "relLyingStill": "שכיבה ללא תנועה",
+            "associated": "האם יש תסמינים נוספים?",
+            "assocConstipation": "עצירות",
+            "assocJaundice": "צהבת (צהוב בעור/עיניים)",
+            "assocBloodStool": "דם בצואה",
+            "assocDarkUrine": "שתן כהה",
+            "assocLossOfAppetite": "חוסר תיאבון",
+            "assocBloating": "נפיחות בבטן",
+            "rfFever": "האם יש לך חום מעל 38.5°C?",
+            "rfBlood": "האם יש דם בהקאה או בצואה?",
+            "rfUnableToEat": "האם לא הצלחת לאכול או לשתות יותר מ-24 שעות?",
+            "rfPregnancy": "האם את בהריון, או שייתכן שאת בהריון?"
           },
-          headache: {
-            location: "היכן בראשך ממוקם הכאב?",
-            onsetWhen: "מתי התחיל כאב הראש?",
-            onsetType: "כיצד התחיל?",
-            onsetThunderclap: "כרעם — הגיע לשיא העוצמה תוך שניות",
-            onsetGradual: "הדרגתי — התפתח לאט",
-            character: "כיצד מרגיש כאב הראש?",
-            charThrobbing: "פועם / מתקתק",
-            charPressure: "לחץ / הידוק (כמו חגורה)",
-            charSharp: "חד / דוקר",
-            charDull: "עמום / קבוע",
-            pattern: "מהו דפוס כאב הראש?",
-            patternConstant: "קבוע",
-            patternComesAndGoes: "בא והולך",
-            patternWorsening: "מחמיר בהדרגה",
-            aggravating: "מה מחמיר את כאב הראש?",
-            aggLight: "רגישות לאור (פוטופוביה)",
-            aggNoise: "רגישות לרעש (פונופוביה)",
-            aggMovement: "תנועה / פעילות גופנית",
-            aggBending: "כיפוף קדימה",
-            associated: "האם יש תסמינים נוספים?",
-            assocNausea: "בחילה או הקאות",
-            assocVisualAura: "הילה ויזואלית (זיג-זג, נקודה עיוורת)",
-            assocNeckStiffness: "נוקשות בצוואר",
-            assocFever: "חום",
-            assocDizziness: "סחרחורת",
-            assocWeakness: "חולשה או חוסר תחושה",
-            assocSlurredSpeech: "ערפול דיבור",
-            assocEyeRedness: "אדמומיות או כאב בעין",
-            rfWorstEver: "האם זהו כאב הראש הגרוע ביותר בחייך?",
-            rfNewType: "האם זהו סוג כאב ראש חדש שמעולם לא חווית?",
-            rfFeverNeck: "האם יש לך גם חום וגם נוקשות צוואר?",
-            rfConfusion: "האם אתה חווה בלבול או ירידה בהכרה?",
-            rfWeakness: "האם יש חולשה חדשה, חוסר תחושה, או קושי בדיבור?",
-          }
+          "headache": {
+            "location": "היכן בראשך ממוקם הכאב?",
+            "onsetWhen": "מתי התחיל כאב הראש?",
+            "onsetType": "כיצד התחיל?",
+            "onsetThunderclap": "כרעם — הגיע לשיא העוצמה תוך שניות",
+            "onsetGradual": "הדרגתי — התפתח לאט",
+            "character": "כיצד מרגיש כאב הראש?",
+            "charThrobbing": "פועם / מתקתק",
+            "charPressure": "לחץ / הידוק (כמו חגורה)",
+            "charSharp": "חד / דוקר",
+            "charDull": "עמום / קבוע",
+            "pattern": "מהו דפוס כאב הראש?",
+            "patternConstant": "קבוע",
+            "patternComesAndGoes": "בא והולך",
+            "patternWorsening": "מחמיר בהדרגה",
+            "aggravating": "מה מחמיר את כאב הראש?",
+            "aggLight": "רגישות לאור (פוטופוביה)",
+            "aggNoise": "רגישות לרעש (פונופוביה)",
+            "aggMovement": "תנועה / פעילות גופנית",
+            "aggBending": "כיפוף קדימה",
+            "associated": "האם יש תסמינים נוספים?",
+            "assocNausea": "בחילה או הקאות",
+            "assocVisualAura": "הילה ויזואלית (זיג-זג, נקודה עיוורת)",
+            "assocNeckStiffness": "נוקשות בצוואר",
+            "assocFever": "חום",
+            "assocDizziness": "סחרחורת",
+            "assocWeakness": "חולשה או חוסר תחושה",
+            "assocSlurredSpeech": "ערפול דיבור",
+            "assocEyeRedness": "אדמומיות או כאב בעין",
+            "rfWorstEver": "האם זהו כאב הראש הגרוע ביותר בחייך?",
+            "rfNewType": "האם זהו סוג כאב ראש חדש שמעולם לא חווית?",
+            "rfFeverNeck": "האם יש לך גם חום וגם נוקשות צוואר?",
+            "rfConfusion": "האם אתה חווה בלבול או ירידה בהכרה?",
+            "rfWeakness": "האם יש חולשה חדשה, חוסר תחושה, או קושי בדיבור?"
+          },
+          "sliderTapToRate": "גרור את הסליידר כדי לדרג"
         },
-        errors: {
-          required: "שדה זה נדרש",
-          invalidFormat: "פורמט לא תקין",
-          saveError: "שגיאה בשמירת השאלון. נסה שוב.",
-          ageRequired: "גיל נדרש",
-          ageInvalid: "גיל חייב להיות מספר תקין",
-          ageRange: "גיל חייב להיות בין 0 ל-120",
-          formFilledByRequired: "נא לציין מי ממלא את הטופס",
-          genderRequired: "מין נדרש",
-          maritalStatusRequired: "מצב משפחתי נדרש",
-          cognitiveStateRequired: "מצב קוגניטיבי נדרש",
-          functionalStateRequired: "מצב תפקודי נדרש",
-          medicalHistoryRequired: "נא לבחור לפחות אפשרות אחת בהיסטוריה הרפואית",
-          allergiesRequired: "נא לציין אם יש לך אלרגיות",
-          illnessRequired: "נא לבחור לפחות תסמין אחד"
+        "errors": {
+          "required": "שדה זה נדרש",
+          "invalidFormat": "פורמט לא תקין",
+          "saveError": "שגיאה בשמירת השאלון. נסה שוב.",
+          "ageRequired": "גיל נדרש",
+          "ageInvalid": "גיל חייב להיות מספר תקין",
+          "ageRange": "גיל חייב להיות בין 0 ל-120",
+          "formFilledByRequired": "נא לציין מי ממלא את הטופס",
+          "genderRequired": "מין נדרש",
+          "maritalStatusRequired": "מצב משפחתי נדרש",
+          "cognitiveStateRequired": "מצב קוגניטיבי נדרש",
+          "functionalStateRequired": "מצב תפקודי נדרש",
+          "medicalHistoryRequired": "נא לבחור לפחות אפשרות אחת בהיסטוריה הרפואית",
+          "allergiesRequired": "נא לציין אם יש לך אלרגיות",
+          "illnessRequired": "נא לבחור לפחות תסמין אחד",
+          "pathwayRequired": "נא לענות על כל השאלות הנדרשות המסומנות ב-*",
+          "loadError": "לא הצלחנו לטעון את המקרה שלך. אנא בדוק את החיבור ונסה שוב.",
+          "caseNotFound": "המקרה לא נמצא",
+          "caseNotFoundHint": "המקרה שאתה מחפש אינו קיים או הוסר."
+        },
+        "step4": "סימנים חיוניים",
+        "defaultPatientName": "מטופל"
+      },
+      "dashboard": {
+        "title": "לוח בקרה לרופא",
+        "subtitle": "חיפוש וניהול מקרים רפואיים",
+        "loading": "טוען מקרים...",
+        "error": "שגיאה בטעינת מקרים",
+        "retry": "נסה שוב",
+        "tabs": {
+          "open": "פתוח",
+          "closed": "סגור"
+        },
+        "search": {
+          "placeholder": "חפש לפי שם מטופל או ת.ז..."
+        },
+        "filters": {
+          "all": "כל המקרים",
+          "pendingDoctorReview": "ממתין לבדיקת רופא",
+          "inReview": "בבדיקה",
+          "completed": "הושלם",
+          "cancelled": "בוטל"
+        },
+        "status": {
+          "open": "פתוח",
+          "closed": "סגור",
+          "cancelled": "בוטל",
+          "awaiting_vitals": "ממתין למדדים",
+          "in_progress": "בטיפול",
+          "tests_ordered": "הוזמנו בדיקות",
+          "pendingDoctorReview": "ממתין לבדיקת רופא",
+          "inReview": "בבדיקה",
+          "completed": "הושלם"
+        },
+        "table": {
+          "patientName": "שם מטופל",
+          "id": "ת.ז.",
+          "status": "סטטוס",
+          "receptionDate": "תאריך קבלה",
+          "actions": "פעולות"
+        },
+        "actions": {
+          "newCase": "מקרה חדש",
+          "openFile": "פתח תיק",
+          "delete": "מחק",
+          "deleteConfirm": "למחוק את המקרה? פעולה זו לא ניתנת לביטול.",
+          "deleteError": "מחיקת המקרה נכשלה",
+          "logout": "התנתק"
+        },
+        "empty": {
+          "title": "לא נמצאו מקרים",
+          "description": "אין מקרים התואמים לקריטריוני החיפוש הנוכחיים.",
+          "noMatch": "אין מקרים התואמים את החיפוש.",
+          "noOpen": "אין כרגע מקרים פתוחים. מקרים חדשים יופיעו כאן.",
+          "noClosed": "אין עדיין מקרים סגורים או מבוטלים."
+        },
+        "unknownPatient": "מטופל לא ידוע"
+      },
+      "common": {
+        "loading": "טוען...",
+        "error": "שגיאה",
+        "success": "הצלחה",
+        "cancel": "ביטול",
+        "save": "שמור",
+        "edit": "ערוך",
+        "delete": "מחק",
+        "confirm": "אישור",
+        "back": "חזור",
+        "next": "הבא",
+        "previous": "הקודם",
+        "finish": "סיום",
+        "close": "סגור",
+        "retry": "נסה שוב",
+        "step": "שלב",
+        "of": "מתוך",
+        "evidence": "ראיות",
+        "urgency": "דחיפות",
+        "high": "גבוהה",
+        "medium": "בינונית",
+        "low": "נמוכה",
+        "backToDashboard": "חזור ללוח הבקרה"
+      },
+      "vitals": {
+        "title": "הזנת סימנים חיוניים",
+        "caseInfo": "פרטי המקרה",
+        "caseId": "מספר מקרה",
+        "formTitle": "הזן סימנים חיוניים של המטופל",
+        "bloodPressure": "לחץ דם",
+        "bloodPressurePrompt": "הזן לחץ סיסטולי/דיאסטולי (לדוגמה: 120/80)",
+        "bloodPressurePlaceholder": "120/80",
+        "pulse": "דופק",
+        "pulsePrompt": "הזן קצב לב בפעימות לדקה",
+        "pulsePlaceholder": "80",
+        "oxygenSaturation": "ריווי חמצן (SpO₂)",
+        "oxygenPrompt": "הזן אחוז ריווי חמצן",
+        "oxygenPlaceholder": "98",
+        "temperature": "טמפרטורה",
+        "temperaturePrompt": "הזן טמפרטורת גוף במעלות צלזיוס",
+        "temperaturePlaceholder": "36.7",
+        "painScale": "סולם כאב (1–10)",
+        "painPrompt": "דרג את רמת הכאב של המטופל מ-1 (ללא כאב) עד 10 (כאב חמור)",
+        "painPlaceholder": "3",
+        "submit": "שלח סימנים חיוניים",
+        "submitting": "שולח...",
+        "back": "חזור",
+        "errors": {
+          "bloodPressureRequired": "נדרש לחץ דם",
+          "bloodPressureFormat": "פורמט: 120/80",
+          "bloodPressureRange": "סיסטולי: 70-250, דיאסטולי: 40-150",
+          "pulseRequired": "נדרש דופק",
+          "pulseRange": "דופק חייב להיות בין 30-200 פעימות לדקה",
+          "oxygenRequired": "נדרש ריווי חמצן",
+          "oxygenRange": "ריווי חמצן חייב להיות בין 50-100%",
+          "temperatureRequired": "נדרשת טמפרטורה",
+          "temperatureRange": "טמפרטורה חייבת להיות בין 30-45°C",
+          "painRequired": "נדרש סולם כאב",
+          "painRange": "סולם כאב חייב להיות בין 1-10",
+          "submitFailed": "שליחת הסימנים החיוניים נכשלה. נא לנסות שוב.",
+          "submitError": "שגיאה בשליחת הסימנים החיוניים. נא לבדוק את החיבור.",
+          "timeout": "תם הזמן הקצוב לבקשה. אנא בדוק את החיבור ונסה שוב."
         }
       },
-
-      // DashboardPage translations
-      dashboard: {
-        title: "לוח בקרה רפואי",
-        subtitle: "נהל מקרי חולים",
-        stats: {
-          totalCases: "סה\"כ מקרים",
-          openCases: "מקרים פתוחים",
-          inProgress: "בטיפול",
-          closed: "סגורים"
+      "case": {
+        "title": "ניהול מקרה",
+        "detailsTab": "פרטי מטופל",
+        "id": "ת.ז",
+        "age": "גיל",
+        "status": "סטטוס",
+        "loading": "טוען מקרה...",
+        "error": "שגיאה בטעינת מקרה",
+        "backToDashboard": "חזור ללוח הבקרה",
+        "backToList": "חזור לרשימה",
+        "statusLabel": {
+          "open": "פתוח",
+          "in_progress": "בטיפול",
+          "tests_ordered": "בדיקות הוזמנו",
+          "closed": "סגור",
+          "cancelled": "בוטל"
         },
-        filters: {
-          all: "כל המקרים",
-          open: "פתוח",
-          inProgress: "בטיפול",
-          closed: "סגור",
-          cancelled: "מבוטל"
+        "testsOrderedBanner": "הבדיקות הוזמנו.",
+        "testsOrderedHint": "בדוק את התוצאות כשיהיו זמינות, לאחר מכן הכן וסיים את דוח השחרור כדי לסגור את המקרה.",
+        "closedBanner": "מקרה זה נסגר. דוח השחרור הושלם.",
+        "tabs": {
+          "summary": "תקציר וסימנים חיוניים",
+          "physical": "בדיקה גופנית",
+          "diagnosis": "אבחנה ובדיקות",
+          "results": "תוצאות",
+          "treatment": "טיפול וסיכום"
         },
-        actions: {
-          viewCase: "צפה במקרה",
-          generateSummary: "צור סיכום AI",
-          loading: "טוען...",
-          newCase: "מקרה חדש"
+        "vitals": {
+          "title": "סימנים חיוניים",
+          "description": "מדידות הסימנים החיוניים שנלקחו.",
+          "bloodPressure": "לחץ דם",
+          "bloodPressurePlaceholder": "הזן סיסטולי/דיאסטולי (לדוגמה: 120/80)",
+          "pulse": "דופק",
+          "pulsePlaceholder": "הזן קצב לב (פעימות לדקה)",
+          "oxygenSaturation": "סטורציה (SpO2)",
+          "temperature": "טמפרטורה",
+          "painScale": "סולם כאב (1-10)",
+          "save": "שמור סימנים חיוניים",
+          "notRecorded": "לא נרשם",
+          "respiratoryRate": "קצב נשימה",
+          "painScore": "דירוג כאב"
         },
-        noCases: "לא נמצאו מקרים",
-        loading: "טוען מקרים..."
-      },
-      
-      // Common translations
-      common: {
-        loading: "טוען...",
-        error: "שגיאה",
-        success: "הצלחה",
-        cancel: "ביטול",
-        save: "שמור",
-        edit: "ערוך",
-        delete: "מחק",
-        confirm: "אישור",
-        back: "חזור",
-        next: "הבא",
-        previous: "הקודם",
-        finish: "סיום",
-        close: "סגור",
-        retry: "נסה שוב",
-        step: "שלב",
-        of: "מתוך"
-      }
-    },
-    vitals: {
-      title: "הזנת סימנים חיוניים",
-      caseInfo: "פרטי המקרה",
-      caseId: "מספר מקרה",
-      formTitle: "הזן סימנים חיוניים של המטופל",
-      bloodPressure: "לחץ דם",
-      bloodPressurePrompt: "הזן לחץ סיסטולי/דיאסטולי (לדוגמה: 120/80)",
-      bloodPressurePlaceholder: "120/80",
-      pulse: "דופק",
-      pulsePrompt: "הזן קצב לב בפעימות לדקה",
-      pulsePlaceholder: "80",
-      oxygenSaturation: "ריווי חמצן (SpO₂)",
-      oxygenPrompt: "הזן אחוז ריווי חמצן",
-      oxygenPlaceholder: "98",
-      temperature: "טמפרטורה",
-      temperaturePrompt: "הזן טמפרטורת גוף במעלות צלזיוס",
-      temperaturePlaceholder: "36.7",
-      painScale: "סולם כאב (1–10)",
-      painPrompt: "דרג את רמת הכאב של המטופל מ-1 (ללא כאב) עד 10 (כאב חמור)",
-      painPlaceholder: "3",
-      submit: "שלח סימנים חיוניים",
-      submitting: "שולח...",
-      back: "חזור",
-      errors: {
-        bloodPressureRequired: "נדרש לחץ דם",
-        bloodPressureFormat: "פורמט: 120/80",
-        bloodPressureRange: "סיסטולי: 70-250, דיאסטולי: 40-150",
-        pulseRequired: "נדרש דופק",
-        pulseRange: "דופק חייב להיות בין 30-200 פעימות לדקה",
-        oxygenRequired: "נדרש ריווי חמצן",
-        oxygenRange: "ריווי חמצן חייב להיות בין 50-100%",
-        temperatureRequired: "נדרשת טמפרטורה",
-        temperatureRange: "טמפרטורה חייבת להיות בין 30-45°C",
-        painRequired: "נדרש סולם כאב",
-        painRange: "סולם כאב חייב להיות בין 1-10",
-        submitFailed: "שליחת הסימנים החיוניים נכשלה. נא לנסות שוב.",
-        submitError: "שגיאה בשליחת הסימנים החיוניים. נא לבדוק את החיבור."
-      }
-    },
-    dashboard: {
-      title: "לוח בקרה לרופא",
-      subtitle: "חיפוש וניהול מקרים רפואיים",
-      loading: "טוען מקרים...",
-      error: "שגיאה בטעינת מקרים",
-      retry: "נסה שוב",
-      tabs: {
-        open: "פתוח",
-        closed: "סגור"
-      },
-      search: {
-        placeholder: "חפש לפי שם מטופל או ת.ז..."
-      },
-      filters: {
-        all: "כל המקרים",
-        pendingDoctorReview: "ממתין לבדיקת רופא",
-        inReview: "בבדיקה",
-        completed: "הושלם",
-        cancelled: "בוטל"
-      },
-      status: {
-        open: "פתוח",
-        closed: "סגור",
-        cancelled: "בוטל",
-        awaiting_vitals: "ממתין למדדים",
-        in_progress: "בטיפול",
-        tests_ordered: "הוזמנו בדיקות"
-      },
-      table: {
-        patientName: "שם מטופל",
-        id: "ת.ז.",
-        status: "סטטוס",
-        receptionDate: "תאריך קבלה",
-        actions: "פעולות"
-      },
-      actions: {
-        newCase: "מקרה חדש",
-        openFile: "פתח תיק",
-        delete: "מחק",
-        deleteConfirm: "למחוק את המקרה? פעולה זו לא ניתנת לביטול."
-      },
-      empty: {
-        title: "לא נמצאו מקרים",
-        description: "אין מקרים התואמים לקריטריוני החיפוש הנוכחיים."
-      }
-    },
-    case: {
-      title: "ניהול מקרה",
-      detailsTab: "פרטי מטופל",
-      id: "ת.ז",
-      age: "גיל",
-      status: "סטטוס",
-      loading: "טוען מקרה...",
-      error: "שגיאה בטעינת מקרה",
-      backToDashboard: "חזור ללוח הבקרה",
-      backToList: "חזור לרשימה",
-      statusLabel: {
-        open: "פתוח",
-        in_progress: "בטיפול",
-        tests_ordered: "בדיקות הוזמנו",
-        closed: "סגור",
-        cancelled: "בוטל"
-      },
-      testsOrderedBanner: "הבדיקות הוזמנו.",
-      testsOrderedHint: "בדוק את התוצאות כשיהיו זמינות, לאחר מכן הכן וסיים את דוח השחרור כדי לסגור את המקרה.",
-      closedBanner: "מקרה זה נסגר. דוח השחרור הושלם.",
-      tabs: {
-        summary: "תקציר וסימנים חיוניים",
-        physical: "בדיקה גופנית",
-        diagnosis: "אבחנה ובדיקות",
-        results: "תוצאות",
-        treatment: "טיפול וסיכום"
-      },
-      vitals: {
-        title: "סימנים חיוניים",
-        description: "מדידות הסימנים החיוניים שנלקחו.",
-        bloodPressure: "לחץ דם",
-        bloodPressurePlaceholder: "הזן סיסטולי/דיאסטולי (לדוגמה: 120/80)",
-        pulse: "דופק",
-        pulsePlaceholder: "הזן קצב לב (פעימות לדקה)",
-        oxygenSaturation: "סטורציה (SpO2)",
-        temperature: "טמפרטורה",
-        painScale: "סולם כאב (1-10)",
-        save: "שמור סימנים חיוניים",
-        notRecorded: "לא נרשם"
-      },
-      personalDetails: {
-        title: "פרטים אישיים",
-        fullName: "שם מלא",
-        id: "מספר תעודת זהות",
-        gender: "מין",
-        age: "גיל",
-        maritalStatus: "מצב משפחתי",
-        cognitiveStatus: "מצב קוגניטיבי",
-        functionalStatus: "מצב תפקודי",
-        notProvided: "לא סופק"
-      },
-      medicalHistory: {
-        title: "היסטוריה רפואית",
-        backgroundDiseases: "מחלות רקע",
-        noData: "אין נתוני היסטוריה רפואית זמינים"
-      },
-      currentIllness: {
-        title: "מחלה נוכחית - תלונות ופרטים",
-        noData: "אין נתוני מחלה נוכחית זמינים"
-      },
-      hideDetails: "הסתר פרטים",
-      showDetails: "הצג פרטים",
-      evidence: "ראיות",
-      urgency: "דחיפות",
-      aiSummary: {
-        title: "תקציר תסמינים ובדיקה שנוצר על ידי AI",
-        description: "סיכום NLP עם תיוג אונטולוגיה רפואית, הדגשת דגלים אדומים וזיהוי מצבים כרוניים",
-        noSummary: "אין תקציר AI זמין עדיין",
-        generate: "צור תקציר AI",
-        error: "יצירת תקציר AI נכשלה. נא לנסות שוב.",
-        timeout: "היצירה אורכת יותר מהצפוי. ייתכן שהתקציר כבר מוכן — הדף יתרענן באופן אוטומטי."
-      },
-      aiDiagnosis: {
-        title: "אבחנה דיפרנציאלית והמלצות בדיקות של AI",
-        description: "רשימת אבחנות משוקללת לפי עדויות עם המלצות בדיקות קונטקסטואליות",
-        noDiagnosis: "אין אבחנת AI זמינה עדיין",
-        generate: "צור אבחנה",
-        error: "יצירת אבחנת AI נכשלה. נא לנסות שוב.",
-        timeout: "היצירה אורכת יותר מהצפוי. ייתכן שהאבחנה כבר מוכנה — הדף יתרענן באופן אוטומטי.",
-        ordered: "הבדיקות עבור {{name}} הוזמנו.",
-        orderError: "הזמנת הבדיקות נכשלה.",
-        differentialDiagnoses: "אבחנות דיפרנציאליות",
-        testRecommendations: "המלצות בדיקות",
-        orderTests: "הזמן בדיקות נבחרות",
-        orderingTests: "מזמין בדיקות: {{tests}}",
-        interactiveDiagnoses: "סקירת אבחנה אינטראקטיבית",
-        interactiveDescription: "סקור ובחר בדיקות בהתבסס על ניתוח ה-AI לעיל",
-        recommendedTests: "בדיקות מומלצות",
-        otherTest: "אחר (ציין)",
-        otherTestPlaceholder: "הזן שם הבדיקה או תיאור...",
-        clickToExpand: "לחץ על \"הצג פרטים\" למעלה כדי לראות את אבחנת ה-AI",
-        caseClosed: "המקרה נסגר. הזמנת בדיקות חסומה.",
-        testsOrdered: "הבדיקות הוזמנו. ניתן לעדכן את הבחירה לפני סיום דוח השחרור.",
-        diagnoses: {
-          acuteMi: "אוטם שריר הלב החריף",
-          unstableAngina: "תעוקת חזה לא יציבה",
-          gerd: "מחלת ריפלוקס קיבה-ושט",
-          musculoskeletalPain: "כאב חזה שריר-שלדי"
+        "personalDetails": {
+          "title": "פרטים אישיים",
+          "fullName": "שם מלא",
+          "id": "מספר תעודת זהות",
+          "gender": "מין",
+          "age": "גיל",
+          "maritalStatus": "מצב משפחתי",
+          "cognitiveStatus": "מצב קוגניטיבי",
+          "functionalStatus": "מצב תפקודי",
+          "notProvided": "לא סופק"
         },
-        tests: {
-          ecg: "אלקטרוקרדיוגרם (ECG)",
-          troponin: "טרופונין לבבי",
-          ckmb: "CK-MB",
-          chestXray: "צילום חזה",
-          echo: "אקוקרדיוגרם",
-          stressTest: "בדיקת מאמץ",
-          endoscopy: "אנדוסקופיה עליונה",
-          phMonitor: "ניטור חומציות",
-          muscleTest: "בדיקת תפקוד שרירים"
+        "medicalHistory": {
+          "title": "היסטוריה רפואית",
+          "backgroundDiseases": "מחלות רקע",
+          "noData": "אין נתוני היסטוריה רפואית זמינים"
         },
-        evidence: {
-          chestPain: "כאבים בחזה",
-          elevatedTroponin: "טרופונין מוגבר",
-          ecgChanges: "שינויים ב-ECG",
-          riskFactors: "גורמי סיכון",
-          heartburn: "צרבת",
-          noEcgChanges: "אין שינויים ב-ECG",
-          muscleTenderness: "רגישות שרירים",
-          noCardiacMarkers: "אין סמנים לבביים"
+        "currentIllness": {
+          "title": "מחלה נוכחית - תלונות ופרטים",
+          "noData": "אין נתוני מחלה נוכחית זמינים"
         },
-        testDescriptions: {
-          ecg: "הערכת קצב הלב וזיהוי איסכמיה",
-          troponin: "זיהוי פגיעה בשריר הלב",
-          ckmb: "קריאטין קינאז לבבי",
-          chestXray: "הערכת שדות הריאות ומבנה הלב",
-          echo: "הערכת תפקוד הלב ותנועת הדופן",
-          stressTest: "הערכת תפקוד הלב במאמץ",
-          endoscopy: "הערכת מצב הוושט והקיבה",
-          phMonitor: "ניטור דפוסי ריפלוקס חומצי",
-          muscleTest: "הערכת תפקוד שריר-שלד"
+        "hideDetails": "הסתר פרטים",
+        "showDetails": "הצג פרטים",
+        "evidence": "ראיות",
+        "urgency": "דחיפות",
+        "aiSummary": {
+          "title": "תקציר תסמינים ובדיקה שנוצר על ידי AI",
+          "description": "סיכום NLP עם תיוג אונטולוגיה רפואית, הדגשת דגלים אדומים וזיהוי מצבים כרוניים",
+          "noSummary": "אין תקציר AI זמין עדיין",
+          "generate": "צור תקציר AI",
+          "error": "יצירת תקציר AI נכשלה. נא לנסות שוב.",
+          "timeout": "היצירה אורכת יותר מהצפוי. ייתכן שהתקציר כבר מוכן — הדף יתרענן באופן אוטומטי."
+        },
+        "aiDiagnosis": {
+          "title": "אבחנה דיפרנציאלית והמלצות בדיקות של AI",
+          "description": "רשימת אבחנות משוקללת לפי עדויות עם המלצות בדיקות קונטקסטואליות",
+          "noDiagnosis": "אין אבחנת AI זמינה עדיין",
+          "generate": "צור אבחנה",
+          "error": "יצירת אבחנת AI נכשלה. נא לנסות שוב.",
+          "timeout": "היצירה אורכת יותר מהצפוי. ייתכן שהאבחנה כבר מוכנה — הדף יתרענן באופן אוטומטי.",
+          "ordered": "הבדיקות עבור {{name}} הוזמנו.",
+          "orderError": "הזמנת הבדיקות נכשלה.",
+          "differentialDiagnoses": "אבחנות דיפרנציאליות",
+          "testRecommendations": "המלצות בדיקות",
+          "orderTests": "הזמן בדיקות נבחרות",
+          "orderingTests": "מזמין בדיקות: {{tests}}",
+          "interactiveDiagnoses": "סקירת אבחנה אינטראקטיבית",
+          "interactiveDescription": "סקור ובחר בדיקות בהתבסס על ניתוח ה-AI לעיל",
+          "recommendedTests": "בדיקות מומלצות",
+          "otherTest": "אחר (ציין)",
+          "otherTestPlaceholder": "הזן שם הבדיקה או תיאור...",
+          "clickToExpand": "לחץ על \"הצג פרטים\" למעלה כדי לראות את אבחנת ה-AI",
+          "caseClosed": "המקרה נסגר. הזמנת בדיקות חסומה.",
+          "testsOrdered": "הבדיקות הוזמנו. ניתן לעדכן את הבחירה לפני סיום דוח השחרור.",
+          "diagnoses": {
+            "acuteMi": "אוטם שריר הלב החריף",
+            "unstableAngina": "תעוקת חזה לא יציבה",
+            "gerd": "מחלת ריפלוקס קיבה-ושט",
+            "musculoskeletalPain": "כאב חזה שריר-שלדי"
+          },
+          "tests": {
+            "ecg": "אלקטרוקרדיוגרם (ECG)",
+            "troponin": "טרופונין לבבי",
+            "ckmb": "CK-MB",
+            "chestXray": "צילום חזה",
+            "echo": "אקוקרדיוגרם",
+            "stressTest": "בדיקת מאמץ",
+            "endoscopy": "אנדוסקופיה עליונה",
+            "phMonitor": "ניטור חומציות",
+            "muscleTest": "בדיקת תפקוד שרירים"
+          },
+          "evidence": {
+            "chestPain": "כאבים בחזה",
+            "elevatedTroponin": "טרופונין מוגבר",
+            "ecgChanges": "שינויים ב-ECG",
+            "riskFactors": "גורמי סיכון",
+            "heartburn": "צרבת",
+            "noEcgChanges": "אין שינויים ב-ECG",
+            "muscleTenderness": "רגישות שרירים",
+            "noCardiacMarkers": "אין סמנים לבביים"
+          },
+          "testDescriptions": {
+            "ecg": "הערכת קצב הלב וזיהוי איסכמיה",
+            "troponin": "זיהוי פגיעה בשריר הלב",
+            "ckmb": "קריאטין קינאז לבבי",
+            "chestXray": "הערכת שדות הריאות ומבנה הלב",
+            "echo": "הערכת תפקוד הלב ותנועת הדופן",
+            "stressTest": "הערכת תפקוד הלב במאמץ",
+            "endoscopy": "הערכת מצב הוושט והקיבה",
+            "phMonitor": "ניטור דפוסי ריפלוקס חומצי",
+            "muscleTest": "הערכת תפקוד שריר-שלד"
+          },
+          "interactiveUnavailable": "הסקירה האינטראקטיבית דורשת רשימות אבחנה ובדיקות הניתנות לזיהוי בפלט ה-AI."
         }
-      }
-    },
-    doctorLogin: {
-      title: "כניסת רופא",
-      subtitle: "הזן קוד גישה כדי להמשיך.",
-      passcodePlaceholder: "קוד גישה",
-      continue: "המשך",
-      invalidCode: "קוד גישה לא תקין."
-    },
-    discharge: {
-      title: "דוח שחרור",
-      proceedButton: "המשך לדוח שחרור",
-      prepareReport: "הכן דוח שחרור",
-      viewReport: "צפה בדוח השחרור",
-      loading: "טוען...",
-      finalized: "הושלם",
-      finalizedOn: "הושלם ב",
-      aiActions: "כלי AI לדוח",
-      aiActionsHint: "שפר או קצר את הדוח הקיים. עריכותיך נשמרות.",
-      aiActionsHintEmpty: "צור דוח על בסיס כל נתוני המקרה הזמינים.",
-      generateFull: "צור דוח מלא",
-      improveLanguage: "שפר שפה רפואית",
-      shortenReport: "קצר את הדוח",
-      regenerate: "צור מחדש מהתחלה",
-      regenerateWarning: "פעולה זו תחליף את הדוח הנוכחי.",
-      confirmRegenerate: "כן, צור מחדש",
-      generating: "יוצר...",
-      aiGenerating: "מייצר רשומת שחרור מובנית...",
-      aiGeneratingHint: "הפעולה עשויה לקחת עד 30 שניות — אנא השאר דף זה פתוח.",
-      generationTimeout: "היצירה לוקחת יותר זמן מהצפוי. הדוח עשוי כבר להיות מוכן — הדף יתרענן אוטומטית.",
-      aiImproving: "משפר את השפה הרפואית...",
-      aiShortening: "יוצר גרסה קצרה...",
-      reportCardTitle: "דוח שחרור",
-      reportContent: "תוכן הדוח",
-      edit: "ערוך",
-      cancelEdit: "ביטול",
-      saveChanges: "שמור שינויים",
-      saving: "שומר...",
-      saved: "נשמר",
-      legend: "מקרא",
-      structuredReport: "רשומת שחרור מובנית",
-      legendDemo: "פרטים דמוגרפיים",
-      legendValues: "ערכים קליניים",
-      legendRecs: "המלצות",
-      legendTreatment: "טיפול",
-      legendDx: "אבחנות",
-      noReport: "טרם נוצר דוח.",
-      noReportHint: "לחץ על \"צור דוח מלא\" למעלה ליצירת דוח.",
-      returnToCase: "חזור למקרה",
-      print: "הדפס / ייצא PDF",
-      finalizeDischarge: "סיים שחרור",
-      confirmFinalize: "פעולה זו תסגור את המקרה. לאשר?",
-      confirmYes: "כן, סיים",
-      cancel: "ביטול",
-      finalizing: "מסיים...",
-      loadErrorTitle: "טעינת המקרה נכשלה",
-      loadErrorDescription: "לא הצלחנו לטעון את דוח השחרור. בדוק את החיבור ונסה שוב.",
-      printTitle: "סיכום שחרור ממלר\"ד",
-      patient: "מטופל",
-      idLabel: "ת.ז.",
-      dateLabel: "תאריך"
-    },
-    nurseLogin: {
-      title: "כניסת אחות",
-      subtitle: "הזן קוד גישה כדי להמשיך.",
-      passcodePlaceholder: "קוד גישה",
-      continue: "המשך",
-      invalidCode: "קוד גישה לא תקין."
-    },
-    nurseDashboard: {
-      title: "לוח טריאז'",
-      subtitle: "מטופלים הממתינים לרישום מדדי חיים",
-      loading: "טוען את תור הטריאז'...",
-      error: "טעינת המקרים נכשלה.",
-      unknownPatient: "מטופל לא ידוע",
-      minutes: "{{n}} דק׳",
-      handedOff: "הועבר לרופא",
-      tabs: {
-        awaiting: "ממתינים למדדים",
-        done: "נשלחו לרופא"
       },
-      search: {
-        placeholder: "חיפוש לפי שם או ת.ז..."
+      "discharge": {
+        "title": "דוח שחרור",
+        "proceedButton": "המשך לדוח שחרור",
+        "prepareReport": "הכן דוח שחרור",
+        "viewReport": "צפה בדוח השחרור",
+        "loading": "טוען...",
+        "finalized": "הושלם",
+        "finalizedOn": "הושלם ב",
+        "aiActions": "כלי AI לדוח",
+        "aiActionsHint": "שפר או קצר את הדוח הקיים. עריכותיך נשמרות.",
+        "aiActionsHintEmpty": "צור דוח על בסיס כל נתוני המקרה הזמינים.",
+        "generateFull": "צור דוח מלא",
+        "improveLanguage": "שפר שפה רפואית",
+        "shortenReport": "קצר את הדוח",
+        "regenerate": "צור מחדש מהתחלה",
+        "regenerateWarning": "פעולה זו תחליף את הדוח הנוכחי.",
+        "confirmRegenerate": "כן, צור מחדש",
+        "generating": "יוצר...",
+        "aiGenerating": "מייצר רשומת שחרור מובנית...",
+        "aiGeneratingHint": "הפעולה עשויה לקחת עד 30 שניות — אנא השאר דף זה פתוח.",
+        "generationTimeout": "היצירה לוקחת יותר זמן מהצפוי. הדוח עשוי כבר להיות מוכן — הדף יתרענן אוטומטית.",
+        "aiImproving": "משפר את השפה הרפואית...",
+        "aiShortening": "יוצר גרסה קצרה...",
+        "reportCardTitle": "דוח שחרור",
+        "reportContent": "תוכן הדוח",
+        "edit": "ערוך",
+        "cancelEdit": "ביטול",
+        "saveChanges": "שמור שינויים",
+        "saving": "שומר...",
+        "saved": "נשמר",
+        "legend": "מקרא",
+        "structuredReport": "רשומת שחרור מובנית",
+        "legendDemo": "פרטים דמוגרפיים",
+        "legendValues": "ערכים קליניים",
+        "legendRecs": "המלצות",
+        "legendTreatment": "טיפול",
+        "legendDx": "אבחנות",
+        "noReport": "טרם נוצר דוח.",
+        "noReportHint": "לחץ על \"צור דוח מלא\" למעלה ליצירת דוח.",
+        "returnToCase": "חזור למקרה",
+        "print": "הדפס / ייצא PDF",
+        "finalizeDischarge": "סיים שחרור",
+        "confirmFinalize": "פעולה זו תסגור את המקרה. לאשר?",
+        "confirmYes": "כן, סיים",
+        "cancel": "ביטול",
+        "finalizing": "מסיים...",
+        "loadErrorTitle": "טעינת המקרה נכשלה",
+        "loadErrorDescription": "לא הצלחנו לטעון את דוח השחרור. בדוק את החיבור ונסה שוב.",
+        "printTitle": "סיכום שחרור ממלר\"ד",
+        "patient": "מטופל",
+        "idLabel": "ת.ז.",
+        "dateLabel": "תאריך"
       },
-      table: {
-        patient: "מטופל",
-        id: "ת.ז.",
-        arrived: "הגיע ב",
-        waiting: "המתנה",
-        actions: "פעולה"
+      "nurseLogin": {
+        "title": "כניסת אחות",
+        "subtitle": "הזן קוד גישה כדי להמשיך.",
+        "passcodePlaceholder": "קוד גישה",
+        "continue": "המשך",
+        "invalidCode": "קוד גישה לא תקין."
       },
-      actions: {
-        recordVitals: "רשום מדדים",
-        updateVitals: "עדכן מדדים",
-        logout: "התנתק"
+      "nurseDashboard": {
+        "title": "לוח טריאז'",
+        "subtitle": "מטופלים הממתינים לרישום מדדי חיים",
+        "loading": "טוען את תור הטריאז'...",
+        "error": "טעינת המקרים נכשלה.",
+        "unknownPatient": "מטופל לא ידוע",
+        "minutes": "{{n}} דק׳",
+        "handedOff": "הועבר לרופא",
+        "tabs": {
+          "awaiting": "ממתינים למדדים",
+          "done": "נשלחו לרופא"
+        },
+        "search": {
+          "placeholder": "חיפוש לפי שם או ת.ז..."
+        },
+        "table": {
+          "patient": "מטופל",
+          "id": "ת.ז.",
+          "arrived": "הגיע ב",
+          "waiting": "המתנה",
+          "actions": "פעולה"
+        },
+        "actions": {
+          "recordVitals": "רשום מדדים",
+          "updateVitals": "עדכן מדדים",
+          "logout": "התנתק"
+        },
+        "empty": {
+          "title": "אין מטופלים בתור",
+          "noMatch": "אין מקרים התואמים את החיפוש.",
+          "noAwaiting": "הכל מעודכן — אין כרגע מטופלים הממתינים לטריאז'.",
+          "noDone": "טרם הועברו מקרים לרופא."
+        }
       },
-      empty: {
-        title: "אין מטופלים בתור",
-        noMatch: "אין מקרים התואמים את החיפוש.",
-        noAwaiting: "הכל מעודכן — אין כרגע מטופלים הממתינים לטריאז'.",
-        noDone: "טרם הועברו מקרים לרופא."
+      "doctorLogin": {
+        "title": "כניסת רופא",
+        "subtitle": "הזן קוד גישה כדי להמשיך.",
+        "passcodePlaceholder": "קוד גישה",
+        "continue": "המשך",
+        "invalidCode": "קוד גישה לא תקין."
       }
     }
   }
@@ -1713,14 +1604,14 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
-    fallbackLng: 'en', // Default to English
+    fallbackLng: 'en',
     debug: false,
-    
+
     detection: {
       order: ['localStorage', 'navigator', 'htmlTag'],
       caches: ['localStorage'],
     },
-    
+
     interpolation: {
       escapeValue: false, // React already escapes values
     },
