@@ -298,6 +298,7 @@ function DischargeReportPage() {
             action,
             // Always send current frontend text so manual edits are preserved
             currentText: reportText || undefined,
+            language: i18n.language === 'he' ? 'he' : 'en',
           }),
         },
         90_000,

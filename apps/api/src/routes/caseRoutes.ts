@@ -332,8 +332,30 @@ router.post("/:id/summary", async (req, res) => {
     const answers = questionnaire?.answers || {};
     const vitals = existingCase.vitals || {};
 
+    const language = (req.body?.language === "he" ? "he" : "en") as "en" | "he";
+    const isHebrew = language === "he";
+
     // Build clinical prompt
-    const prompt = `
+    const prompt = isHebrew
+      ? `
+צור סיכום קליני באורך בינוני המתאים לרשומה רפואית אלקטרונית.
+השתמש בשפה רפואית ברורה (טון מקצועי) וחשיבה מובנית.
+כתוב את כל הסיכום בעברית. עבור מינוחים רפואיים נפוצים ניתן להוסיף את המקור באנגלית בסוגריים.
+
+פרטי המטופל:
+שם: ${existingCase.patientName}
+תעודת זהות: ${existingCase.nationalId}
+סטטוס: ${existingCase.status}
+
+תשובות שאלון:
+${JSON.stringify(answers, null, 2)}
+
+סימנים חיוניים:
+${JSON.stringify(vitals, null, 2)}
+
+החזר רק את פסקת הסיכום הקלינית. אל תכלול הערות או מטא-נתונים.
+`
+      : `
 Generate a medium-length clinical summary suitable for an electronic medical record.
 Use clear medical language (professional tone) and structured reasoning.
 
@@ -361,13 +383,17 @@ Return only the clinical summary paragraph. Do not include any notes or metadata
     // Initialize OpenAI client
     const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
+    const systemPrompt = isHebrew
+      ? "אתה עוזר רפואי הכותב הערות קליניות באורך בינוני עבור רופאים. כתוב את כל התשובה בעברית רפואית מקצועית."
+      : "You are a medical assistant writing medium-length clinical notes for doctors.";
+
     // Call OpenAI
     const response = await client.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         {
           role: "system",
-          content: "You are a medical assistant writing medium-length clinical notes for doctors."
+          content: systemPrompt
         },
         {
           role: "user",
@@ -474,8 +500,86 @@ router.post("/:id/diagnosis", async (req, res) => {
       apiKey: process.env.OPENAI_API_KEY,
     });
 
-    // Build diagnosis prompt
-    const diagnosisPrompt = `
+    const language = (req.body?.language === "he" ? "he" : "en") as "en" | "he";
+    const isHebrew = language === "he";
+
+    // Build diagnosis prompt.
+    // IMPORTANT: When language is Hebrew, keep the structural skeleton (section
+    // headers, field labels, urgency values, and English investigation
+    // abbreviations) exactly as below — the frontend parses these markers.
+    // Diagnosis names, supporting evidence, and rationale text should be in
+    // Hebrew.
+    const diagnosisPrompt = isHebrew
+      ? `
+כעוזר רפואי בינה מלאכותית, נתח את נתוני המטופל וספק אבחנות מבדלות עם ציוני סבירות והמלצות לבדיקות.
+
+מידע על המטופל:
+- שם: ${caseDoc.patientName}
+- גיל: ${qAnswers.personalInfo?.age || 'לא ידוע'}
+- מגדר: ${qAnswers.personalInfo?.gender || 'לא ידוע'}
+
+תסמינים נוכחיים:
+${activeSymptomsDx}
+
+היסטוריה רפואית:
+${activeHistoryDx}
+
+סימנים חיוניים:
+- לחץ דם: ${caseDoc.vitals?.bp || 'לא נרשם'}
+- דופק: ${caseDoc.vitals?.hr || 'לא נרשם'}
+- ריווי חמצן: ${caseDoc.vitals?.spo2 || 'לא נרשם'}%
+- חום: ${caseDoc.vitals?.temp || 'לא נרשם'}°C
+- ציון כאב: ${caseDoc.vitals?.painScore || 'לא נרשם'}/10
+
+הנחיות פלט קריטיות:
+- שמור את הכותרות והתוויות הבאות באנגלית בדיוק כפי שמופיע — כותרות הסעיפים: "## Differential Diagnoses" ו-"## Recommended Diagnostic Tests"; התוויות "Probability:", "Supporting Evidence:", "Urgency:", "Rationale:".
+- ערכי הדחיפות חייבים להיות באנגלית בדיוק: high / medium / low.
+- שמות הבדיקות חייבים להתחיל בקיצור או בשם הסטנדרטי באנגלית (למשל: CT Head, CBC, ECG, Chest X-ray, Troponin, Urinalysis), אופציונלית עם הסבר קצר בעברית בסוגריים.
+- שמות אבחנות (Diagnosis Name), נקודות התומכות (Supporting Evidence) והנמקות (Rationale) — כתוב בעברית רפואית מקצועית. עבור שמות אבחנות, ניתן להוסיף את שם האבחנה באנגלית בסוגריים לאחר השם בעברית.
+
+ענה בדיוק במבנה הבא:
+
+## Differential Diagnoses
+
+1. [שם האבחנה בעברית (English Name)] - [XX]%
+Probability: [XX]%
+Supporting Evidence:
+- [נקודה תומכת בעברית]
+- [נקודה תומכת בעברית]
+
+2. [שם האבחנה בעברית (English Name)] - [XX]%
+Probability: [XX]%
+Supporting Evidence:
+- [נקודה תומכת בעברית]
+
+(חזור על כך עבור 3-4 אבחנות)
+
+## Recommended Diagnostic Tests
+
+כלל קריטי: סעיף זה חייב להכיל רק חקירות אבחנתיות שרופא היה מזמין במלר"ד.
+אל תרשום מחלות, מצבים או אבחנות כאן — אלו שייכים לסעיף שלמעלה.
+כלול רק פריטים כגון: בדיקות דם, הדמיה, ECG, בדיקת שתן, תרביות, ביופסיות וחקירות אחרות.
+
+רשום כל בדיקה בפורמט:
+- [Test Name in English] - Urgency: [high/medium/low]
+  Rationale: [משפט אחד בעברית]
+
+דוגמאות לערכים תקינים:
+- CT Head without contrast - Urgency: high
+  Rationale: לשלילת דימום תוך-מוחי או נגע תופס מקום.
+- CBC + CRP - Urgency: high
+  Rationale: להערכת זיהום או תהליך דלקתי.
+- ECG - Urgency: high
+  Rationale: להערכת הפרעת קצב לבבית.
+- Chest X-ray - Urgency: medium
+  Rationale: להערכת דלקת ריאות או תפליט פלאורלי.
+
+דוגמאות לערכים לא תקינים (אל תכלול):
+- Pneumonia (זוהי אבחנה, לא בדיקה)
+- Migraine (זוהי אבחנה, לא בדיקה)
+- Hypertensive Crisis (זוהי אבחנה, לא בדיקה)
+`
+      : `
 As a medical AI assistant, analyze the following patient data and provide differential diagnoses with probability scores and test recommendations.
 
 Patient Information:
@@ -539,13 +643,17 @@ Examples of INVALID entries (DO NOT include these):
 - Hypertensive Crisis (this is a diagnosis, not a test)
 `;
 
+    const dxSystemPrompt = isHebrew
+      ? "אתה עוזר רפואי בינה מלאכותית המתמחה באבחנה מבדלת והמלצות לבדיקות. ספק ניתוח מבוסס ראיות עם הערכות סבירות ברורות והמלצות מעשיות. כתוב שמות אבחנות, נקודות תומכות והנמקות בעברית רפואית מקצועית, אך שמור על הכותרות, התוויות וערכי הדחיפות באנגלית כפי שצוין בהוראות."
+      : "You are a medical AI assistant specializing in differential diagnosis and test recommendations. Provide evidence-based analysis with clear probability assessments and actionable recommendations.";
+
     // Generate AI diagnosis
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         {
           role: "system",
-          content: "You are a medical AI assistant specializing in differential diagnosis and test recommendations. Provide evidence-based analysis with clear probability assessments and actionable recommendations."
+          content: dxSystemPrompt
         },
         {
           role: "user",
@@ -593,7 +701,7 @@ Examples of INVALID entries (DO NOT include these):
 router.post("/:id/discharge-report/generate", async (req, res) => {
   try {
     const caseId = req.params.id;
-    const { action = "generate", currentText } = req.body; // "generate" | "improve" | "shorten"
+    const { action = "generate", currentText, language: bodyLang } = req.body; // "generate" | "improve" | "shorten"
 
     if (!mongoose.Types.ObjectId.isValid(caseId)) {
       return res.status(400).json({ error: "Invalid ID format" });
@@ -614,40 +722,114 @@ router.post("/:id/discharge-report/generate", async (req, res) => {
     const adaptiveQ = answers.adaptiveQuestions || answers.symptoms || {};
     const vitals = caseDoc.vitals || {};
 
+    const language = (bodyLang === "he" ? "he" : "en") as "en" | "he";
+    const isHebrew = language === "he";
+
     const activeConditions = Object.entries(medicalHistory)
       .filter(([k, v]) => v === true && k !== "none")
       .map(([k]) => k)
-      .join(", ") || "None reported";
+      .join(", ") || (isHebrew ? "לא דווח" : "None reported");
 
     const activeSymptoms = Object.entries(currentIllness)
       .filter(([, v]) => v === true)
       .map(([k]) => k)
-      .join(", ") || "None reported";
+      .join(", ") || (isHebrew ? "לא דווח" : "None reported");
 
-    const orderedTestsList = (caseDoc.orderedTests || []).join(", ") || "None ordered";
+    const orderedTestsList = (caseDoc.orderedTests || []).join(", ") || (isHebrew ? "לא הוזמנו" : "None ordered");
 
     // Prefer text passed from frontend (may include manual edits) over saved draft
     const existingDraft = currentText || caseDoc.dischargeReport?.draft || "";
 
-    const systemMsg = "You are a senior emergency department physician producing a formal, structured clinical discharge record for an electronic medical record (EMR) system. Use precise medical language, complete sentences, and standard ED documentation conventions.";
+    const systemMsg = isHebrew
+      ? "אתה רופא בכיר במלר\"ד המפיק רשומת שחרור קלינית פורמלית ומובנית עבור מערכת רשומה רפואית אלקטרונית (EMR). השתמש בשפה רפואית מדויקת, משפטים שלמים ומוסכמות תיעוד סטנדרטיות של מלר\"ד. כתוב את כל הרשומה בעברית רפואית מקצועית. עבור מינוחים רפואיים סטנדרטיים, ניתן לכלול את המקור באנגלית בסוגריים."
+      : "You are a senior emergency department physician producing a formal, structured clinical discharge record for an electronic medical record (EMR) system. Use precise medical language, complete sentences, and standard ED documentation conventions.";
     let userMsg = "";
 
     if (action === "improve" && existingDraft) {
-      userMsg = `Rewrite the following discharge record using more precise, professional clinical language. Preserve all clinical facts, section headings, and the overall structure. Only improve wording and medical terminology:\n\n${existingDraft}`;
+      userMsg = isHebrew
+        ? `שכתב את רשומת השחרור הבאה תוך שימוש בשפה קלינית מדויקת ומקצועית יותר. שמר את כל העובדות הקליניות, כותרות הסעיפים והמבנה הכולל. שפר רק את הניסוח והמינוח הרפואי. כתוב הכל בעברית.\n\n${existingDraft}`
+        : `Rewrite the following discharge record using more precise, professional clinical language. Preserve all clinical facts, section headings, and the overall structure. Only improve wording and medical terminology:\n\n${existingDraft}`;
     } else if (action === "shorten" && existingDraft) {
-      userMsg = `Create a concise version of this discharge record (approximately half the length). Preserve all section headings and critical clinical facts. Remove redundancy:\n\n${existingDraft}`;
+      userMsg = isHebrew
+        ? `צור גרסה תמציתית של רשומת השחרור הזו (בערך חצי מהאורך). שמר את כל כותרות הסעיפים ועובדות קליניות קריטיות. הסר חזרות. כתוב הכל בעברית.\n\n${existingDraft}`
+        : `Create a concise version of this discharge record (approximately half the length). Preserve all section headings and critical clinical facts. Remove redundancy:\n\n${existingDraft}`;
     } else {
       // Derive additional context fields
-      const formFilledBy = personalInfo.formFilledBy || "Unknown";
-      const cognitiveState = personalInfo.cognitiveState || "Not recorded";
-      const functionalState = personalInfo.functionalState || "Not recorded";
+      const formFilledBy = personalInfo.formFilledBy || (isHebrew ? "לא ידוע" : "Unknown");
+      const cognitiveState = personalInfo.cognitiveState || (isHebrew ? "לא נרשם" : "Not recorded");
+      const functionalState = personalInfo.functionalState || (isHebrew ? "לא נרשם" : "Not recorded");
       const cancerStatus = medicalHistory.cancerStatus ? ` (${medicalHistory.cancerStatus})` : "";
       const cancerType = medicalHistory.cancerType ? `, type: ${medicalHistory.cancerType}` : "";
       const doesNotRememberMeds = medications?.doesNotRememberMedications === true;
-      const selectedMedsList = Object.values(medications?.groups || {}).flat().join(", ") || "None reported";
-      const medsLine = doesNotRememberMeds ? "Patient does not remember medications" : (selectedMedsList || "None reported");
+      const selectedMedsList = Object.values(medications?.groups || {}).flat().join(", ") || (isHebrew ? "לא דווח" : "None reported");
+      const medsLine = doesNotRememberMeds
+        ? (isHebrew ? "המטופל אינו זוכר תרופות" : "Patient does not remember medications")
+        : (selectedMedsList || (isHebrew ? "לא דווח" : "None reported"));
+      const allergiesLine = medications?.allergies?.allergyDetails
+        || (medications?.allergies?.hasAllergies === "yes"
+              ? (isHebrew ? "כן — פרטים לא ידועים" : "Yes — details unknown")
+              : (isHebrew ? "לא דווח" : "None reported"));
 
-      userMsg = `Generate a complete, professional Emergency Department Discharge Record using the structured case data below.
+      userMsg = isHebrew
+        ? `הפק רשומת שחרור ממלר"ד מקצועית ומלאה תוך שימוש בנתוני המקרה המובנים שלהלן.
+
+כללי פורמט:
+- השתמש בפורמט המדויק הבא לכל סעיף: **שם הסעיף** ולאחריו תוכן הפסקה.
+- כתוב כל סעיף כ-2-4 משפטים קליניים מלאים.
+- השתמש בשפה רפואית פורמלית לאורך כל הרשומה.
+- אל תדלג על סעיפים — אם נתונים אינם זמינים, ציין זאת באופן מקצועי (למשל "לא זמינות תוצאות בעת השחרור").
+- חקירות שהוזמנו חייבות להופיע במפורש לפי שמן בסעיף 6, וכל תוצאה רלוונטית בסעיף 7.
+- חקירות מומלצות למעקב חייבות להופיע בסעיף 10.
+- כתוב את כל הרשומה בעברית רפואית מקצועית. עבור מינוחים רפואיים סטנדרטיים, ניתן להוסיף את המקור באנגלית בסוגריים (למשל: "אק״ג (ECG)").
+
+סעיפים נדרשים לפי הסדר:
+1. **סיכום מטופל**
+2. **היסטוריה רפואית רלוונטית**
+3. **תלונה מציגה**
+4. **הערכה קלינית**
+5. **סיכום חקירות**
+6. **חקירות שבוצעו / הוזמנו**
+7. **ממצאים ותוצאות עיקריות**
+8. **טיפול שניתן**
+9. **הערכה קלינית**
+10. **חקירות המלצה למעקב**
+11. **המלצות שחרור**
+12. **דיספוזיציה**
+
+נתוני המקרה:
+
+מטופל: ${caseDoc.patientName}, גיל: ${personalInfo.age || "לא ידוע"}, מגדר: ${personalInfo.gender || "לא ידוע"}, ת"ז: ${caseDoc.nationalId}
+מילוי הטופס על ידי: ${formFilledBy} | מצב קוגניטיבי: ${cognitiveState} | מצב תפקודי: ${functionalState}
+מצב משפחתי: ${personalInfo.maritalStatus || "לא נרשם"}
+
+היסטוריה רפואית: ${activeConditions}${medicalHistory.cancer ? cancerStatus + cancerType : ""}
+אלרגיות: ${allergiesLine}
+תרופות נוכחיות: ${medsLine}
+
+תלונה עיקרית / תסמינים מציגים: ${activeSymptoms}
+
+שאלון תסמינים אדפטיבי (פרטים מדווחי-מטופל):
+${JSON.stringify(adaptiveQ, null, 2)}
+
+סימנים חיוניים בעת ההגעה:
+- לחץ דם: ${vitals.bp || "לא נרשם"}
+- דופק: ${vitals.hr ? vitals.hr + " bpm" : "לא נרשם"}
+- SpO2: ${vitals.spo2 ? vitals.spo2 + "%" : "לא נרשם"}
+- חום: ${vitals.temp ? vitals.temp + "°C" : "לא נרשם"}
+- קצב נשימה: ${vitals.respRate ? vitals.respRate + " /min" : "לא נרשם"}
+- ציון כאב: ${vitals.painScore ? vitals.painScore + "/10" : "לא נרשם"}
+
+סיכום קליני AI:
+${caseDoc.summary || "טרם נוצר"}
+
+אבחנה מבדלת AI:
+${caseDoc.aiDiagnosis || "טרם נוצר"}
+
+חקירות שהוזמנו על ידי הרופא:
+${orderedTestsList}
+
+הערה: אם לחקירות שהוזמנו אין עדיין תוצאות מתועדות, ציין אותן כ"הוזמנו; תוצאות בהמתנה בעת השחרור" בסעיף 7. רשום אותן לפי שמן בסעיף 6.`
+        : `Generate a complete, professional Emergency Department Discharge Record using the structured case data below.
 
 FORMAT RULES:
 - Use this exact section format: **Section Name** followed by the paragraph content.
@@ -678,7 +860,7 @@ Form filled by: ${formFilledBy} | Cognitive state: ${cognitiveState} | Functiona
 Marital status: ${personalInfo.maritalStatus || "Not recorded"}
 
 Medical History: ${activeConditions}${medicalHistory.cancer ? cancerStatus + cancerType : ""}
-Allergies: ${medications?.allergies?.allergyDetails || (medications?.allergies?.hasAllergies === "yes" ? "Yes — details unknown" : "None reported")}
+Allergies: ${allergiesLine}
 Current Medications: ${medsLine}
 
 Chief Complaint / Presenting Symptoms: ${activeSymptoms}

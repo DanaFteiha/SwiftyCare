@@ -65,6 +65,7 @@ function CasePage() {
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ language: i18n.language === 'he' ? 'he' : 'en' }),
         },
         90_000
       );
@@ -102,6 +103,7 @@ function CasePage() {
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ language: i18n.language === 'he' ? 'he' : 'en' }),
         },
         90_000
       );
