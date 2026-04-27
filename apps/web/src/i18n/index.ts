@@ -441,7 +441,373 @@ const resources = {
           "caseNotFoundHint": "The patient case you are looking for does not exist or has been removed."
         },
         "step4": "Vital Signs",
-        "defaultPatientName": "Patient"
+        "defaultPatientName": "Patient",
+        "pathway": {
+          "abdominalPain": {
+            "abPainLocation": { "q": "Where is the pain located?" },
+            "abOnsetWhen": {
+              "q": "When did the pain start?",
+              "today": "Today",
+              "1to3days": "1–3 days ago",
+              "3to7days": "3–7 days ago",
+              "overWeek": "More than a week ago"
+            },
+            "abOnsetType": {
+              "q": "How did the pain start?",
+              "sudden": "Sudden (came on quickly)",
+              "gradual": "Gradual (built up slowly)"
+            },
+            "abCharacter": {
+              "q": "How would you describe the pain?",
+              "sharp": "Sharp / Stabbing",
+              "crampy": "Crampy / Colicky",
+              "dull": "Dull / Aching",
+              "burning": "Burning",
+              "pressure": "Pressure / Squeezing"
+            },
+            "abSeverity": { "q": "Pain severity (0 = no pain, 10 = worst imaginable)" },
+            "abRadiation": {
+              "q": "Does the pain spread anywhere?",
+              "back": "Back",
+              "rightShoulder": "Right shoulder",
+              "leftShoulder": "Left shoulder",
+              "groin": "Groin",
+              "chest": "Chest",
+              "none": "Does not spread"
+            },
+            "abAggravating": {
+              "q": "What makes the pain worse?",
+              "eating": "Eating",
+              "movement": "Movement",
+              "deepBreath": "Deep breathing",
+              "lyingFlat": "Lying flat",
+              "nothing": "Nothing specific"
+            },
+            "abRelieving": {
+              "q": "What helps relieve the pain?",
+              "eating": "Eating",
+              "antacids": "Antacids",
+              "passingGas": "Passing gas / stool",
+              "lyingStill": "Lying still",
+              "nothing": "Nothing helps"
+            },
+            "abAssociated": {
+              "q": "Any other symptoms you are experiencing?",
+              "nausea": "Nausea",
+              "vomiting": "Vomiting",
+              "diarrhea": "Diarrhea",
+              "constipation": "Constipation",
+              "fever": "Fever",
+              "jaundice": "Yellowing of skin/eyes (jaundice)",
+              "bloodStool": "Blood in stool",
+              "darkUrine": "Dark urine",
+              "lossOfAppetite": "Loss of appetite",
+              "bloating": "Bloating"
+            },
+            "abRfFever": { "q": "Do you have a fever above 38.5°C (101.3°F)?" },
+            "abRfBlood": { "q": "Is there any blood in your vomit or stool?" },
+            "abRfUnableToEat": { "q": "Have you been unable to eat or drink anything for more than 24 hours?" },
+            "abRfPregnancy": { "q": "Are you known to be pregnant, or could you be pregnant?" }
+          },
+          "headache": {
+            "hdLocation": { "q": "Where on your head is the pain?" },
+            "hdOnsetWhen": {
+              "q": "When did the headache start?",
+              "today": "Today",
+              "1to3days": "1–3 days ago",
+              "3to7days": "3–7 days ago",
+              "overWeek": "More than a week ago"
+            },
+            "hdOnsetType": {
+              "q": "How did it start?",
+              "thunderclap": "Thunderclap — reached maximum intensity within seconds",
+              "gradual": "Gradual — built up over minutes or hours"
+            },
+            "hdCharacter": {
+              "q": "What does the headache feel like?",
+              "throbbing": "Throbbing / Pulsating",
+              "pressure": "Pressure / Squeezing (band-like)",
+              "sharp": "Sharp / Stabbing",
+              "dull": "Dull / Constant aching"
+            },
+            "hdSeverity": { "q": "Headache severity (0 = no pain, 10 = worst imaginable)" },
+            "hdPattern": {
+              "q": "What is the pattern of your headache?",
+              "constant": "Constant",
+              "comesAndGoes": "Comes and goes",
+              "worsening": "Getting progressively worse"
+            },
+            "hdAggravating": {
+              "q": "What makes the headache worse?",
+              "light": "Light sensitivity (photophobia)",
+              "noise": "Noise sensitivity (phonophobia)",
+              "movement": "Movement / physical activity",
+              "bending": "Bending forward",
+              "nothing": "Nothing specific"
+            },
+            "hdAssociated": {
+              "q": "Any other symptoms you are experiencing?",
+              "nausea": "Nausea or vomiting",
+              "visualAura": "Visual aura (zig-zags, blind spot)",
+              "neckStiffness": "Neck stiffness",
+              "fever": "Fever",
+              "dizziness": "Dizziness",
+              "weakness": "Weakness or numbness",
+              "slurredSpeech": "Slurred speech",
+              "eyeRedness": "Eye redness or pain"
+            },
+            "hdRfWorstEver": { "q": "Is this the worst headache of your life?" },
+            "hdRfNewType": { "q": "Is this a new type of headache you have never had before?" },
+            "hdRfFeverNeck": { "q": "Do you have fever AND stiff neck together?" },
+            "hdRfConfusion": { "q": "Are you experiencing confusion or decreased alertness?" },
+            "hdRfWeakness": { "q": "Any new weakness, numbness, or difficulty speaking?" }
+          },
+          "chestPain": {
+            "cpCharacter": {
+              "q": "How would you describe the chest pain?",
+              "pressing": "Pressing / Heavy",
+              "burning": "Burning",
+              "sharp": "Sharp / Stabbing",
+              "tight": "Tight / Squeezing"
+            },
+            "cpSeverity": { "q": "Pain severity (0 = no pain, 10 = worst imaginable)" },
+            "cpOnset": {
+              "q": "When did the chest pain start?",
+              "sudden": "Sudden",
+              "gradual": "Gradual",
+              "intermittent": "Comes and goes"
+            },
+            "cpAssociated": {
+              "q": "Do you have any of these associated symptoms?",
+              "shortnessOfBreath": "Shortness of breath",
+              "nausea": "Nausea or vomiting",
+              "sweating": "Sweating",
+              "leftArm": "Pain in left arm / shoulder",
+              "jaw": "Pain in jaw / neck",
+              "dizziness": "Dizziness"
+            },
+            "cpRfRadiation": { "q": "Does the pain spread to your arm, jaw, or back?" }
+          },
+          "fever": {
+            "fvTemperature": {
+              "q": "What is your approximate temperature?",
+              "lowGrade": "Low grade (37.1–38.0°C / 98.8–100.4°F)",
+              "moderate": "Moderate (38.1–39.0°C / 100.6–102.2°F)",
+              "high": "High (39.1–40.0°C / 102.4–104°F)",
+              "veryHigh": "Very high (above 40°C / 104°F)"
+            },
+            "fvDuration": {
+              "q": "How long have you had the fever?",
+              "lessThan24h": "Less than 24 hours",
+              "1to3days": "1–3 days",
+              "moreThan3days": "More than 3 days"
+            },
+            "fvAssociated": {
+              "q": "Any other symptoms along with the fever?",
+              "headache": "Headache",
+              "bodyAches": "Body aches",
+              "chills": "Chills / Shivering",
+              "neckStiffness": "Stiff neck",
+              "rash": "Rash",
+              "fatigue": "Fatigue / Weakness"
+            },
+            "fvRfAlteredMental": { "q": "Is there any confusion, altered consciousness, or inability to wake up?" }
+          },
+          "shortnessOfBreath": {
+            "sobSeverity": {
+              "q": "How severe is your shortness of breath?",
+              "mild": "Mild — only with exertion",
+              "moderate": "Moderate — with normal activities",
+              "severe": "Severe — at rest",
+              "cantSpeak": "Cannot speak in full sentences"
+            },
+            "sobOnset": {
+              "q": "How did it start?",
+              "sudden": "Sudden (within minutes)",
+              "gradual": "Gradual (hours to days)",
+              "chronic": "Chronic (weeks to months)"
+            },
+            "sobTriggers": {
+              "q": "What triggers or worsens the breathing difficulty?",
+              "exertion": "Physical exertion",
+              "lyingFlat": "Lying flat",
+              "allergens": "Allergens / Environment",
+              "noTrigger": "No clear trigger"
+            },
+            "sobAssociated": {
+              "q": "Any associated symptoms?",
+              "chestPain": "Chest pain",
+              "wheezing": "Wheezing",
+              "cough": "Cough",
+              "blueLips": "Blue lips or fingertips",
+              "legSwelling": "Leg swelling"
+            }
+          },
+          "dizziness": {
+            "dzType": {
+              "q": "What kind of dizziness are you experiencing?",
+              "vertigo": "Vertigo — spinning sensation",
+              "lightheaded": "Lightheadedness — feeling faint",
+              "imbalance": "Imbalance — unsteady when walking"
+            },
+            "dzOnset": {
+              "q": "How did it start?",
+              "sudden": "Sudden",
+              "gradual": "Gradual"
+            },
+            "dzAssociated": {
+              "q": "Any associated symptoms?",
+              "nausea": "Nausea or vomiting",
+              "hearingLoss": "Hearing loss",
+              "tinnitus": "Ringing in ears (tinnitus)",
+              "headache": "Headache",
+              "doubleVision": "Double vision",
+              "weakness": "Weakness or numbness"
+            },
+            "dzRfFaint": { "q": "Did you faint or lose consciousness?" }
+          },
+          "nauseaVomitingDiarrhea": {
+            "nvdPrimary": {
+              "q": "Which of the following are you experiencing?",
+              "nausea": "Nausea",
+              "vomiting": "Vomiting",
+              "diarrhea": "Diarrhea"
+            },
+            "nvdSeverity": {
+              "q": "How severe is it?",
+              "mild": "Mild — manageable",
+              "moderate": "Moderate — affecting daily activities",
+              "severe": "Severe — unable to function"
+            },
+            "nvdDuration": {
+              "q": "How long have you had these symptoms?",
+              "lessThan6h": "Less than 6 hours",
+              "6to24h": "6–24 hours",
+              "moreThan24h": "More than 24 hours"
+            },
+            "nvdAssociated": {
+              "q": "Any of the following as well?",
+              "bloodInVomit": "Blood in vomit",
+              "bloodInStool": "Blood in stool",
+              "fever": "Fever",
+              "abdominalPain": "Abdominal pain"
+            },
+            "nvdRfFluids": { "q": "Are you unable to keep any fluids down?" }
+          },
+          "injuryTrauma": {
+            "itMechanism": {
+              "q": "How did the injury occur?",
+              "fall": "Fall",
+              "motorVehicle": "Motor vehicle accident",
+              "sports": "Sports / Recreation",
+              "blunt": "Hit by object",
+              "other": "Other"
+            },
+            "itBodyPart": {
+              "q": "Which body parts are affected?",
+              "head": "Head",
+              "neck": "Neck",
+              "chest": "Chest",
+              "abdomen": "Abdomen",
+              "back": "Back / Spine",
+              "upperLimb": "Arm / Hand",
+              "lowerLimb": "Leg / Foot"
+            },
+            "itSeverity": { "q": "Pain severity (0 = no pain, 10 = worst imaginable)" },
+            "itRfConsciousness": { "q": "Did you lose consciousness at any point?" }
+          },
+          "changeInConsciousness": {
+            "cocDuration": {
+              "q": "How long did / has the episode lasted?",
+              "lessThan1min": "Less than 1 minute",
+              "1to5min": "1–5 minutes",
+              "moreThan5min": "More than 5 minutes",
+              "stillOngoing": "Still ongoing"
+            },
+            "cocPreceding": {
+              "q": "What preceded the episode?",
+              "chestPain": "Chest pain",
+              "headache": "Severe headache",
+              "dizziness": "Dizziness",
+              "nothing": "No warning"
+            },
+            "cocRecovery": {
+              "q": "How is the recovery?",
+              "full": "Full recovery",
+              "partial": "Partial recovery",
+              "notRecovered": "Not yet recovered"
+            },
+            "cocRfRepeated": { "q": "Has this happened more than once?" }
+          },
+          "backPain": {
+            "bpLocation": {
+              "q": "Where is the back pain?",
+              "upperBack": "Upper back",
+              "lowerBack": "Lower back",
+              "radiatingToLegs": "Lower back radiating to legs"
+            },
+            "bpOnset": {
+              "q": "When did it start?",
+              "sudden": "Sudden (after injury/movement)",
+              "gradual": "Gradual (no clear cause)",
+              "chronic": "Chronic (more than 6 weeks)"
+            },
+            "bpSeverity": { "q": "Pain severity (0 = no pain, 10 = worst imaginable)" },
+            "bpAssociated": {
+              "q": "Any associated symptoms?",
+              "numbnessLegs": "Numbness / tingling in legs",
+              "bladderIssues": "Bladder or bowel problems",
+              "fever": "Fever",
+              "recentInjury": "Recent injury or fall"
+            }
+          },
+          "neckPain": {
+            "npOnset": {
+              "q": "How did the neck pain start?",
+              "sudden": "Sudden (after injury)",
+              "gradual": "Gradual",
+              "wakingUp": "Woke up with it"
+            },
+            "npCharacter": {
+              "q": "How does it feel?",
+              "stiff": "Stiff / Limited movement",
+              "sharp": "Sharp pain",
+              "aching": "Dull aching",
+              "burning": "Burning"
+            },
+            "npRadiation": {
+              "q": "Does the pain spread?",
+              "none": "No, stays in neck",
+              "toArm": "Yes, to arm / hand",
+              "toHead": "Yes, to head",
+              "both": "Both arms"
+            },
+            "npRfMeningism": { "q": "Do you have fever along with the stiff neck?" }
+          },
+          "eyeProblems": {
+            "epSymptoms": {
+              "q": "Which eye symptoms are you experiencing?",
+              "redness": "Redness",
+              "pain": "Eye pain",
+              "visionChange": "Vision change / blurring",
+              "discharge": "Discharge / watery eye",
+              "doubleVision": "Double vision"
+            },
+            "epLaterality": {
+              "q": "Which eye is affected?",
+              "left": "Left eye",
+              "right": "Right eye",
+              "both": "Both eyes"
+            },
+            "epOnset": {
+              "q": "How did it start?",
+              "sudden": "Sudden",
+              "gradual": "Gradual"
+            },
+            "epRfVisionLoss": { "q": "Is there sudden loss or significant decrease in vision?" },
+            "epRfTrauma": { "q": "Was there any recent eye trauma or chemical exposure?" }
+          }
+        }
       },
       "dashboard": {
         "title": "Doctor's Dashboard",
@@ -1237,7 +1603,373 @@ const resources = {
           "caseNotFoundHint": "המקרה שאתה מחפש אינו קיים או הוסר."
         },
         "step4": "סימנים חיוניים",
-        "defaultPatientName": "מטופל"
+        "defaultPatientName": "מטופל",
+        "pathway": {
+          "abdominalPain": {
+            "abPainLocation": { "q": "היכן ממוקם הכאב?" },
+            "abOnsetWhen": {
+              "q": "מתי התחיל הכאב?",
+              "today": "היום",
+              "1to3days": "לפני 1–3 ימים",
+              "3to7days": "לפני 3–7 ימים",
+              "overWeek": "לפני יותר משבוע"
+            },
+            "abOnsetType": {
+              "q": "איך התחיל הכאב?",
+              "sudden": "פתאומי (התפתח במהירות)",
+              "gradual": "הדרגתי (התפתח לאט)"
+            },
+            "abCharacter": {
+              "q": "איך היית מתאר את הכאב?",
+              "sharp": "חד / דוקר",
+              "crampy": "התכווצויות / קוליק",
+              "dull": "עמום / כואב",
+              "burning": "שורף",
+              "pressure": "לחץ / סחיטה"
+            },
+            "abSeverity": { "q": "עוצמת הכאב (0 = ללא כאב, 10 = הגרוע ביותר)" },
+            "abRadiation": {
+              "q": "האם הכאב מתפשט?",
+              "back": "גב",
+              "rightShoulder": "כתף ימין",
+              "leftShoulder": "כתף שמאל",
+              "groin": "מפשעה",
+              "chest": "חזה",
+              "none": "לא מתפשט"
+            },
+            "abAggravating": {
+              "q": "מה מחמיר את הכאב?",
+              "eating": "אכילה",
+              "movement": "תנועה",
+              "deepBreath": "נשימה עמוקה",
+              "lyingFlat": "שכיבה שטוחה",
+              "nothing": "שום דבר מסוים"
+            },
+            "abRelieving": {
+              "q": "מה מקל על הכאב?",
+              "eating": "אכילה",
+              "antacids": "תרופות נגד צרבת",
+              "passingGas": "יציאת גזים / צואה",
+              "lyingStill": "שכיבה ללא תנועה",
+              "nothing": "שום דבר לא עוזר"
+            },
+            "abAssociated": {
+              "q": "תסמינים נוספים שאתה חווה?",
+              "nausea": "בחילה",
+              "vomiting": "הקאות",
+              "diarrhea": "שלשול",
+              "constipation": "עצירות",
+              "fever": "חום",
+              "jaundice": "הצהבה של העור/עיניים (צהבת)",
+              "bloodStool": "דם בצואה",
+              "darkUrine": "שתן כהה",
+              "lossOfAppetite": "אובדן תיאבון",
+              "bloating": "נפיחות"
+            },
+            "abRfFever": { "q": "האם יש לך חום מעל 38.5°C?" },
+            "abRfBlood": { "q": "האם יש דם בהקאה או בצואה?" },
+            "abRfUnableToEat": { "q": "האם לא הצלחת לאכול או לשתות במשך יותר מ-24 שעות?" },
+            "abRfPregnancy": { "q": "האם את ידועה כהרה או ייתכן שאת בהריון?" }
+          },
+          "headache": {
+            "hdLocation": { "q": "היכן בראש ממוקם הכאב?" },
+            "hdOnsetWhen": {
+              "q": "מתי התחיל כאב הראש?",
+              "today": "היום",
+              "1to3days": "לפני 1–3 ימים",
+              "3to7days": "לפני 3–7 ימים",
+              "overWeek": "לפני יותר משבוע"
+            },
+            "hdOnsetType": {
+              "q": "איך זה התחיל?",
+              "thunderclap": "בום רעם — הגיע לשיא תוך שניות",
+              "gradual": "הדרגתי — התפתח במהלך דקות או שעות"
+            },
+            "hdCharacter": {
+              "q": "איך מרגיש כאב הראש?",
+              "throbbing": "הולם / פועם",
+              "pressure": "לחץ / סחיטה (כמו סרט)",
+              "sharp": "חד / דוקר",
+              "dull": "עמום / כאב מתמשך"
+            },
+            "hdSeverity": { "q": "עוצמת כאב הראש (0 = ללא כאב, 10 = הגרוע ביותר)" },
+            "hdPattern": {
+              "q": "מה דפוס כאב הראש שלך?",
+              "constant": "מתמשך",
+              "comesAndGoes": "בא והולך",
+              "worsening": "מחמיר בהדרגה"
+            },
+            "hdAggravating": {
+              "q": "מה מחמיר את כאב הראש?",
+              "light": "רגישות לאור (פוטופוביה)",
+              "noise": "רגישות לרעש (פונופוביה)",
+              "movement": "תנועה / פעילות גופנית",
+              "bending": "הטיה קדימה",
+              "nothing": "שום דבר מסוים"
+            },
+            "hdAssociated": {
+              "q": "תסמינים נוספים שאתה חווה?",
+              "nausea": "בחילה או הקאות",
+              "visualAura": "אאורה ויזואלית (זיגזגים, נקודה עיוורת)",
+              "neckStiffness": "נוקשות בצוואר",
+              "fever": "חום",
+              "dizziness": "סחרחורת",
+              "weakness": "חולשה או חוסר תחושה",
+              "slurredSpeech": "דיבור לא ברור",
+              "eyeRedness": "אדמומיות או כאב בעין"
+            },
+            "hdRfWorstEver": { "q": "האם זהו כאב הראש הגרוע ביותר בחייך?" },
+            "hdRfNewType": { "q": "האם זהו סוג חדש של כאב ראש שלא חווית בעבר?" },
+            "hdRfFeverNeck": { "q": "האם יש לך חום וגם נוקשות בצוואר יחד?" },
+            "hdRfConfusion": { "q": "האם אתה חווה בלבול או ירידה בערנות?" },
+            "hdRfWeakness": { "q": "האם יש חולשה חדשה, חוסר תחושה או קושי בדיבור?" }
+          },
+          "chestPain": {
+            "cpCharacter": {
+              "q": "איך היית מתאר את הכאב בחזה?",
+              "pressing": "לוחץ / כבד",
+              "burning": "שורף",
+              "sharp": "חד / דוקר",
+              "tight": "הדוק / סוחט"
+            },
+            "cpSeverity": { "q": "עוצמת הכאב (0 = ללא כאב, 10 = הגרוע ביותר)" },
+            "cpOnset": {
+              "q": "מתי התחיל הכאב בחזה?",
+              "sudden": "פתאומי",
+              "gradual": "הדרגתי",
+              "intermittent": "בא והולך"
+            },
+            "cpAssociated": {
+              "q": "האם יש לך תסמינים נלווים?",
+              "shortnessOfBreath": "קוצר נשימה",
+              "nausea": "בחילה או הקאות",
+              "sweating": "הזעה",
+              "leftArm": "כאב בזרוע / כתף שמאל",
+              "jaw": "כאב בלסת / צוואר",
+              "dizziness": "סחרחורת"
+            },
+            "cpRfRadiation": { "q": "האם הכאב מתפשט לזרוע, ללסת או לגב?" }
+          },
+          "fever": {
+            "fvTemperature": {
+              "q": "מהי הטמפרטורה המשוערת שלך?",
+              "lowGrade": "נמוך (37.1–38.0°C)",
+              "moderate": "בינוני (38.1–39.0°C)",
+              "high": "גבוה (39.1–40.0°C)",
+              "veryHigh": "גבוה מאוד (מעל 40°C)"
+            },
+            "fvDuration": {
+              "q": "כמה זמן יש לך חום?",
+              "lessThan24h": "פחות מ-24 שעות",
+              "1to3days": "1–3 ימים",
+              "moreThan3days": "יותר מ-3 ימים"
+            },
+            "fvAssociated": {
+              "q": "תסמינים נוספים יחד עם החום?",
+              "headache": "כאב ראש",
+              "bodyAches": "כאבי גוף",
+              "chills": "צמרמורות / רעידות",
+              "neckStiffness": "נוקשות צוואר",
+              "rash": "פריחה",
+              "fatigue": "עייפות / חולשה"
+            },
+            "fvRfAlteredMental": { "q": "האם יש בלבול, שינוי בהכרה או חוסר יכולת להתעורר?" }
+          },
+          "shortnessOfBreath": {
+            "sobSeverity": {
+              "q": "מה חומרת קוצר הנשימה שלך?",
+              "mild": "קל — רק במאמץ",
+              "moderate": "בינוני — בפעילויות רגילות",
+              "severe": "חמור — במנוחה",
+              "cantSpeak": "לא יכול לדבר במשפטים שלמים"
+            },
+            "sobOnset": {
+              "q": "איך זה התחיל?",
+              "sudden": "פתאומי (תוך דקות)",
+              "gradual": "הדרגתי (שעות עד ימים)",
+              "chronic": "כרוני (שבועות עד חודשים)"
+            },
+            "sobTriggers": {
+              "q": "מה מעורר או מחמיר את קושי הנשימה?",
+              "exertion": "מאמץ גופני",
+              "lyingFlat": "שכיבה שטוחה",
+              "allergens": "אלרגנים / סביבה",
+              "noTrigger": "אין גורם ברור"
+            },
+            "sobAssociated": {
+              "q": "תסמינים נלווים?",
+              "chestPain": "כאב בחזה",
+              "wheezing": "צפצופים",
+              "cough": "שיעול",
+              "blueLips": "שפתיים או קצות אצבעות כחולות",
+              "legSwelling": "נפיחות ברגליים"
+            }
+          },
+          "dizziness": {
+            "dzType": {
+              "q": "איזה סוג סחרחורת אתה חווה?",
+              "vertigo": "ורטיגו — תחושת סחרור",
+              "lightheaded": "סחרחורת — תחושת חולשה",
+              "imbalance": "חוסר איזון — חוסר יציבות בהליכה"
+            },
+            "dzOnset": {
+              "q": "איך זה התחיל?",
+              "sudden": "פתאומי",
+              "gradual": "הדרגתי"
+            },
+            "dzAssociated": {
+              "q": "תסמינים נלווים?",
+              "nausea": "בחילה או הקאות",
+              "hearingLoss": "אובדן שמיעה",
+              "tinnitus": "צלצולים באוזניים (טיניטוס)",
+              "headache": "כאב ראש",
+              "doubleVision": "ראייה כפולה",
+              "weakness": "חולשה או חוסר תחושה"
+            },
+            "dzRfFaint": { "q": "האם התעלפת או איבדת הכרה?" }
+          },
+          "nauseaVomitingDiarrhea": {
+            "nvdPrimary": {
+              "q": "מה מהבאים אתה חווה?",
+              "nausea": "בחילה",
+              "vomiting": "הקאות",
+              "diarrhea": "שלשול"
+            },
+            "nvdSeverity": {
+              "q": "מה חומרת זה?",
+              "mild": "קל — ניתן להתמודד",
+              "moderate": "בינוני — משפיע על פעילויות יומיומיות",
+              "severe": "חמור — לא מסוגל לתפקד"
+            },
+            "nvdDuration": {
+              "q": "כמה זמן יש לך את התסמינים?",
+              "lessThan6h": "פחות מ-6 שעות",
+              "6to24h": "6–24 שעות",
+              "moreThan24h": "יותר מ-24 שעות"
+            },
+            "nvdAssociated": {
+              "q": "גם מהבאים?",
+              "bloodInVomit": "דם בהקאה",
+              "bloodInStool": "דם בצואה",
+              "fever": "חום",
+              "abdominalPain": "כאב בטן"
+            },
+            "nvdRfFluids": { "q": "האם אינך יכול להחזיק נוזלים בקיבה?" }
+          },
+          "injuryTrauma": {
+            "itMechanism": {
+              "q": "איך אירעה הפציעה?",
+              "fall": "נפילה",
+              "motorVehicle": "תאונת רכב",
+              "sports": "ספורט / פנאי",
+              "blunt": "מכה מחפץ",
+              "other": "אחר"
+            },
+            "itBodyPart": {
+              "q": "אילו חלקי גוף נפגעו?",
+              "head": "ראש",
+              "neck": "צוואר",
+              "chest": "חזה",
+              "abdomen": "בטן",
+              "back": "גב / עמוד שדרה",
+              "upperLimb": "זרוע / יד",
+              "lowerLimb": "רגל / כף רגל"
+            },
+            "itSeverity": { "q": "עוצמת הכאב (0 = ללא כאב, 10 = הגרוע ביותר)" },
+            "itRfConsciousness": { "q": "האם איבדת הכרה בשלב כלשהו?" }
+          },
+          "changeInConsciousness": {
+            "cocDuration": {
+              "q": "כמה זמן ארע / נמשך האירוע?",
+              "lessThan1min": "פחות מדקה אחת",
+              "1to5min": "1–5 דקות",
+              "moreThan5min": "יותר מ-5 דקות",
+              "stillOngoing": "עדיין נמשך"
+            },
+            "cocPreceding": {
+              "q": "מה קדם לאירוע?",
+              "chestPain": "כאב בחזה",
+              "headache": "כאב ראש חמור",
+              "dizziness": "סחרחורת",
+              "nothing": "ללא אזהרה"
+            },
+            "cocRecovery": {
+              "q": "איך ההחלמה?",
+              "full": "החלמה מלאה",
+              "partial": "החלמה חלקית",
+              "notRecovered": "עדיין לא החלים"
+            },
+            "cocRfRepeated": { "q": "האם זה קרה יותר מפעם אחת?" }
+          },
+          "backPain": {
+            "bpLocation": {
+              "q": "היכן ממוקם כאב הגב?",
+              "upperBack": "גב עליון",
+              "lowerBack": "גב תחתון",
+              "radiatingToLegs": "גב תחתון מתפשט לרגליים"
+            },
+            "bpOnset": {
+              "q": "מתי זה התחיל?",
+              "sudden": "פתאומי (לאחר פציעה/תנועה)",
+              "gradual": "הדרגתי (ללא סיבה ברורה)",
+              "chronic": "כרוני (יותר מ-6 שבועות)"
+            },
+            "bpSeverity": { "q": "עוצמת הכאב (0 = ללא כאב, 10 = הגרוע ביותר)" },
+            "bpAssociated": {
+              "q": "תסמינים נלווים?",
+              "numbnessLegs": "חוסר תחושה / עקצוצים ברגליים",
+              "bladderIssues": "בעיות בשלפוחית או במעיים",
+              "fever": "חום",
+              "recentInjury": "פציעה או נפילה לאחרונה"
+            }
+          },
+          "neckPain": {
+            "npOnset": {
+              "q": "איך התחיל הכאב בצוואר?",
+              "sudden": "פתאומי (לאחר פציעה)",
+              "gradual": "הדרגתי",
+              "wakingUp": "התעוררתי עם זה"
+            },
+            "npCharacter": {
+              "q": "איך זה מרגיש?",
+              "stiff": "נוקשה / תנועה מוגבלת",
+              "sharp": "כאב חד",
+              "aching": "כאב עמום",
+              "burning": "שורף"
+            },
+            "npRadiation": {
+              "q": "האם הכאב מתפשט?",
+              "none": "לא, נשאר בצוואר",
+              "toArm": "כן, לזרוע / יד",
+              "toHead": "כן, לראש",
+              "both": "שתי הזרועות"
+            },
+            "npRfMeningism": { "q": "האם יש לך חום יחד עם נוקשות הצוואר?" }
+          },
+          "eyeProblems": {
+            "epSymptoms": {
+              "q": "אילו תסמיני עין אתה חווה?",
+              "redness": "אדמומיות",
+              "pain": "כאב בעין",
+              "visionChange": "שינוי בראייה / טשטוש",
+              "discharge": "הפרשה / עין דומעת",
+              "doubleVision": "ראייה כפולה"
+            },
+            "epLaterality": {
+              "q": "איזו עין נפגעה?",
+              "left": "עין שמאל",
+              "right": "עין ימין",
+              "both": "שתי העיניים"
+            },
+            "epOnset": {
+              "q": "איך זה התחיל?",
+              "sudden": "פתאומי",
+              "gradual": "הדרגתי"
+            },
+            "epRfVisionLoss": { "q": "האם יש אובדן פתאומי או ירידה משמעותית בראייה?" },
+            "epRfTrauma": { "q": "האם הייתה פגיעה לעין או חשיפה כימית לאחרונה?" }
+          }
+        }
       },
       "dashboard": {
         "title": "לוח בקרה לרופא",

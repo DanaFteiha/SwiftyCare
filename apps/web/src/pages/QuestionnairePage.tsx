@@ -1205,7 +1205,7 @@ function QuestionnairePage() {
           <div key={question.id} className="space-y-2">
             <label className={labelClass}>
               {isRedFlagTriggered && <AlertTriangle className="inline w-3.5 h-3.5 me-1 text-red-500" />}
-              {t(`questionnaire.pathway.${pathwayId}.${question.id}`, question.label)}
+              {t(`questionnaire.pathway.${pathwayId}.${question.id}.q`, question.label)}
               {question.required && <span className="text-red-400 ms-1">*</span>}
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -1240,7 +1240,7 @@ function QuestionnairePage() {
         return (
           <div key={question.id} className="space-y-2">
             <label className={labelClass}>
-              {t(`questionnaire.pathway.${pathwayId}.${question.id}`, question.label)}
+              {t(`questionnaire.pathway.${pathwayId}.${question.id}.q`, question.label)}
               {question.maxSelections && (
                 <span className="ms-2 text-xs font-normal text-gray-400">
                   ({selectedArr.length}/{question.maxSelections})
@@ -1297,7 +1297,7 @@ function QuestionnairePage() {
         return (
           <div key={question.id} className="space-y-3">
             <label className={labelClass}>
-              {t(`questionnaire.pathway.${pathwayId}.${question.id}`, question.label)}
+              {t(`questionnaire.pathway.${pathwayId}.${question.id}.q`, question.label)}
               {question.required && <span className="text-red-400 ms-1">*</span>}
             </label>
             <div className="flex items-center gap-4">
@@ -1342,7 +1342,7 @@ function QuestionnairePage() {
           <div key={question.id} className="space-y-2">
             <label className={`block text-sm font-semibold ${question.isRedFlag ? 'text-gray-700' : 'text-gray-700'} mb-2`}>
               {question.isRedFlag && <AlertTriangle className="inline w-3.5 h-3.5 me-1 text-amber-500" />}
-              {t(`questionnaire.pathway.${pathwayId}.${question.id}`, question.label)}
+              {t(`questionnaire.pathway.${pathwayId}.${question.id}.q`, question.label)}
             </label>
             <div className="grid grid-cols-2 gap-3">
               {([true, false] as const).map(boolVal => {
@@ -1386,7 +1386,7 @@ function QuestionnairePage() {
           return (
             <div key={question.id} className="space-y-2">
               <label className={labelClass}>
-                {t(`questionnaire.pathway.${pathwayId}.${question.id}`, question.label)}
+                {t(`questionnaire.pathway.${pathwayId}.${question.id}.q`, question.label)}
                 {question.required && <span className="text-red-400 ms-1">*</span>}
               </label>
               <AbdomenLocationPicker
@@ -1400,7 +1400,7 @@ function QuestionnairePage() {
           return (
             <div key={question.id} className="space-y-2">
               <label className={labelClass}>
-                {t(`questionnaire.pathway.${pathwayId}.${question.id}`, question.label)}
+                {t(`questionnaire.pathway.${pathwayId}.${question.id}.q`, question.label)}
                 {question.required && <span className="text-red-400 ms-1">*</span>}
               </label>
               <HeadacheLocationPicker
@@ -1417,7 +1417,7 @@ function QuestionnairePage() {
         return (
           <div key={question.id} className="space-y-2">
             <label className={labelClass}>
-              {t(`questionnaire.pathway.${pathwayId}.${question.id}`, question.label)}
+              {t(`questionnaire.pathway.${pathwayId}.${question.id}.q`, question.label)}
             </label>
             <textarea
               value={(val as string) || ''}
