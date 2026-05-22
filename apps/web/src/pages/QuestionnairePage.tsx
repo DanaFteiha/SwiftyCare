@@ -384,7 +384,9 @@ function QuestionnairePage() {
     const pathway = activePathways[step2PathwayIndex];
     if (!pathway) return true;
     const responses = pathwayResponses[pathway.id] || {};
-    const visible = pathway.questions.filter(q => isQuestionVisible(q, responses));
+    const visible = pathway.questions.filter(q =>
+      isQuestionVisible(q, responses, formData.personalInfo)
+    );
     const missing: string[] = [];
     for (const q of visible) {
       if (!q.required) continue;
@@ -508,7 +510,7 @@ function QuestionnairePage() {
   const buildAdaptiveQuestionsData = (): AdaptiveQuestionsData => {
     const completedPathways: SymptomResponseEntry[] = activePathways.map(pathway => {
       const responses = pathwayResponses[pathway.id] || {};
-      const redFlagsTriggered = getRedFlagsForPathway(pathway, responses);
+      const redFlagsTriggered = getRedFlagsForPathway(pathway, responses, formData.personalInfo);
       const severityQ = pathway.questions.find(q => q.type === 'slider');
       const locationQ = pathway.questions.find(q => q.type === 'locationPicker');
       return {
@@ -1455,8 +1457,10 @@ function QuestionnairePage() {
     if (!currentPathway) return null;
 
     const responses = pathwayResponses[currentPathway.id] || {};
-    const redFlagsForPathway = getRedFlagsForPathway(currentPathway, responses);
-    const visibleQuestions = currentPathway.questions.filter(q => isQuestionVisible(q, responses));
+    const redFlagsForPathway = getRedFlagsForPathway(currentPathway, responses, formData.personalInfo);
+    const visibleQuestions = currentPathway.questions.filter(q =>
+      isQuestionVisible(q, responses, formData.personalInfo)
+    );
 
 
     return (
@@ -1716,7 +1720,7 @@ function QuestionnairePage() {
                 <span className="text-sm text-gray-400">
                   {activePathways.length > 1
                     ? `${step2PathwayIndex + 1} / ${activePathways.length}`
-                    : 'Step 2 of 2'
+                    : t('questionnaire.step2.stepIndicator', 'Step 2 of 2')
                   }
                 </span>
               </div>

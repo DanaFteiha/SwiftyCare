@@ -152,6 +152,17 @@ function VitalsEntryPage() {
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => navigate(fromNurse ? '/nurse' : '/doctor')}
+                aria-label={String(t('common.backToDashboard', 'Back to Dashboard'))}
+                className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors focus:outline-none focus:ring-2 ${
+                  fromNurse ? 'focus:ring-emerald-500' : 'focus:ring-blue-500'
+                }`}
+              >
+                <ArrowLeft className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
+                <span className="hidden sm:inline">{t('common.backToDashboard', 'Back to Dashboard')}</span>
+              </button>
               <Shield className={`w-8 h-8 ${fromNurse ? 'text-emerald-600' : 'text-blue-600'}`} />
               <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
                 {t('vitals.title', 'Vital Signs Entry')}
@@ -160,7 +171,7 @@ function VitalsEntryPage() {
             <button
               type="button"
               onClick={toggleLanguage}
-              aria-label={isRTL ? 'Switch to English' : 'החלף לעברית'}
+              aria-label={String(isRTL ? t('language.switchToEnglish') : t('language.switchToHebrew'))}
               className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <Globe className="w-4 h-4" />

@@ -64,7 +64,9 @@ const resources = {
         "copyright": "© Swifty Medical 2025. All rights reserved."
       },
       "language": {
-        "toggle": "עִבְרִית"
+        "toggle": "עִבְרִית",
+        "switchToHebrew": "Switch to Hebrew",
+        "switchToEnglish": "Switch to English"
       },
       "questionnaire": {
         "title": "Medical Questionnaire",
@@ -249,7 +251,7 @@ const resources = {
           "highFeverQuestions": {
             "label": "High Fever Symptoms",
             "alteredMentalStatus": "Altered Mental Status",
-            "neckStiffness": "Neck Stiffness",
+            "neckStiffness": "Neck / Occipital Pain",
             "rash": "Rash"
           },
           "chronicFeverQuestions": {
@@ -329,6 +331,7 @@ const resources = {
         "step2": {
           "symptoms": "Current Symptoms",
           "optional": "optional",
+          "stepIndicator": "Step 2 of 2",
           "pathwayOf": "Symptom {{current}} of {{total}}",
           "yes": "Yes",
           "no": "No",
@@ -406,7 +409,7 @@ const resources = {
             "associated": "Any other symptoms you are experiencing?",
             "assocNausea": "Nausea or vomiting",
             "assocVisualAura": "Visual aura (zig-zags, blind spot)",
-            "assocNeckStiffness": "Neck stiffness",
+            "assocNeckStiffness": "Neck / occipital pain",
             "assocFever": "Fever",
             "assocDizziness": "Dizziness",
             "assocWeakness": "Weakness or numbness",
@@ -414,7 +417,7 @@ const resources = {
             "assocEyeRedness": "Eye redness or pain",
             "rfWorstEver": "Is this the worst headache of your life?",
             "rfNewType": "Is this a new type of headache you have never had before?",
-            "rfFeverNeck": "Do you have fever AND stiff neck together?",
+            "rfFeverNeck": "Do you have fever AND neck pain together?",
             "rfConfusion": "Are you experiencing confusion or decreased alertness?",
             "rfWeakness": "Any new weakness, numbness, or difficulty speaking?"
           },
@@ -466,14 +469,14 @@ const resources = {
               "pressure": "Pressure / Squeezing"
             },
             "abSeverity": { "q": "Pain severity (0 = no pain, 10 = worst imaginable)" },
-            "abRadiation": {
-              "q": "Does the pain spread anywhere?",
+            "abRadiation": { "q": "Does the pain radiate?" },
+            "abRadiationWhere": {
+              "q": "Where does the pain radiate to?",
               "back": "Back",
               "rightShoulder": "Right shoulder",
               "leftShoulder": "Left shoulder",
               "groin": "Groin",
-              "chest": "Chest",
-              "none": "Does not spread"
+              "chest": "Chest"
             },
             "abAggravating": {
               "q": "What makes the pain worse?",
@@ -549,7 +552,7 @@ const resources = {
               "q": "Any other symptoms you are experiencing?",
               "nausea": "Nausea or vomiting",
               "visualAura": "Visual aura (zig-zags, blind spot)",
-              "neckStiffness": "Neck stiffness",
+              "neckStiffness": "Neck / occipital pain",
               "fever": "Fever",
               "dizziness": "Dizziness",
               "weakness": "Weakness or numbness",
@@ -558,7 +561,7 @@ const resources = {
             },
             "hdRfWorstEver": { "q": "Is this the worst headache of your life?" },
             "hdRfNewType": { "q": "Is this a new type of headache you have never had before?" },
-            "hdRfFeverNeck": { "q": "Do you have fever AND stiff neck together?" },
+            "hdRfFeverNeck": { "q": "Do you have fever AND neck pain together?" },
             "hdRfConfusion": { "q": "Are you experiencing confusion or decreased alertness?" },
             "hdRfWeakness": { "q": "Any new weakness, numbness, or difficulty speaking?" }
           },
@@ -604,10 +607,24 @@ const resources = {
             },
             "fvAssociated": {
               "q": "Any other symptoms along with the fever?",
+              "dysuria": "Burning with urination",
+              "cough": "Cough",
+              "abdominalPain": "Abdominal pain",
+              "flankPain": "Flank pain",
+              "earPain": "Ear pain",
+              "soreThroat": "Sore throat",
+              "legRednessSwellingPain": "Leg redness, swelling, or pain",
+              "diarrhea": "Diarrhea",
+              "vomiting": "Vomiting",
+              "rhinorrhea": "Runny nose",
+              "chestPain": "Chest pain",
+              "shortnessOfBreath": "Shortness of breath",
+              "syncope": "Fainting / syncope",
+              "jaundice": "Jaundice (yellowing of skin or eyes)",
               "headache": "Headache",
               "bodyAches": "Body aches",
               "chills": "Chills / Shivering",
-              "neckStiffness": "Stiff neck",
+              "neckStiffness": "Neck pain",
               "rash": "Rash",
               "fatigue": "Fatigue / Weakness"
             },
@@ -782,7 +799,7 @@ const resources = {
               "toHead": "Yes, to head",
               "both": "Both arms"
             },
-            "npRfMeningism": { "q": "Do you have fever along with the stiff neck?" }
+            "npRfMeningism": { "q": "Do you have fever along with the neck pain?" }
           },
           "eyeProblems": {
             "epSymptoms": {
@@ -1010,6 +1027,7 @@ const resources = {
         "delete": "Delete",
         "confirm": "Confirm",
         "back": "Back",
+        "backAriaLabel": "Back",
         "next": "Next",
         "previous": "Previous",
         "finish": "Finish",
@@ -1018,6 +1036,7 @@ const resources = {
         "step": "Step",
         "of": "of",
         "evidence": "Evidence",
+        "supportingEvidence": "Supporting Evidence",
         "urgency": "Urgency",
         "high": "high",
         "medium": "medium",
@@ -1226,7 +1245,9 @@ const resources = {
         "copyright": "© Swifty Medical 2025. כל הזכויות שמורות."
       },
       "language": {
-        "toggle": "EN"
+        "toggle": "EN",
+        "switchToHebrew": "החלף לעברית",
+        "switchToEnglish": "החלף לאנגלית"
       },
       "questionnaire": {
         "title": "שאלון רפואי",
@@ -1297,7 +1318,7 @@ const resources = {
           "headache": "כאב ראש",
           "abdominalPain": "כאבי בטן",
           "backPain": "כאבי גב",
-          "flankPain": "כאב גב תחתון / מותן",
+          "flankPain": "כאב מותן",
           "neckPain": "כאב צוואר",
           "jointPain": "כאב במפרקים",
           "painInLimbs": "כאב בגפיים",
@@ -1418,7 +1439,7 @@ const resources = {
           "highFeverQuestions": {
             "label": "תסמיני חום גבוה",
             "alteredMentalStatus": "שינוי במצב הנפשי",
-            "neckStiffness": "נוקשות צוואר",
+            "neckStiffness": "כאב בעורף",
             "rash": "פריחה"
           },
           "chronicFeverQuestions": {
@@ -1491,6 +1512,7 @@ const resources = {
         "step2": {
           "symptoms": "תסמינים נוכחיים",
           "optional": "אופציונלי",
+          "stepIndicator": "שלב 2 מתוך 2",
           "pathwayOf": "תסמין {{current}} מתוך {{total}}",
           "yes": "כן",
           "no": "לא",
@@ -1568,7 +1590,7 @@ const resources = {
             "associated": "האם יש תסמינים נוספים?",
             "assocNausea": "בחילה או הקאות",
             "assocVisualAura": "הילה ויזואלית (זיג-זג, נקודה עיוורת)",
-            "assocNeckStiffness": "נוקשות בצוואר",
+            "assocNeckStiffness": "כאב בעורף",
             "assocFever": "חום",
             "assocDizziness": "סחרחורת",
             "assocWeakness": "חולשה או חוסר תחושה",
@@ -1576,7 +1598,7 @@ const resources = {
             "assocEyeRedness": "אדמומיות או כאב בעין",
             "rfWorstEver": "האם זהו כאב הראש הגרוע ביותר בחייך?",
             "rfNewType": "האם זהו סוג כאב ראש חדש שמעולם לא חווית?",
-            "rfFeverNeck": "האם יש לך גם חום וגם נוקשות צוואר?",
+            "rfFeverNeck": "האם יש לך גם חום וגם כאב בעורף?",
             "rfConfusion": "האם אתה חווה בלבול או ירידה בהכרה?",
             "rfWeakness": "האם יש חולשה חדשה, חוסר תחושה, או קושי בדיבור?"
           },
@@ -1628,14 +1650,14 @@ const resources = {
               "pressure": "לחץ / סחיטה"
             },
             "abSeverity": { "q": "עוצמת הכאב (0 = ללא כאב, 10 = הגרוע ביותר)" },
-            "abRadiation": {
-              "q": "האם הכאב מתפשט?",
+            "abRadiation": { "q": "האם הכאב מקרין?" },
+            "abRadiationWhere": {
+              "q": "לאן הכאב מקרין?",
               "back": "גב",
               "rightShoulder": "כתף ימין",
               "leftShoulder": "כתף שמאל",
               "groin": "מפשעה",
-              "chest": "חזה",
-              "none": "לא מתפשט"
+              "chest": "חזה"
             },
             "abAggravating": {
               "q": "מה מחמיר את הכאב?",
@@ -1711,7 +1733,7 @@ const resources = {
               "q": "תסמינים נוספים שאתה חווה?",
               "nausea": "בחילה או הקאות",
               "visualAura": "אאורה ויזואלית (זיגזגים, נקודה עיוורת)",
-              "neckStiffness": "נוקשות בצוואר",
+              "neckStiffness": "כאב בעורף",
               "fever": "חום",
               "dizziness": "סחרחורת",
               "weakness": "חולשה או חוסר תחושה",
@@ -1720,7 +1742,7 @@ const resources = {
             },
             "hdRfWorstEver": { "q": "האם זהו כאב הראש הגרוע ביותר בחייך?" },
             "hdRfNewType": { "q": "האם זהו סוג חדש של כאב ראש שלא חווית בעבר?" },
-            "hdRfFeverNeck": { "q": "האם יש לך חום וגם נוקשות בצוואר יחד?" },
+            "hdRfFeverNeck": { "q": "האם יש לך חום וגם כאב בעורף יחד?" },
             "hdRfConfusion": { "q": "האם אתה חווה בלבול או ירידה בערנות?" },
             "hdRfWeakness": { "q": "האם יש חולשה חדשה, חוסר תחושה או קושי בדיבור?" }
           },
@@ -1766,10 +1788,24 @@ const resources = {
             },
             "fvAssociated": {
               "q": "תסמינים נוספים יחד עם החום?",
+              "dysuria": "צריבה במתן שתן",
+              "cough": "שיעול",
+              "abdominalPain": "כאבי בטן",
+              "flankPain": "כאב מותן",
+              "earPain": "כאב אוזן",
+              "soreThroat": "כאב גרון",
+              "legRednessSwellingPain": "אודם / נפיחות / כאבים ברגל",
+              "diarrhea": "שלשולים",
+              "vomiting": "הקאות",
+              "rhinorrhea": "נזלת",
+              "chestPain": "כאבים בחזה",
+              "shortnessOfBreath": "קושי בנשימה",
+              "syncope": "עלפון",
+              "jaundice": "צהבת",
               "headache": "כאב ראש",
               "bodyAches": "כאבי גוף",
               "chills": "צמרמורות / רעידות",
-              "neckStiffness": "נוקשות צוואר",
+              "neckStiffness": "כאב בעורף",
               "rash": "פריחה",
               "fatigue": "עייפות / חולשה"
             },
@@ -1944,7 +1980,7 @@ const resources = {
               "toHead": "כן, לראש",
               "both": "שתי הזרועות"
             },
-            "npRfMeningism": { "q": "האם יש לך חום יחד עם נוקשות הצוואר?" }
+            "npRfMeningism": { "q": "האם יש לך חום יחד עם כאב בעורף?" }
           },
           "eyeProblems": {
             "epSymptoms": {
@@ -2036,6 +2072,7 @@ const resources = {
         "delete": "מחק",
         "confirm": "אישור",
         "back": "חזור",
+        "backAriaLabel": "חזור",
         "next": "הבא",
         "previous": "הקודם",
         "finish": "סיום",
@@ -2044,6 +2081,7 @@ const resources = {
         "step": "שלב",
         "of": "מתוך",
         "evidence": "ראיות",
+        "supportingEvidence": "ראיות תומכות",
         "urgency": "דחיפות",
         "high": "גבוהה",
         "medium": "בינונית",
@@ -2336,11 +2374,16 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
-    fallbackLng: 'en',
+    // Hebrew is the primary language. We only fall back to English when a
+    // specific key is missing from the Hebrew bundle.
+    fallbackLng: 'he',
+    // Skip navigator/browser sniffing — most clients speak Hebrew and we want
+    // a deterministic default. Users can still switch via the language toggle,
+    // which persists to localStorage.
     debug: false,
 
     detection: {
-      order: ['localStorage', 'navigator', 'htmlTag'],
+      order: ['localStorage', 'htmlTag'],
       caches: ['localStorage'],
     },
 

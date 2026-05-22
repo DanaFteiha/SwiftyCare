@@ -10,19 +10,19 @@ interface RegionDef {
 
 const REGIONS: RegionDef[][] = [
   [
-    { id: 'RUQ',          labelEn: 'Right Upper Quadrant',  labelHe: 'רביע ימין עליון',     abbrev: 'RUQ' },
-    { id: 'epigastric',   labelEn: 'Epigastric',            labelHe: 'אפיגסטרי (מרכז עליון)', abbrev: 'Epig.' },
-    { id: 'LUQ',          labelEn: 'Left Upper Quadrant',   labelHe: 'רביע שמאל עליון',    abbrev: 'LUQ' },
+    { id: 'RUQ',          labelEn: 'Right Upper Quadrant',  labelHe: 'בטן ימנית עליונה',                  abbrev: 'RUQ' },
+    { id: 'epigastric',   labelEn: 'Epigastric',            labelHe: 'בטן אמצעית עליונה',                 abbrev: 'Epig.' },
+    { id: 'LUQ',          labelEn: 'Left Upper Quadrant',   labelHe: 'בטן שמאלית עליונה',                 abbrev: 'LUQ' },
   ],
   [
-    { id: 'rightFlank',   labelEn: 'Right Flank',           labelHe: 'צד ימין',             abbrev: 'R.Flank' },
-    { id: 'periumbilical',labelEn: 'Periumbilical',          labelHe: 'סביב הטבור',          abbrev: 'Periumb.' },
-    { id: 'leftFlank',    labelEn: 'Left Flank',            labelHe: 'צד שמאל',             abbrev: 'L.Flank' },
+    { id: 'rightFlank',   labelEn: 'Right Flank',           labelHe: 'מותן ימין / בטן ימנית אמצעית',      abbrev: 'R.Flank' },
+    { id: 'periumbilical',labelEn: 'Periumbilical',          labelHe: 'סביב הטבור',                        abbrev: 'Periumb.' },
+    { id: 'leftFlank',    labelEn: 'Left Flank',            labelHe: 'מותן שמאל / בטן שמאלית אמצעית',     abbrev: 'L.Flank' },
   ],
   [
-    { id: 'RLQ',          labelEn: 'Right Lower Quadrant',  labelHe: 'רביע ימין תחתון',     abbrev: 'RLQ' },
-    { id: 'suprapubic',   labelEn: 'Suprapubic',            labelHe: 'סופרה-פוביק (מרכז תחתון)', abbrev: 'Suprapub.' },
-    { id: 'LLQ',          labelEn: 'Left Lower Quadrant',   labelHe: 'רביע שמאל תחתון',    abbrev: 'LLQ' },
+    { id: 'RLQ',          labelEn: 'Right Lower Quadrant',  labelHe: 'בטן ימנית תחתונה',                  abbrev: 'RLQ' },
+    { id: 'suprapubic',   labelEn: 'Suprapubic',            labelHe: 'בטן אמצעית תחתונה',                 abbrev: 'Suprapub.' },
+    { id: 'LLQ',          labelEn: 'Left Lower Quadrant',   labelHe: 'בטן שמאלית תחתונה',                 abbrev: 'LLQ' },
   ],
 ];
 

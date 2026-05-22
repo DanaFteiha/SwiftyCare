@@ -1,5 +1,7 @@
+import { useEffect } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import ScanPage from './pages/ScanPage'
 import QuestionnairePage from './pages/QuestionnairePage'
 import VitalsEntryPage from './pages/VitalsEntryPage'
@@ -14,7 +16,21 @@ import NurseRoute from './components/NurseRoute'
 
 const queryClient = new QueryClient()
 
+// Keep the <html> element's lang/dir attributes in sync with the active i18n
+// language so screen readers, autofill, and CSS logical properties all behave
+// correctly regardless of which language the user is currently viewing.
+function useDocumentDirection() {
+  const { i18n } = useTranslation()
+  useEffect(() => {
+    const lang = i18n.language?.startsWith('he') ? 'he' : 'en'
+    const dir = lang === 'he' ? 'rtl' : 'ltr'
+    document.documentElement.setAttribute('lang', lang)
+    document.documentElement.setAttribute('dir', dir)
+  }, [i18n.language])
+}
+
 function App() {
+  useDocumentDirection()
   return (
     <QueryClientProvider client={queryClient}>
       <Router>

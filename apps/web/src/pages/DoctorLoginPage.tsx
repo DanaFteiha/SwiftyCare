@@ -43,7 +43,7 @@ function DoctorLoginPage() {
         <button
           type="button"
           onClick={toggleLanguage}
-          aria-label={i18n.language === 'he' ? 'Switch to English' : 'החלף לעברית'}
+          aria-label={String(i18n.language === 'he' ? t('language.switchToEnglish') : t('language.switchToHebrew'))}
           className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:text-gray-800 bg-white/90 hover:bg-white rounded-lg shadow-sm border border-gray-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <Globe className="h-4 w-4" />

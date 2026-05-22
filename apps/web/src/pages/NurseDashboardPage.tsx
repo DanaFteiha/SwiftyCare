@@ -125,7 +125,7 @@ function NurseDashboardPage() {
               <button
                 type="button"
                 onClick={toggleLanguage}
-                aria-label={isRTL ? 'Switch to English' : 'החלף לעברית'}
+                aria-label={String(isRTL ? t('language.switchToEnglish') : t('language.switchToHebrew'))}
                 className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500"
               >
                 <Globe className="w-4 h-4" />

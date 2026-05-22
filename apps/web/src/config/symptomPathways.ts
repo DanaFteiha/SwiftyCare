@@ -29,6 +29,16 @@ export interface PathwayOption {
   label: string;
 }
 
+export interface PersonalCondition {
+  // Restrict the question to a specific gender (e.g. pregnancy red flags).
+  gender?: 'male' | 'female';
+  // Inclusive lower bound on the patient's age (years).
+  minAge?: number;
+  // Exclusive upper bound on the patient's age (years).
+  // `maxAge: 50` therefore means "age < 50".
+  maxAge?: number;
+}
+
 export interface PathwayQuestion {
   id: string;
   type: QuestionType;
@@ -39,9 +49,17 @@ export interface PathwayQuestion {
   maxSelections?: number;
   locationPickerType?: 'abdomen' | 'head';
   condition?: { questionId: string; value: any } | null;
+  // Hide the question unless the patient's Step-1 personal info matches.
+  // Used for gender/age-specific red-flags (e.g. pregnancy in females < 50).
+  personalCondition?: PersonalCondition;
   isRedFlag?: boolean;
   redFlagValues?: any[];
   required?: boolean;
+}
+
+export interface PersonalInfoContext {
+  gender?: string;
+  age?: string;
 }
 
 export interface SymptomPathway {
@@ -66,10 +84,36 @@ export interface AdaptiveQuestionsData {
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
+// Evaluate the optional `personalCondition` against the patient's Step-1
+// answers. Returns true when the question should remain visible.
+function matchesPersonalCondition(
+  condition: PersonalCondition | undefined,
+  personalInfo: PersonalInfoContext | undefined
+): boolean {
+  if (!condition) return true;
+  if (condition.gender && personalInfo?.gender !== condition.gender) {
+    return false;
+  }
+  if (condition.minAge != null || condition.maxAge != null) {
+    const rawAge = personalInfo?.age;
+    const ageNum = rawAge !== undefined && rawAge !== '' ? Number(rawAge) : NaN;
+    if (!Number.isFinite(ageNum)) return false;
+    if (condition.minAge != null && ageNum < condition.minAge) return false;
+    if (condition.maxAge != null && ageNum >= condition.maxAge) return false;
+  }
+  return true;
+}
+
 export function isQuestionVisible(
   question: PathwayQuestion,
-  responses: Record<string, any>
+  responses: Record<string, any>,
+  personalInfo?: PersonalInfoContext
 ): boolean {
+  // First filter on patient demographics (Step 1) — keeps gender/age specific
+  // questions like "could you be pregnant?" out of the form when they don't apply.
+  if (!matchesPersonalCondition(question.personalCondition, personalInfo)) {
+    return false;
+  }
   if (!question.condition) return true;
   const { questionId, value } = question.condition;
   const response = responses[questionId];
@@ -80,11 +124,16 @@ export function isQuestionVisible(
 
 export function getRedFlagsForPathway(
   pathway: SymptomPathway,
-  responses: Record<string, any>
+  responses: Record<string, any>,
+  personalInfo?: PersonalInfoContext
 ): string[] {
   const flags: string[] = [];
   for (const q of pathway.questions) {
     if (!q.isRedFlag) continue;
+    // Skip red-flag scoring for questions that wouldn't even be shown to this
+    // patient — otherwise a stale "yes" answer could keep firing the flag
+    // after demographics change.
+    if (!matchesPersonalCondition(q.personalCondition, personalInfo)) continue;
     const val = responses[q.id];
     if (val === undefined || val === null) continue;
     if (q.type === 'slider') {
@@ -158,17 +207,25 @@ const abdominalPainPathway: SymptomPathway = {
       redFlagValues: [8],
     },
     {
+      // First ask the simple yes/no — the location follow-up is conditional
+      // on a "yes" answer to keep the form short for patients without radiation.
       id: 'abRadiation',
+      type: 'boolean',
+      label: 'Does the pain radiate?',
+      required: true,
+    },
+    {
+      id: 'abRadiationWhere',
       type: 'multiSelect',
-      label: 'Does the pain spread anywhere?',
+      label: 'Where does the pain radiate to?',
       maxSelections: 3,
+      condition: { questionId: 'abRadiation', value: true },
       options: [
         { id: 'back', label: 'Back' },
         { id: 'rightShoulder', label: 'Right shoulder' },
         { id: 'leftShoulder', label: 'Left shoulder' },
         { id: 'groin', label: 'Groin' },
         { id: 'chest', label: 'Chest' },
-        { id: 'none', label: 'Does not spread' },
       ],
     },
     {
@@ -216,6 +273,18 @@ const abdominalPainPathway: SymptomPathway = {
       ],
     },
     {
+      // Pregnancy red-flag is asked first because positive pregnancy status
+      // changes the differential for abdominal pain dramatically (ectopic,
+      // appendicitis presenting atypically, etc.). Only shown to females
+      // of typical childbearing age.
+      id: 'abRfPregnancy',
+      type: 'boolean',
+      label: 'Are you known to be pregnant, or could you be pregnant?',
+      isRedFlag: true,
+      redFlagValues: [true],
+      personalCondition: { gender: 'female', maxAge: 50 },
+    },
+    {
       id: 'abRfFever',
       type: 'boolean',
       label: 'Do you have a fever above 38.5°C (101.3°F)?',
@@ -233,13 +302,6 @@ const abdominalPainPathway: SymptomPathway = {
       id: 'abRfUnableToEat',
       type: 'boolean',
       label: 'Have you been unable to eat or drink anything for more than 24 hours?',
-      isRedFlag: true,
-      redFlagValues: [true],
-    },
-    {
-      id: 'abRfPregnancy',
-      type: 'boolean',
-      label: 'Are you known to be pregnant, or could you be pregnant?',
       isRedFlag: true,
       redFlagValues: [true],
     },
@@ -336,7 +398,7 @@ const headachePathway: SymptomPathway = {
       options: [
         { id: 'nausea', label: 'Nausea or vomiting' },
         { id: 'visualAura', label: 'Visual aura (zig-zags, blind spot)' },
-        { id: 'neckStiffness', label: 'Neck stiffness' },
+        { id: 'neckStiffness', label: 'Neck / occipital pain' },
         { id: 'fever', label: 'Fever' },
         { id: 'dizziness', label: 'Dizziness' },
         { id: 'weakness', label: 'Weakness or numbness' },
@@ -361,7 +423,7 @@ const headachePathway: SymptomPathway = {
     {
       id: 'hdRfFeverNeck',
       type: 'boolean',
-      label: 'Do you have fever AND stiff neck together?',
+      label: 'Do you have fever AND neck pain together?',
       isRedFlag: true,
       redFlagValues: [true],
     },
@@ -479,12 +541,26 @@ const feverPathway: SymptomPathway = {
       id: 'fvAssociated',
       type: 'multiSelect',
       label: 'Any other symptoms along with the fever?',
-      maxSelections: 5,
+      maxSelections: 10,
       options: [
+        { id: 'dysuria', label: 'Burning with urination' },
+        { id: 'cough', label: 'Cough' },
+        { id: 'abdominalPain', label: 'Abdominal pain' },
+        { id: 'flankPain', label: 'Flank pain' },
+        { id: 'earPain', label: 'Ear pain' },
+        { id: 'soreThroat', label: 'Sore throat' },
+        { id: 'legRednessSwellingPain', label: 'Leg redness, swelling, or pain' },
+        { id: 'diarrhea', label: 'Diarrhea' },
+        { id: 'vomiting', label: 'Vomiting' },
+        { id: 'rhinorrhea', label: 'Runny nose' },
+        { id: 'chestPain', label: 'Chest pain' },
+        { id: 'shortnessOfBreath', label: 'Shortness of breath' },
+        { id: 'syncope', label: 'Fainting / syncope' },
+        { id: 'jaundice', label: 'Jaundice (yellowing of skin or eyes)' },
         { id: 'headache', label: 'Headache' },
         { id: 'bodyAches', label: 'Body aches' },
         { id: 'chills', label: 'Chills / Shivering' },
-        { id: 'neckStiffness', label: 'Stiff neck' },
+        { id: 'neckStiffness', label: 'Neck pain' },
         { id: 'rash', label: 'Rash' },
         { id: 'fatigue', label: 'Fatigue / Weakness' },
       ],
@@ -879,7 +955,7 @@ const neckPainPathway: SymptomPathway = {
     {
       id: 'npRfMeningism',
       type: 'boolean',
-      label: 'Do you have fever along with the stiff neck?',
+      label: 'Do you have fever along with the neck pain?',
       isRedFlag: true,
       redFlagValues: [true],
     },

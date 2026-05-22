@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { User, Heart, FileText, Globe, Brain, Eye, EyeOff, Stethoscope, TestTube, CheckCircle, ClipboardList } from 'lucide-react';
+import { User, Heart, FileText, Globe, Brain, Eye, EyeOff, Stethoscope, TestTube, CheckCircle, ClipboardList, ArrowLeft } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
 
 function CasePage() {
@@ -443,7 +443,16 @@ function CasePage() {
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center">
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => navigate('/doctor')}
+                aria-label={String(t('case.backToDashboard', 'Back to Dashboard'))}
+                className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <ArrowLeft className={`w-4 h-4 ${i18n.language === 'he' ? 'rotate-180' : ''}`} />
+                <span className="hidden sm:inline">{t('case.backToDashboard', 'Back to Dashboard')}</span>
+              </button>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">
                   {t('case.title', 'Medical Summary')}: {caseData.patientName}
@@ -858,7 +867,7 @@ function CasePage() {
                                         {diag.evidence.length > 0 && (
                                           <div className="mt-3 text-sm text-gray-600">
                                             <span className="font-medium text-gray-700">
-                                              {t('common.evidence', 'Supporting Evidence')}:
+                                              {t('common.supportingEvidence', 'Supporting Evidence')}:
                                             </span>{' '}
                                             <span className="leading-relaxed">{diag.evidence.join(' ')}</span>
                                           </div>

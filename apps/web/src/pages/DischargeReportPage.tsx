@@ -110,21 +110,41 @@ function highlightParagraph(text: string): React.ReactNode[] {
 // Section heading detection: matches **Heading Text** at start of a line/paragraph
 const SECTION_HEADING_RE = /^\*\*(.+?)\*\*\s*$/;
 
-// Section-specific styling map
+// Section-specific styling map.
+// Keys are matched against the lowercased section heading using `includes`,
+// so each entry is essentially a substring trigger. Hebrew keys come first
+// so they're matched before the English aliases when both apply.
 const SECTION_STYLES: Record<string, { border: string; bg: string; label: string }> = {
+  // ── Hebrew section names (new 7-section structure) ──
+  'רקע ואנמנזה':                      { border: 'border-violet-400', bg: 'bg-violet-50',  label: 'text-violet-800' },
+  'תלונה מציגה':                      { border: 'border-orange-400', bg: 'bg-orange-50',  label: 'text-orange-800' },
+  'בדיקה גופנית':                     { border: 'border-blue-400',   bg: 'bg-blue-50',    label: 'text-blue-800'   },
+  'בדיקות מעבדה והדמיה':              { border: 'border-cyan-400',   bg: 'bg-cyan-50',    label: 'text-cyan-800'   },
+  'הערכה':                            { border: 'border-purple-400', bg: 'bg-purple-50',  label: 'text-purple-800' },
+  'לסיכום':                           { border: 'border-purple-400', bg: 'bg-purple-50',  label: 'text-purple-800' },
+  'טיפול במלר':                       { border: 'border-blue-300',   bg: 'bg-blue-50',    label: 'text-blue-700'   },
+  'דיספוזיציה':                       { border: 'border-emerald-400',bg: 'bg-emerald-50', label: 'text-emerald-800'},
+  'המלצות שחרור':                     { border: 'border-emerald-400',bg: 'bg-emerald-50', label: 'text-emerald-800'},
+
+  // ── English aliases (legacy reports + EN runs) ──
   'patient summary':                  { border: 'border-indigo-400', bg: 'bg-indigo-50',  label: 'text-indigo-800' },
+  'background & history':             { border: 'border-violet-400', bg: 'bg-violet-50',  label: 'text-violet-800' },
   'relevant medical history':         { border: 'border-violet-400', bg: 'bg-violet-50',  label: 'text-violet-800' },
   'presenting complaint':             { border: 'border-orange-400', bg: 'bg-orange-50',  label: 'text-orange-800' },
+  'physical examination':             { border: 'border-blue-400',   bg: 'bg-blue-50',    label: 'text-blue-800'   },
   'clinical evaluation':              { border: 'border-blue-400',   bg: 'bg-blue-50',    label: 'text-blue-800'   },
+  'labs & imaging':                   { border: 'border-cyan-400',   bg: 'bg-cyan-50',    label: 'text-cyan-800'   },
   'investigation summary':            { border: 'border-cyan-400',   bg: 'bg-cyan-50',    label: 'text-cyan-800'   },
   'investigations performed':         { border: 'border-cyan-400',   bg: 'bg-cyan-50',    label: 'text-cyan-800'   },
   'investigations performed / ordered':{ border: 'border-cyan-400',  bg: 'bg-cyan-50',    label: 'text-cyan-800'   },
   'key findings and results':         { border: 'border-red-400',    bg: 'bg-red-50',     label: 'text-red-800'    },
   'key findings':                     { border: 'border-red-400',    bg: 'bg-red-50',     label: 'text-red-800'    },
+  'ed treatment':                     { border: 'border-blue-300',   bg: 'bg-blue-50',    label: 'text-blue-700'   },
   'treatment administered':           { border: 'border-blue-300',   bg: 'bg-blue-50',    label: 'text-blue-700'   },
   'clinical impression':              { border: 'border-purple-400', bg: 'bg-purple-50',  label: 'text-purple-800' },
   'recommended follow-up investigations':{ border: 'border-teal-400',bg: 'bg-teal-50',    label: 'text-teal-800'   },
   'recommended follow-up':            { border: 'border-teal-400',   bg: 'bg-teal-50',    label: 'text-teal-800'   },
+  'disposition & recommendations':    { border: 'border-emerald-400',bg: 'bg-emerald-50', label: 'text-emerald-800'},
   'discharge recommendations':        { border: 'border-emerald-400',bg: 'bg-emerald-50', label: 'text-emerald-800'},
   'disposition':                      { border: 'border-gray-400',   bg: 'bg-gray-100',   label: 'text-gray-700'   },
 };
@@ -426,9 +446,9 @@ function DischargeReportPage() {
             <button
               onClick={() => navigate(`/doctor/case/${id}`)}
               className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md"
-              aria-label="Back"
+              aria-label={String(t('common.backAriaLabel', 'Back'))}
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className={`w-5 h-5 ${isRTL ? 'rotate-180' : ''}`} />
             </button>
             <div>
               <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">

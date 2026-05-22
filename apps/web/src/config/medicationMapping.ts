@@ -218,6 +218,7 @@ export const MEDICATION_MAPPING: ConditionMedConfig[] = [
           { id: 'xarelto',   brandName: 'Xarelto',            genericName: 'rivaroxaban' },
           { id: 'pradaxa',   brandName: 'Pradaxa',            genericName: 'dabigatran' },
           { id: 'coumadin',  brandName: 'Coumadin',           genericName: 'warfarin' },
+          { id: 'clexane',   brandName: 'Clexane',            genericName: 'enoxaparin' },
           // Aspirin + Cartia (aspirin brand) grouped
           { id: 'aspirin',   brandName: 'Aspirin / Cartia',   genericName: 'aspirin' },
         ],
@@ -255,6 +256,7 @@ export const MEDICATION_MAPPING: ConditionMedConfig[] = [
           { id: 'eliquis',  brandName: 'Eliquis',          genericName: 'apixaban' },
           { id: 'xarelto',  brandName: 'Xarelto',          genericName: 'rivaroxaban' },
           { id: 'coumadin', brandName: 'Coumadin',         genericName: 'warfarin' },
+          { id: 'clexane',  brandName: 'Clexane',          genericName: 'enoxaparin' },
           { id: 'aspirin',  brandName: 'Aspirin / Cartia', genericName: 'aspirin' },
         ],
       },
@@ -297,6 +299,7 @@ export const MEDICATION_MAPPING: ConditionMedConfig[] = [
           { id: 'xarelto',  brandName: 'Xarelto',  genericName: 'rivaroxaban' },
           { id: 'pradaxa',  brandName: 'Pradaxa',  genericName: 'dabigatran' },
           { id: 'coumadin', brandName: 'Coumadin', genericName: 'warfarin' },
+          { id: 'clexane',  brandName: 'Clexane',  genericName: 'enoxaparin' },
         ],
       },
       {
