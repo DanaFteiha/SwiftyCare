@@ -575,6 +575,72 @@ const feverPathway: SymptomPathway = {
   ],
 };
 
+// ─── Simplified Pathway: Cough ──────────────────────────────────────────────
+
+const coughPathway: SymptomPathway = {
+  id: 'cough',
+  name: 'Cough',
+  questions: [
+    {
+      id: 'ckDuration',
+      type: 'singleSelect',
+      label: 'How long have you had the cough?',
+      options: [
+        { id: 'lessThan24h', label: 'Less than 24 hours' },
+        { id: '1to7days', label: '1–7 days' },
+        { id: 'moreThan7days', label: 'More than a week' },
+      ],
+      required: true,
+    },
+    {
+      id: 'ckCharacter',
+      type: 'singleSelect',
+      label: 'What kind of cough is it?',
+      options: [
+        { id: 'dry', label: 'Dry cough (no phlegm)' },
+        { id: 'productiveClear', label: 'Productive — clear or white phlegm' },
+        { id: 'productiveColored', label: 'Productive — yellow or green phlegm' },
+        { id: 'bloody', label: 'Blood in sputum' },
+      ],
+      required: true,
+      isRedFlag: true,
+      redFlagValues: ['bloody'],
+    },
+    {
+      id: 'ckOnset',
+      type: 'singleSelect',
+      label: 'How did it start?',
+      options: [
+        { id: 'sudden', label: 'Sudden (within hours)' },
+        { id: 'gradual', label: 'Gradual (over days)' },
+      ],
+    },
+    {
+      id: 'ckAssociated',
+      type: 'multiSelect',
+      label: 'Any other symptoms with the cough?',
+      maxSelections: 4,
+      options: [
+        { id: 'shortnessOfBreath', label: 'Shortness of breath' },
+        { id: 'chestPain', label: 'Chest pain' },
+        { id: 'fever', label: 'Fever' },
+        { id: 'wheezing', label: 'Wheezing' },
+        { id: 'soreThroat', label: 'Sore throat' },
+        { id: 'runnyNose', label: 'Runny nose' },
+      ],
+      isRedFlag: true,
+      redFlagValues: ['shortnessOfBreath', 'chestPain'],
+    },
+    {
+      id: 'ckRfHighFever',
+      type: 'boolean',
+      label: 'Do you have high fever (above 39°C / 102°F)?',
+      isRedFlag: true,
+      redFlagValues: [true],
+    },
+  ],
+};
+
 // ─── Simplified Pathway: Shortness of Breath ────────────────────────────────
 
 const shortnessOfBreathPathway: SymptomPathway = {
@@ -1025,6 +1091,7 @@ export const SYMPTOM_PATHWAYS: Record<string, SymptomPathway> = {
   headache: headachePathway,
   chestPain: chestPainPathway,
   fever: feverPathway,
+  cough: coughPathway,
   shortnessOfBreath: shortnessOfBreathPathway,
   dizziness: dizzinessPathway,
   nauseaVomitingDiarrhea: nauseaVomitingDiarrheaPathway,
@@ -1060,7 +1127,7 @@ export const SYMPTOM_TO_PATHWAY: Record<string, string> = {
   injectionSitePain: 'injuryTrauma',
   // ── New complaint keys ──
   flankPain: 'backPain',               // closest anatomical pathway
-  cough: 'shortnessOfBreath',          // respiratory pathway
+  cough: 'cough',
   vomiting: 'nauseaVomitingDiarrhea',  // same GI pathway
   diarrhea: 'nauseaVomitingDiarrhea',  // same GI pathway
   rash: 'fever',                       // systemic/dermatological — fever pathway

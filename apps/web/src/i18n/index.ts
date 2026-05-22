@@ -630,6 +630,36 @@ const resources = {
             },
             "fvRfAlteredMental": { "q": "Is there any confusion, altered consciousness, or inability to wake up?" }
           },
+          "cough": {
+            "ckDuration": {
+              "q": "How long have you had the cough?",
+              "lessThan24h": "Less than 24 hours",
+              "1to7days": "1–7 days",
+              "moreThan7days": "More than a week"
+            },
+            "ckCharacter": {
+              "q": "What kind of cough is it?",
+              "dry": "Dry cough (no phlegm)",
+              "productiveClear": "Productive — clear or white phlegm",
+              "productiveColored": "Productive — yellow or green phlegm",
+              "bloody": "Blood in sputum"
+            },
+            "ckOnset": {
+              "q": "How did it start?",
+              "sudden": "Sudden (within hours)",
+              "gradual": "Gradual (over days)"
+            },
+            "ckAssociated": {
+              "q": "Any other symptoms with the cough?",
+              "shortnessOfBreath": "Shortness of breath",
+              "chestPain": "Chest pain",
+              "fever": "Fever",
+              "wheezing": "Wheezing",
+              "soreThroat": "Sore throat",
+              "runnyNose": "Runny nose"
+            },
+            "ckRfHighFever": { "q": "Do you have high fever (above 39°C / 102°F)?" }
+          },
           "shortnessOfBreath": {
             "sobSeverity": {
               "q": "How severe is your shortness of breath?",
@@ -1770,7 +1800,7 @@ const resources = {
               "jaw": "כאב בלסת / צוואר",
               "dizziness": "סחרחורת"
             },
-            "cpRfRadiation": { "q": "האם הכאב מתפשט לזרוע, ללסת או לגב?" }
+            "cpRfRadiation": { "q": "האם הכאב מקרין לזרוע, ללסת או לגב?" }
           },
           "fever": {
             "fvTemperature": {
@@ -1810,6 +1840,36 @@ const resources = {
               "fatigue": "עייפות / חולשה"
             },
             "fvRfAlteredMental": { "q": "האם יש בלבול, שינוי בהכרה או חוסר יכולת להתעורר?" }
+          },
+          "cough": {
+            "ckDuration": {
+              "q": "כמה זמן יש לך שיעול?",
+              "lessThan24h": "פחות מ-24 שעות",
+              "1to7days": "1–7 ימים",
+              "moreThan7days": "יותר משבוע"
+            },
+            "ckCharacter": {
+              "q": "איזה סוג שיעול?",
+              "dry": "שיעול יבש (ללא ליחה)",
+              "productiveClear": "שיעול עם ליחה — שקופה או לבנה",
+              "productiveColored": "שיעול עם ליחה — צהובה או ירוקה",
+              "bloody": "דם בליחה"
+            },
+            "ckOnset": {
+              "q": "איך זה התחיל?",
+              "sudden": "פתאומי (בתוך שעות)",
+              "gradual": "הדרגתי (ימים)"
+            },
+            "ckAssociated": {
+              "q": "תסמינים נוספים יחד עם השיעול?",
+              "shortnessOfBreath": "קוצר נשימה",
+              "chestPain": "כאב בחזה",
+              "fever": "חום",
+              "wheezing": "צפצופים",
+              "soreThroat": "כאב גרון",
+              "runnyNose": "נזלת"
+            },
+            "ckRfHighFever": { "q": "האם יש לך חום גבוה (מעל 39°C)?" }
           },
           "shortnessOfBreath": {
             "sobSeverity": {
