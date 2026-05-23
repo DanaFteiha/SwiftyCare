@@ -5,6 +5,7 @@ import { Case } from "../models/Case.js";
 import { Questionnaire } from "../models/Questionnaire.js";
 import { buildDiagnosisMessages } from "../services/diagnosisPrompt.js";
 import { buildDischargeReportMessages } from "../services/dischargeReportPrompt.js";
+import { buildSummaryMessages } from "../services/summaryPrompt.js";
 
 const router = express.Router();
 
@@ -329,51 +330,17 @@ router.post("/:id/summary", async (req, res) => {
       });
     }
 
-    // Fetch questionnaire + vitals
     const questionnaire = await Questionnaire.findOne({ caseId });
     const answers = questionnaire?.answers || {};
     const vitals = existingCase.vitals || {};
 
     const language = (req.body?.language === "he" ? "he" : "en") as "en" | "he";
-    const isHebrew = language === "he";
 
-    // Build clinical prompt
-    const prompt = isHebrew
-      ? `
-צור סיכום קליני באורך בינוני המתאים לרשומה רפואית אלקטרונית.
-השתמש בשפה רפואית ברורה (טון מקצועי) וחשיבה מובנית.
-כתוב את כל הסיכום בעברית. עבור מינוחים רפואיים נפוצים ניתן להוסיף את המקור באנגלית בסוגריים.
-
-פרטי המטופל:
-שם: ${existingCase.patientName}
-תעודת זהות: ${existingCase.nationalId}
-סטטוס: ${existingCase.status}
-
-תשובות שאלון:
-${JSON.stringify(answers, null, 2)}
-
-סימנים חיוניים:
-${JSON.stringify(vitals, null, 2)}
-
-החזר רק את פסקת הסיכום הקלינית. אל תכלול הערות או מטא-נתונים.
-`
-      : `
-Generate a medium-length clinical summary suitable for an electronic medical record.
-Use clear medical language (professional tone) and structured reasoning.
-
-Patient Details:
-Name: ${existingCase.patientName}
-National ID: ${existingCase.nationalId}
-Status: ${existingCase.status}
-
-Questionnaire Answers:
-${JSON.stringify(answers, null, 2)}
-
-Vital Signs:
-${JSON.stringify(vitals, null, 2)}
-
-Return only the clinical summary paragraph. Do not include any notes or metadata.
-`;
+    const { systemMessage, userMessage } = buildSummaryMessages({
+      answers,
+      vitals: vitals as Record<string, unknown>,
+      language,
+    });
 
     if (!process.env.OPENAI_API_KEY) {
       return res.status(503).json({
@@ -382,27 +349,18 @@ Return only the clinical summary paragraph. Do not include any notes or metadata
       });
     }
 
-    // Initialize OpenAI client
     const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-    const systemPrompt = isHebrew
-      ? "אתה עוזר רפואי הכותב הערות קליניות באורך בינוני עבור רופאים. כתוב את כל התשובה בעברית רפואית מקצועית."
-      : "You are a medical assistant writing medium-length clinical notes for doctors.";
+    const summaryModel = process.env.OPENAI_SUMMARY_MODEL || "gpt-4o";
 
-    // Call OpenAI
     const response = await client.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: summaryModel,
       messages: [
-        {
-          role: "system",
-          content: systemPrompt
-        },
-        {
-          role: "user",
-          content: prompt
-        }
+        { role: "system", content: systemMessage },
+        { role: "user", content: userMessage },
       ],
-      temperature: 0.4
+      temperature: 0.25,
+      max_tokens: 900,
     });
 
     const summary = response.choices[0]?.message?.content?.trim() || "Unable to generate summary";
