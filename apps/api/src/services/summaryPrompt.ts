@@ -100,22 +100,37 @@ function formatChiefComplaints(currentIllness: Record<string, unknown>, isHebrew
   return keys.join(", ");
 }
 
-// ─── Few-shot examples (Hebrew) ─────────────────────────────────────────────
+// ─── Few-shot examples ──────────────────────────────────────────────────────
 
-const FEW_SHOT_CHEST_PAIN = `דוגמה — כאב בחזה:
+const FEW_SHOT_CHEST_PAIN_HE = `דוגמה — כאב בחזה:
 
 בן 35, נשוי, צלול ועצמאי.
 בריא בד"כ.
 התקבל למיון עקב כאב בחזה מזה 3 ימים, פתאומי, לסירוגין, נמשך כמספר דקות ולאחר מזה חולף, לא קשור למאמץ או נשימה, ללא הקרנה, מתגבר בשינוי תנוחה, אירוע ראשון בחיים ללא אירוע דומה בעבר.
 ללא קושי בנשימה, ללא חום, ללא כאב בבטן, ללא הקאות או שלשולים, ללא שיעול.`;
 
-const FEW_SHOT_WITH_MEDS = `דוגמה — רקע + תרופות + מחלה נוכחית:
+const FEW_SHOT_WITH_MEDS_HE = `דוגמה — רקע + תרופות + מחלה נוכחית:
 
 בת 45, נשואה, במצב קוגניטיבי שמור, תפקוד עצמאי.
 ברקע: יתר לחץ דם, מחלת לב איסכמית.
 תרופות קבועות: Diovan, Tritace, Plavix, Procor.
 התקבל למיון עקב כאב בחזה לוחץ, 3/10, פתאומי, עם הקרנה לזרוע שמאל. בנוסף שיעול.
 ללא חום, ללא קוצר נשימה.`;
+
+const FEW_SHOT_CHEST_PAIN_EN = `Example — chest pain:
+
+35-year-old, married, alert and independent.
+Generally healthy.
+Presented to ED with chest pain for 3 days, sudden, intermittent, lasting several minutes then resolving, not exertional or pleuritic, no radiation, worse with position change, first lifetime episode with no prior similar events.
+No dyspnea, no fever, no abdominal pain, no vomiting or diarrhea, no cough.`;
+
+const FEW_SHOT_WITH_MEDS_EN = `Example — background + medications + present illness:
+
+45-year-old, married, cognitively intact, functionally independent.
+Background: hypertension, ischemic heart disease.
+Regular medications: Diovan, Tritace, Plavix, Procor.
+Presented to ED with pressing chest pain, 3/10, sudden onset, radiating to left arm. Also cough.
+No fever, no shortness of breath.`;
 
 // ─── Public entry point ─────────────────────────────────────────────────────
 
@@ -220,9 +235,9 @@ Never fabricate data that was not provided.`;
 
 דוגמאות לסגנון (חקה מבנה, לא תוכן):
 
-${FEW_SHOT_CHEST_PAIN}
+${FEW_SHOT_CHEST_PAIN_HE}
 
-${FEW_SHOT_WITH_MEDS}
+${FEW_SHOT_WITH_MEDS_HE}
 
 ══════════════════════════════
 נתוני המקרה הנוכחי:
@@ -252,33 +267,72 @@ ${adaptiveBlock || "לא הושלם"}
     return { systemMessage, userMessage };
   }
 
-  // English fallback — same structure
-  const userMessage = `Writing rules — apply to every patient:
+  // English — same template, English labels
+  const userMessage = `Writing rules — same template for every patient (mirror the Hebrew structure):
 
-1. **Opening line**: {Age}-year-old, marital status if known, cognitive status, functional status.
-   - Do NOT include patient name or the words "male"/"female" as labels — use age only.
-2. **Background**: "Background:" + active conditions only, OR "Generally healthy" if none.
+1. **Opening line** only:
+   - Start with age (e.g. "35-year-old") — NO patient name, NO "male"/"female" labels.
+   - Add marital status if known.
+   - Cognitive: "alert" or "cognitively intact" (do NOT use "independent" for cognitive status).
+   - Functional: "independent" or "functionally independent".
+   - May combine: "alert and independent" when both apply.
+
+2. **Background** — separate line:
+   - Write "Background:" then ONLY active conditions from the questionnaire.
+   - If none: "Generally healthy" or "Generally healthy (GPH)".
    - Do NOT list conditions the patient does NOT have.
-3. **Medications** (if any): "Regular medications:" + list. Skip if none. Do NOT write "patient takes medications".
-4. **Present illness**: "Presented to ED with …" — telegraphic OPQRST from Step-2 data. Pertinent negatives as "No …" lines.
-5. **Do NOT** include conclusions, recommendations, or "consider further workup".
 
-Examples:
+3. **Medications** — separate line right after background (if any):
+   - Write "Regular medications:" then the list.
+   - Do NOT write "patient takes medications".
+   - If patient does not remember meds: "Patient does not remember medications".
+   - Skip this line if no medications.
+   - Allergies: separate "Allergy:" line only if known.
 
-${FEW_SHOT_CHEST_PAIN}
+4. **Present illness** — separate paragraph(s):
+   - Start with "Presented to ED with …" — telegraphic third-person narrative.
+   - Use Step-2 OPQRST data: character, onset, duration, severity, radiation, aggravating/relieving factors.
+   - Multiple complaints: "Also …" (e.g. Also cough).
+   - Do NOT write "defined as", "patient presents with", "chief complaint of".
+   - Add "No …" lines for relevant pertinent negatives only.
 
-Case data:
-Age: ${age || "unknown"}, Gender: ${gender || "unknown"}, Marital: ${maritalStatus || "—"}
-Cognitive: ${cognitiveState || "—"}, Functional: ${functionalState || "—"}
+5. **Strictly forbidden:**
+   - Patient name, ID, male/female labels, heading "Medical history".
+   - Conclusions, recommendations, "consider further workup", "based on symptoms".
+   - Closing recommendation paragraphs.
+
+6. Vital signs — optional short line at end if clinically relevant: "Vitals: …"
+
+Style examples (mirror structure, not content):
+
+${FEW_SHOT_CHEST_PAIN_EN}
+
+${FEW_SHOT_WITH_MEDS_EN}
+
+══════════════════════════════
+Current case data:
+══════════════════════════════
+
+Age: ${age || "unknown"}
+Gender (for narrative only — do not label male/female): ${gender || "unknown"}
+Marital status: ${maritalStatus || "not recorded"}
+Cognitive state (raw): ${cognitiveState || "not recorded"}
+Functional state (raw): ${functionalState || "not recorded"}
+
 Active conditions: ${historyList.length ? historyList.join(", ") : "none"}
 Medications: ${doesNotRememberMeds ? "does not remember" : medList.length ? medList.join(", ") : "none"}
 Allergies: ${allergiesLine || "none"}
-Chief complaints: ${complaintsLine}
-Adaptive Step-2:
-${adaptiveBlock || "not completed"}
-Vitals: ${vitalsBlock}
 
-Produce the clinical summary now.`;
+Chief complaints selected (Step 1): ${complaintsLine}
+
+Adaptive Step-2 questionnaire:
+${adaptiveBlock || "not completed"}
+
+Vital signs: ${vitalsBlock}
+
+══════════════════════════════
+
+Produce the clinical summary in English only, following the structure above.`;
 
   return { systemMessage, userMessage };
 }
