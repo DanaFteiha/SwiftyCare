@@ -589,7 +589,8 @@ const resources = {
               "jaw": "Pain in jaw / neck",
               "dizziness": "Dizziness"
             },
-            "cpRfRadiation": { "q": "Does the pain spread to your arm, jaw, or back?" }
+            "cpSimilarPast": { "q": "Have you had similar pains in the past to this pain?" },
+            "cpRfRadiation": { "q": "Does the pain radiate to your arm, jaw, or back?" }
           },
           "fever": {
             "fvTemperature": {
@@ -808,6 +809,115 @@ const resources = {
               "recentInjury": "Recent injury or fall"
             }
           },
+          "flankPain": {
+            "fpSide": {
+              "q": "Which side is the pain on?",
+              "right": "Right flank",
+              "left": "Left flank",
+              "both": "Both sides"
+            },
+            "fpCharacter": {
+              "q": "How would you describe the pain?",
+              "colicky": "Colicky (comes in waves)",
+              "constant": "Constant dull pain",
+              "sharp": "Sharp / stabbing"
+            },
+            "fpSeverity": { "q": "Pain severity (0 = no pain, 10 = worst imaginable)" },
+            "fpOnset": {
+              "q": "When did it start?",
+              "sudden": "Sudden",
+              "gradual": "Gradual",
+              "intermittent": "Comes and goes"
+            },
+            "fpAssociated": {
+              "q": "Any associated symptoms?",
+              "dysuria": "Burning with urination",
+              "hematuria": "Blood in urine",
+              "fever": "Fever",
+              "nausea": "Nausea or vomiting",
+              "urinaryFrequency": "Urinary frequency / urgency"
+            }
+          },
+          "jointPain": {
+            "jpJoint": {
+              "q": "Which joint is affected?",
+              "knee": "Knee",
+              "hip": "Hip",
+              "shoulder": "Shoulder",
+              "wristHand": "Wrist / hand",
+              "ankleFoot": "Ankle / foot",
+              "elbow": "Elbow",
+              "multiple": "Multiple joints"
+            },
+            "jpOnset": {
+              "q": "How did it start?",
+              "sudden": "Sudden",
+              "gradual": "Gradual",
+              "afterInjury": "After injury or fall"
+            },
+            "jpSeverity": { "q": "Pain severity (0 = no pain, 10 = worst imaginable)" },
+            "jpSwelling": { "q": "Is the joint swollen?" },
+            "jpAssociated": {
+              "q": "Any associated symptoms?",
+              "fever": "Fever",
+              "rednessWarmth": "Redness / warmth over the joint",
+              "stiffness": "Stiffness (especially in the morning)",
+              "limitedMovement": "Limited range of movement",
+              "trauma": "Recent injury or fall"
+            }
+          },
+          "painInLimbs": {
+            "plLimb": {
+              "q": "Which limb is painful?",
+              "upperArm": "Arm / hand",
+              "lowerLeg": "Leg / foot",
+              "multiple": "Multiple limbs"
+            },
+            "plSide": {
+              "q": "Which side?",
+              "left": "Left",
+              "right": "Right",
+              "both": "Both sides"
+            },
+            "plOnset": {
+              "q": "How did it start?",
+              "sudden": "Sudden",
+              "gradual": "Gradual",
+              "afterInjury": "After injury or fall"
+            },
+            "plSeverity": { "q": "Pain severity (0 = no pain, 10 = worst imaginable)" },
+            "plAssociated": {
+              "q": "Any associated symptoms?",
+              "swelling": "Swelling",
+              "redness": "Redness / warmth",
+              "numbness": "Numbness / tingling",
+              "weakness": "Weakness",
+              "fever": "Fever"
+            }
+          },
+          "earPain": {
+            "eaLaterality": {
+              "q": "Which ear is painful?",
+              "left": "Left ear",
+              "right": "Right ear",
+              "both": "Both ears"
+            },
+            "eaOnset": {
+              "q": "How did it start?",
+              "sudden": "Sudden",
+              "gradual": "Gradual",
+              "afterCold": "After cold / upper respiratory infection"
+            },
+            "eaSeverity": { "q": "Pain severity (0 = no pain, 10 = worst imaginable)" },
+            "eaAssociated": {
+              "q": "Any associated symptoms?",
+              "fever": "Fever",
+              "hearingLoss": "Hearing loss / muffled hearing",
+              "discharge": "Ear discharge",
+              "soreThroat": "Sore throat",
+              "dizziness": "Dizziness / vertigo"
+            }
+          },
           "neckPain": {
             "npOnset": {
               "q": "How did the neck pain start?",
@@ -823,7 +933,7 @@ const resources = {
               "burning": "Burning"
             },
             "npRadiation": {
-              "q": "Does the pain spread?",
+              "q": "Does the pain radiate?",
               "none": "No, stays in neck",
               "toArm": "Yes, to arm / hand",
               "toHead": "Yes, to head",
@@ -1800,6 +1910,7 @@ const resources = {
               "jaw": "כאב בלסת / צוואר",
               "dizziness": "סחרחורת"
             },
+            "cpSimilarPast": { "q": "האם היה לך כאבים דומים בעבר לכאב הזה?" },
             "cpRfRadiation": { "q": "האם הכאב מקרין לזרוע, ללסת או לגב?" }
           },
           "fever": {
@@ -2019,6 +2130,115 @@ const resources = {
               "recentInjury": "פציעה או נפילה לאחרונה"
             }
           },
+          "flankPain": {
+            "fpSide": {
+              "q": "באיזה צד הכאב?",
+              "right": "מותן ימין",
+              "left": "מותן שמאל",
+              "both": "שני הצדדים"
+            },
+            "fpCharacter": {
+              "q": "איך היית מתאר את הכאב?",
+              "colicky": "קוליקי (בגלים)",
+              "constant": "כאב עמום קבוע",
+              "sharp": "חד / דוקר"
+            },
+            "fpSeverity": { "q": "עוצמת הכאב (0 = ללא כאב, 10 = הגרוע ביותר)" },
+            "fpOnset": {
+              "q": "מתי התחיל הכאב?",
+              "sudden": "פתאומי",
+              "gradual": "הדרגתי",
+              "intermittent": "בא והולך"
+            },
+            "fpAssociated": {
+              "q": "תסמינים נלווים?",
+              "dysuria": "צריבה במתן שתן",
+              "hematuria": "דם בשתן",
+              "fever": "חום",
+              "nausea": "בחילה או הקאות",
+              "urinaryFrequency": "תכיפות / דחיפות במתן שתן"
+            }
+          },
+          "jointPain": {
+            "jpJoint": {
+              "q": "איזה מפרק נפגע?",
+              "knee": "ברך",
+              "hip": "ירך",
+              "shoulder": "כתף",
+              "wristHand": "שורש כף יד / כף יד",
+              "ankleFoot": "קרסול / כף רגל",
+              "elbow": "מרפק",
+              "multiple": "מספר מפרקים"
+            },
+            "jpOnset": {
+              "q": "איך זה התחיל?",
+              "sudden": "פתאומי",
+              "gradual": "הדרגתי",
+              "afterInjury": "לאחר פציעה או נפילה"
+            },
+            "jpSeverity": { "q": "עוצמת הכאב (0 = ללא כאב, 10 = הגרוע ביותר)" },
+            "jpSwelling": { "q": "האם יש נפיחות במפרק?" },
+            "jpAssociated": {
+              "q": "תסמינים נלווים?",
+              "fever": "חום",
+              "rednessWarmth": "אדמומיות / חום מקומי במפרק",
+              "stiffness": "נוקשות (במיוחד בבוקר)",
+              "limitedMovement": "הגבלת טווח תנועה",
+              "trauma": "פציעה או נפילה לאחרונה"
+            }
+          },
+          "painInLimbs": {
+            "plLimb": {
+              "q": "באיזו גפה הכאב?",
+              "upperArm": "זרוע / יד",
+              "lowerLeg": "רגל / כף רגל",
+              "multiple": "מספר גפיים"
+            },
+            "plSide": {
+              "q": "באיזה צד?",
+              "left": "שמאל",
+              "right": "ימין",
+              "both": "שני הצדדים"
+            },
+            "plOnset": {
+              "q": "איך זה התחיל?",
+              "sudden": "פתאומי",
+              "gradual": "הדרגתי",
+              "afterInjury": "לאחר פציעה או נפילה"
+            },
+            "plSeverity": { "q": "עוצמת הכאב (0 = ללא כאב, 10 = הגרוע ביותר)" },
+            "plAssociated": {
+              "q": "תסמינים נלווים?",
+              "swelling": "נפיחות",
+              "redness": "אדמומיות / חום מקומי",
+              "numbness": "חוסר תחושה / עקצוצים",
+              "weakness": "חולשה",
+              "fever": "חום"
+            }
+          },
+          "earPain": {
+            "eaLaterality": {
+              "q": "באיזו אוזן הכאב?",
+              "left": "אוזן שמאל",
+              "right": "אוזן ימין",
+              "both": "שתי האוזניים"
+            },
+            "eaOnset": {
+              "q": "איך זה התחיל?",
+              "sudden": "פתאומי",
+              "gradual": "הדרגתי",
+              "afterCold": "לאחר הצטננות / דלקת דרכי נשימה עליונות"
+            },
+            "eaSeverity": { "q": "עוצמת הכאב (0 = ללא כאב, 10 = הגרוע ביותר)" },
+            "eaAssociated": {
+              "q": "תסמינים נלווים?",
+              "fever": "חום",
+              "hearingLoss": "ירידה בשמיעה / שמיעה מעומעמת",
+              "discharge": "הפרשה מהאוזן",
+              "soreThroat": "כאב גרון",
+              "dizziness": "סחרחורת / ורטיגו"
+            }
+          },
           "neckPain": {
             "npOnset": {
               "q": "איך התחיל הכאב בצוואר?",
@@ -2034,7 +2254,7 @@ const resources = {
               "burning": "שורף"
             },
             "npRadiation": {
-              "q": "האם הכאב מתפשט?",
+              "q": "האם הכאב מקרין?",
               "none": "לא, נשאר בצוואר",
               "toArm": "כן, לזרוע / יד",
               "toHead": "כן, לראש",

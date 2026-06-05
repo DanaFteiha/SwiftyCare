@@ -5,10 +5,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Shield, Plus, Search, Globe, User, Clock, FileText, LogOut } from 'lucide-react';
+import { Shield, Plus, Search, Globe, User, Clock, FileText, LogOut, Users } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
-
-const DOCTOR_ACCESS_KEY = 'swiftycare:doctorAccess';
+import { clearSession, hasRole } from '@/lib/auth';
 
 function DashboardPage() {
   const navigate = useNavigate();
@@ -25,7 +24,7 @@ function DashboardPage() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem(DOCTOR_ACCESS_KEY);
+    clearSession();
     navigate('/doctor/login', { replace: true });
   };
 
@@ -165,6 +164,16 @@ function DashboardPage() {
                 <Globe className="w-4 h-4" />
                 <span>{isRTL ? 'EN' : 'עִבְרִית'}</span>
               </button>
+              {hasRole('admin') && (
+                <Button
+                  onClick={() => navigate('/admin')}
+                  variant="outline"
+                  className="flex items-center gap-2 border-purple-300 text-purple-700 hover:bg-purple-50"
+                >
+                  <Users className="w-4 h-4" />
+                  <span className="hidden sm:inline">Staff</span>
+                </Button>
+              )}
               <Button
                 onClick={() => navigate('/patient')}
                 className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"

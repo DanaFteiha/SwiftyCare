@@ -1,39 +1,42 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Shield, Globe } from 'lucide-react'
-
-const DOCTOR_ACCESS_KEY = 'swiftycare:doctorAccess'
+import { login, clearSession } from '@/lib/auth'
 
 function DoctorLoginPage() {
   const navigate = useNavigate()
 
-  const [passcode, setPasscode] = useState('')
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const { t, i18n } = useTranslation()
-
-  const expectedPasscode = useMemo(() => {
-    const envPasscode = import.meta.env.VITE_DOCTOR_PASSCODE
-    return (typeof envPasscode === 'string' && envPasscode.trim()) || 'swiftycare'
-  }, [])
 
   const toggleLanguage = () => {
     const newLang = i18n.language === 'he' ? 'en' : 'he'
     i18n.changeLanguage(newLang)
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (passcode.trim() !== expectedPasscode) {
-      setError(t('doctorLogin.invalidCode', 'Invalid access code.'))
-      return
+    setIsSubmitting(true)
+    try {
+      const { role } = await login(username.trim(), password)
+      if (role !== 'doctor' && role !== 'admin') {
+        clearSession()
+        setError(t('doctorLogin.notAuthorized', 'This account is not authorized for doctor access.'))
+        return
+      }
+      navigate('/doctor', { replace: true })
+    } catch {
+      setError(t('doctorLogin.invalidCode', 'Invalid username or password.'))
+    } finally {
+      setIsSubmitting(false)
     }
-
-    localStorage.setItem(DOCTOR_ACCESS_KEY, 'true')
-    navigate('/doctor', { replace: true })
   }
 
   return (
@@ -66,21 +69,32 @@ function DoctorLoginPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
+            <div className="space-y-3">
               <Input
-                type="password"
-                value={passcode}
+                type="text"
+                autoComplete="username"
+                value={username}
                 onChange={(e) => {
-                  setPasscode(e.target.value)
+                  setUsername(e.target.value)
                   setError('')
                 }}
-                placeholder={t('doctorLogin.passcodePlaceholder', 'Access code')}
+                placeholder={t('doctorLogin.usernamePlaceholder', 'Username')}
+              />
+              <Input
+                type="password"
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value)
+                  setError('')
+                }}
+                placeholder={t('doctorLogin.passwordPlaceholder', 'Password')}
               />
               {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
             </div>
 
-            <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
-              {t('doctorLogin.continue', 'Continue')}
+            <Button type="submit" disabled={isSubmitting || !username || !password} className="w-full bg-blue-600 hover:bg-blue-700">
+              {isSubmitting ? t('doctorLogin.signingIn', 'Signing in…') : t('doctorLogin.continue', 'Continue')}
             </Button>
           </form>
         </CardContent>

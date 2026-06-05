@@ -240,6 +240,25 @@ const COMPLAINT_FRAMEWORKS: Record<string, ComplaintFramework> = {
       "New back pain in patients > 60 with risk factors → consider AAA early.",
     ],
   },
+  flankPain: {
+    display: "Flank pain",
+    mustNotMiss: [
+      "Ureterolithiasis / obstructive uropathy",
+      "Pyelonephritis / perinephric abscess",
+      "Ruptured abdominal aortic aneurysm",
+      "Renal infarction",
+      "Obstructive pyelonephritis / urosepsis",
+    ],
+    decisionRules: [
+      "Colicky flank pain + hematuria → renal colic workup (CT KUB or ultrasound).",
+      "Flank pain + fever + dysuria → treat as complicated UTI / pyelonephritis until proven otherwise.",
+    ],
+    keyConsiderations: [
+      "Unilateral colicky pain radiating to groin strongly suggests ureteric stone.",
+      "Flank pain with fever in elderly, diabetic or immunocompromised patients → low threshold for imaging and admission.",
+      "Sudden severe flank/back pain in older patients with vascular risk factors → consider AAA.",
+    ],
+  },
   nauseaVomitingDiarrhea: {
     display: "Nausea / vomiting / diarrhea",
     mustNotMiss: [
@@ -279,6 +298,26 @@ const COMPLAINT_FRAMEWORKS: Record<string, ComplaintFramework> = {
     ],
     keyConsiderations: [
       "Mechanism + anticoagulation status are critical — low-energy falls on warfarin/DOAC still warrant CT head.",
+    ],
+  },
+  painInLimbs: {
+    display: "Limb pain",
+    mustNotMiss: [
+      "Deep vein thrombosis / pulmonary embolism",
+      "Compartment syndrome",
+      "Cellulitis / necrotizing soft-tissue infection",
+      "Fracture / occult fracture",
+      "Acute limb ischemia",
+      "Peripheral nerve compression / acute neuropathy",
+    ],
+    decisionRules: [
+      "Wells criteria when unilateral leg swelling or calf pain.",
+      "Ottawa rules for ankle/knee if trauma mechanism.",
+    ],
+    keyConsiderations: [
+      "Unilateral leg swelling + pain + risk factors → DVT workup before attributing to musculoskeletal strain.",
+      "Pain out of proportion to exam or pain with passive stretch → compartment syndrome until proven otherwise.",
+      "Acute cold pale limb with absent pulses → vascular emergency.",
     ],
   },
   neckPain: {
@@ -420,7 +459,7 @@ const ILLNESS_TO_PATHWAY: Record<string, string> = {
   headache: "headache",
   abdominalPain: "abdominalPain",
   backPain: "backPain",
-  flankPain: "backPain",
+  flankPain: "flankPain",
   neckPain: "neckPain",
   fever: "fever",
   shortnessOfBreath: "shortnessOfBreath",
@@ -428,7 +467,7 @@ const ILLNESS_TO_PATHWAY: Record<string, string> = {
   rash: "rash",
   jointPain: "jointPain",
   earPain: "earPain",
-  painInLimbs: "injuryTrauma",
+  painInLimbs: "painInLimbs",
   swellingEdema: "swellingEdema",
   injectionSitePain: "injuryTrauma",
   dizziness: "dizziness",

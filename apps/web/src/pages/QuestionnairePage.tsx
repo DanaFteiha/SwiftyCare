@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Shield, ArrowRight, ArrowLeft, CheckCircle, Globe, Heart, Brain, Wind, Pill, Activity, Scissors, Plus, AlertCircle, Check, AlertTriangle } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
+import { getPatientCaseToken } from '@/lib/auth';
 import { getActiveMedGroups, type MedGroupKey } from '@/config/medicationMapping';
 import {
   getPathwaysForIllnesses,
@@ -429,19 +430,28 @@ function QuestionnairePage() {
   // ─── Data fetching ─────────────────────────────────────────────────────────
   const { data: caseData, isLoading: isLoadingCase, error: caseError } = useQuery({
     queryKey: ['case', caseId],
-    queryFn: () =>
-      apiFetch(`/cases/${caseId}`).then(res => {
+    queryFn: () => {
+      const pct = caseId ? getPatientCaseToken(caseId) : null;
+      return apiFetch(
+        `/cases/${caseId}`,
+        pct ? { headers: { Authorization: `Bearer ${pct}` } } : undefined
+      ).then(res => {
         if (!res.ok) throw new Error('Failed to fetch case');
         return res.json();
-      }),
+      });
+    },
     enabled: !!caseId,
   });
 
   const submitQuestionnaire = useMutation({
     mutationFn: async (answers: any) => {
+      const pct = caseId ? getPatientCaseToken(caseId) : null;
       const res = await apiFetch(`/cases/${caseId}/questionnaire`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(pct ? { Authorization: `Bearer ${pct}` } : {}),
+        },
         body: JSON.stringify({ answers }),
       });
       if (!res.ok) {
@@ -546,16 +556,9 @@ function QuestionnairePage() {
         medications: { ...formData.medications, groups: mergedGroups },
         adaptiveQuestions: buildAdaptiveQuestionsData(),
       };
+      // The server moves the case to nurse triage (awaiting_vitals) as part of
+      // saving the questionnaire, so no separate status update is needed here.
       await submitQuestionnaire.mutateAsync(payload);
-      const statusRes = await apiFetch(`/cases/${caseId}/status`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'awaiting_vitals' }),
-      });
-      if (!statusRes.ok) {
-        const payload = await statusRes.json().catch(() => null);
-        throw new Error(payload?.message || payload?.error || `Status update failed (${statusRes.status})`);
-      }
       setIsSubmitted(true);
     } catch (error) {
       console.error('Error submitting form:', error);

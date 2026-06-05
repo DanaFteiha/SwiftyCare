@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Shield, User, ArrowRight, Globe, MapPin, CreditCard } from 'lucide-react'
 import { apiFetch } from '@/lib/api'
+import { setPatientCaseToken } from '@/lib/auth'
 
 interface FormData {
   hospital: string
@@ -125,8 +126,15 @@ function ScanPage() {
         }
       }
 
-      const caseData = await response.json()
-      navigate(`/patient/questionnaire/${caseData._id}`)
+      const data = await response.json()
+      const createdCase = data.case ?? data
+      const caseId = createdCase._id
+      // Store the case-scoped token so the patient can submit the questionnaire
+      // for this case without staff credentials.
+      if (data.patientCaseToken && caseId) {
+        setPatientCaseToken(caseId, data.patientCaseToken)
+      }
+      navigate(`/patient/questionnaire/${caseId}`)
     } catch (error) {
       console.error('Error creating case:', error)
       if (error instanceof DOMException && error.name === 'AbortError') {

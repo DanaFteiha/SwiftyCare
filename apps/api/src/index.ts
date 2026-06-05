@@ -3,6 +3,9 @@ import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import caseRoutes from "./routes/caseRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
+import { seedUsers } from "./services/seedUsers.js";
 
 dotenv.config();
 
@@ -81,8 +84,13 @@ app.use((req, res, next) => {
 
 // --------------- MongoDB ---------------
 mongoose.connect(MONGODB_URI)
-  .then(() => {
+  .then(async () => {
     console.log("✅ Connected to MongoDB");
+    try {
+      await seedUsers();
+    } catch (seedErr) {
+      console.error("⚠️  User seeding failed:", (seedErr as Error)?.message || seedErr);
+    }
   })
   .catch((err: unknown) => {
     const e = err as { name?: string; message?: string; code?: string | number };
@@ -118,6 +126,8 @@ app.get("/health", (_req, res) => {
 });
 
 // --------------- API Routes ---------------
+app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
 app.use("/api/cases", caseRoutes);
 
 // --------------- Start ---------------

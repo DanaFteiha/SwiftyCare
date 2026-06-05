@@ -16,8 +16,7 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
-
-const NURSE_ACCESS_KEY = 'swiftycare:nurseAccess';
+import { clearSession } from '@/lib/auth';
 
 function NurseDashboardPage() {
   const navigate = useNavigate();
@@ -32,7 +31,7 @@ function NurseDashboardPage() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem(NURSE_ACCESS_KEY);
+    clearSession();
     navigate('/nurse/login', { replace: true });
   };
 

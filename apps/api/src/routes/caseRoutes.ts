@@ -6,12 +6,14 @@ import { Questionnaire } from "../models/Questionnaire.js";
 import { buildDiagnosisMessages } from "../services/diagnosisPrompt.js";
 import { buildDischargeReportMessages } from "../services/dischargeReportPrompt.js";
 import { buildSummaryMessages } from "../services/summaryPrompt.js";
+import { requireStaff, requireCaseWriteAccess, requireCaseReadAccess } from "../middleware/auth.js";
+import { signPatientCaseToken } from "../config/auth.js";
 
 const router = express.Router();
 
 
 // ---------------- GET ALL CASES ----------------
-router.get("/", async (_req, res) => {
+router.get("/", requireStaff("doctor", "nurse", "admin"), async (_req, res) => {
   try {
     const cases = await Case.find({}).sort({ createdAt: -1 });
     return res.json({ count: cases.length, cases });
@@ -25,7 +27,7 @@ router.get("/", async (_req, res) => {
 });
 
 // ---------------- CREATE CASE ----------------
-router.post("/", async (req, res) => {
+router.post("/", requireStaff("intake", "nurse", "doctor", "admin"), async (req, res) => {
   try {
     if (mongoose.connection.readyState !== 1) {
       return res.status(503).json({
@@ -48,7 +50,12 @@ router.post("/", async (req, res) => {
       nationalId,
       ...(typeof hospital === "string" && hospital.trim() ? { hospital: hospital.trim() } : {}),
     });
-    return res.status(201).json(newCase);
+
+    // Issue a case-scoped patient token so the patient can submit the
+    // questionnaire for THIS case only, without holding staff credentials.
+    const patientCaseToken = signPatientCaseToken(String(newCase._id));
+
+    return res.status(201).json({ case: newCase, patientCaseToken });
   } catch (error: any) {
     console.error("Error creating case:", error);
 
@@ -71,9 +78,9 @@ router.post("/", async (req, res) => {
 });
 
 // ---------------- GET QUESTIONNAIRE ----------------
-router.get("/:id/questionnaire", async (req, res) => {
+router.get("/:id/questionnaire", requireStaff("doctor", "nurse", "admin"), async (req, res) => {
   try {
-    const caseId = req.params.id;
+    const caseId = req.params.id ?? "";
 
     // Validate ObjectId
     if (!mongoose.Types.ObjectId.isValid(caseId)) {
@@ -103,9 +110,9 @@ router.get("/:id/questionnaire", async (req, res) => {
 });
 
 // ---------------- CREATE QUESTIONNAIRE (PLACE BEFORE /:id) ----------------
-router.post("/:id/questionnaire", async (req, res) => {
+router.post("/:id/questionnaire", requireCaseWriteAccess, async (req, res) => {
   try {
-    const caseId = req.params.id;
+    const caseId = req.params.id ?? "";
     const { answers } = req.body;
     
     // validate ObjectId
@@ -130,8 +137,11 @@ router.post("/:id/questionnaire", async (req, res) => {
     }
 
     const questionnaire = await Questionnaire.create({ caseId, answers });
-    if (existingCase.status !== "open") {
-      existingCase.status = "open";
+    // After the patient completes the questionnaire the case moves to nurse
+    // triage. Doing this server-side means the patient token does not need
+    // permission to change case status.
+    if (existingCase.status !== "awaiting_vitals") {
+      existingCase.status = "awaiting_vitals";
       await existingCase.save();
     }
     return res.status(201).json(questionnaire);
@@ -146,9 +156,9 @@ router.post("/:id/questionnaire", async (req, res) => {
 });
 
 // ---------------- UPDATE STATUS ----------------
-router.patch("/:id/status", async (req, res) => {
+router.patch("/:id/status", requireStaff("nurse", "doctor", "admin"), async (req, res) => {
   try {
-    const caseId = req.params.id;
+    const caseId = req.params.id ?? "";
     const { status } = req.body;
 
     if (!mongoose.Types.ObjectId.isValid(caseId)) {
@@ -189,9 +199,9 @@ router.patch("/:id/status", async (req, res) => {
 });
 
 // ---------------- ORDER TESTS ----------------
-router.post("/:id/order-tests", async (req, res) => {
+router.post("/:id/order-tests", requireStaff("doctor", "admin"), async (req, res) => {
   try {
-    const caseId = req.params.id;
+    const caseId = req.params.id ?? "";
     const { tests } = req.body;
 
     if (!mongoose.Types.ObjectId.isValid(caseId)) {
@@ -238,9 +248,9 @@ router.post("/:id/order-tests", async (req, res) => {
 });
 
 // ---------------- UPDATE VITALS ----------------
-router.post("/:id/vitals", async (req, res) => {
+router.post("/:id/vitals", requireStaff("nurse", "doctor", "admin"), async (req, res) => {
   try {
-    const caseId = req.params.id;
+    const caseId = req.params.id ?? "";
     const vitalsData = req.body;
 
     // Validate ObjectId
@@ -309,9 +319,9 @@ router.post("/:id/vitals", async (req, res) => {
 });
 
 // ---------------- GENERATE SUMMARY ----------------
-router.post("/:id/summary", async (req, res) => {
+router.post("/:id/summary", requireStaff("doctor", "admin"), async (req, res) => {
   try {
-    const caseId = req.params.id;
+    const caseId = req.params.id ?? "";
 
     // Validate case ID
     if (!mongoose.Types.ObjectId.isValid(caseId)) {
@@ -414,9 +424,9 @@ router.post("/:id/summary", async (req, res) => {
 });
 
 // ---------------- GENERATE AI DIAGNOSIS ----------------
-router.post("/:id/diagnosis", async (req, res) => {
+router.post("/:id/diagnosis", requireStaff("doctor", "admin"), async (req, res) => {
   try {
-    const caseId = req.params.id;
+    const caseId = req.params.id ?? "";
 
     if (!mongoose.Types.ObjectId.isValid(caseId)) {
       return res.status(400).json({
@@ -504,9 +514,9 @@ router.post("/:id/diagnosis", async (req, res) => {
 });
 
 // ---------------- GENERATE DISCHARGE REPORT ----------------
-router.post("/:id/discharge-report/generate", async (req, res) => {
+router.post("/:id/discharge-report/generate", requireStaff("doctor", "admin"), async (req, res) => {
   try {
-    const caseId = req.params.id;
+    const caseId = req.params.id ?? "";
     const { action = "generate", currentText, language: bodyLang } = req.body; // "generate" | "improve" | "shorten"
 
     if (!mongoose.Types.ObjectId.isValid(caseId)) {
@@ -574,9 +584,9 @@ router.post("/:id/discharge-report/generate", async (req, res) => {
 });
 
 // ---------------- SAVE DISCHARGE REPORT DRAFT ----------------
-router.put("/:id/discharge-report", async (req, res) => {
+router.put("/:id/discharge-report", requireStaff("doctor", "admin"), async (req, res) => {
   try {
-    const caseId = req.params.id;
+    const caseId = req.params.id ?? "";
     const { draft } = req.body;
 
     if (!mongoose.Types.ObjectId.isValid(caseId)) {
@@ -600,9 +610,9 @@ router.put("/:id/discharge-report", async (req, res) => {
 });
 
 // ---------------- FINALIZE DISCHARGE REPORT ----------------
-router.post("/:id/discharge-report/finalize", async (req, res) => {
+router.post("/:id/discharge-report/finalize", requireStaff("doctor", "admin"), async (req, res) => {
   try {
-    const caseId = req.params.id;
+    const caseId = req.params.id ?? "";
     const { draft } = req.body;
 
     if (!mongoose.Types.ObjectId.isValid(caseId)) {
@@ -636,9 +646,12 @@ router.post("/:id/discharge-report/finalize", async (req, res) => {
 });
 
 // ---------------- GET CASE BY ID (KEEP LAST) ----------------
-router.get("/:id", async (req, res) => {
+// Staff (doctor/nurse/admin) get the full record. A patient holding the case
+// token for THIS case gets a PHI-minimised view (no national ID, no clinical
+// fields) — just enough to render the questionnaire greeting.
+router.get("/:id", requireCaseReadAccess, async (req, res) => {
   try {
-    const caseId = req.params.id;
+    const caseId = req.params.id ?? "";
 
     if (!mongoose.Types.ObjectId.isValid(caseId)) {
       return res.status(400).json({
@@ -652,6 +665,16 @@ router.get("/:id", async (req, res) => {
       return res.status(404).json({ message: "Case not found" });
     }
 
+    // Patient (non-staff) access → limited projection.
+    if (!req.staff) {
+      return res.json({
+        _id: caseDoc._id,
+        patientName: caseDoc.patientName,
+        hospital: caseDoc.hospital,
+        status: caseDoc.status,
+      });
+    }
+
     return res.json(caseDoc);
   } catch (error: any) {
     console.error("Error fetching case:", error);
@@ -663,9 +686,9 @@ router.get("/:id", async (req, res) => {
 });
 
 // ---------------- DELETE CASE ----------------
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", requireStaff("doctor", "admin"), async (req, res) => {
   try {
-    const caseId = req.params.id;
+    const caseId = req.params.id ?? "";
 
     if (!mongoose.Types.ObjectId.isValid(caseId)) {
       return res.status(400).json({

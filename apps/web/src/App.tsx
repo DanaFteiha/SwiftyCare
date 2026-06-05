@@ -13,6 +13,10 @@ import DoctorRoute from './components/DoctorRoute'
 import NurseLoginPage from './pages/NurseLoginPage'
 import NurseDashboardPage from './pages/NurseDashboardPage'
 import NurseRoute from './components/NurseRoute'
+import IntakeLoginPage from './pages/IntakeLoginPage'
+import IntakeRoute from './components/IntakeRoute'
+import AdminPanelPage from './pages/AdminPanelPage'
+import AdminRoute from './components/AdminRoute'
 
 const queryClient = new QueryClient()
 
@@ -36,10 +40,13 @@ function App() {
       <Router>
         <div className="min-h-screen bg-gray-50">
           <Routes>
-            {/* Patient entry points */}
-            <Route path="/" element={<ScanPage />} />
-            <Route path="/scan" element={<ScanPage />} />
-            <Route path="/patient" element={<ScanPage />} />
+            {/* Patient intake — runs on an authenticated registration/kiosk station */}
+            <Route path="/intake/login" element={<IntakeLoginPage />} />
+            <Route path="/" element={<IntakeRoute><ScanPage /></IntakeRoute>} />
+            <Route path="/scan" element={<IntakeRoute><ScanPage /></IntakeRoute>} />
+            <Route path="/patient" element={<IntakeRoute><ScanPage /></IntakeRoute>} />
+
+            {/* Questionnaire — patient completes it using a case-scoped token */}
             <Route path="/questionnaire/:caseId" element={<QuestionnairePage />} />
             <Route path="/patient/questionnaire/:caseId" element={<QuestionnairePage />} />
 
@@ -63,6 +70,16 @@ function App() {
                 <NurseRoute>
                   <VitalsEntryPage />
                 </NurseRoute>
+              }
+            />
+
+            {/* Admin */}
+            <Route
+              path="/admin"
+              element={
+                <AdminRoute>
+                  <AdminPanelPage />
+                </AdminRoute>
               }
             />
 

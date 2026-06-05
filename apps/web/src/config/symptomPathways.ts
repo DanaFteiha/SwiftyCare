@@ -497,6 +497,12 @@ const chestPainPathway: SymptomPathway = {
       ],
     },
     {
+      id: 'cpSimilarPast',
+      type: 'boolean',
+      label: 'Have you had similar pains in the past to this pain?',
+      required: true,
+    },
+    {
       id: 'cpRfRadiation',
       type: 'boolean',
       label: 'Does the pain spread to your arm, jaw, or back?',
@@ -979,6 +985,261 @@ const backPainPathway: SymptomPathway = {
   ],
 };
 
+// ─── Pathway: Flank Pain ────────────────────────────────────────────────────
+
+const flankPainPathway: SymptomPathway = {
+  id: 'flankPain',
+  name: 'Flank Pain',
+  questions: [
+    {
+      id: 'fpSide',
+      type: 'singleSelect',
+      label: 'Which side is the pain on?',
+      options: [
+        { id: 'right', label: 'Right flank' },
+        { id: 'left', label: 'Left flank' },
+        { id: 'both', label: 'Both sides' },
+      ],
+      required: true,
+    },
+    {
+      id: 'fpCharacter',
+      type: 'singleSelect',
+      label: 'How would you describe the pain?',
+      options: [
+        { id: 'colicky', label: 'Colicky (comes in waves)' },
+        { id: 'constant', label: 'Constant dull pain' },
+        { id: 'sharp', label: 'Sharp / stabbing' },
+      ],
+      required: true,
+    },
+    {
+      id: 'fpSeverity',
+      type: 'slider',
+      label: 'Pain severity (0 = no pain, 10 = worst imaginable)',
+      min: 0,
+      max: 10,
+      required: true,
+      isRedFlag: true,
+      redFlagValues: [8],
+    },
+    {
+      id: 'fpOnset',
+      type: 'singleSelect',
+      label: 'When did it start?',
+      options: [
+        { id: 'sudden', label: 'Sudden' },
+        { id: 'gradual', label: 'Gradual' },
+        { id: 'intermittent', label: 'Comes and goes' },
+      ],
+    },
+    {
+      id: 'fpAssociated',
+      type: 'multiSelect',
+      label: 'Any associated symptoms?',
+      maxSelections: 5,
+      options: [
+        { id: 'dysuria', label: 'Burning with urination' },
+        { id: 'hematuria', label: 'Blood in urine' },
+        { id: 'fever', label: 'Fever' },
+        { id: 'nausea', label: 'Nausea or vomiting' },
+        { id: 'urinaryFrequency', label: 'Urinary frequency / urgency' },
+      ],
+      isRedFlag: true,
+      redFlagValues: ['hematuria', 'fever'],
+    },
+  ],
+};
+
+// ─── Pathway: Joint Pain ────────────────────────────────────────────────────
+
+const jointPainPathway: SymptomPathway = {
+  id: 'jointPain',
+  name: 'Joint Pain',
+  questions: [
+    {
+      id: 'jpJoint',
+      type: 'singleSelect',
+      label: 'Which joint is affected?',
+      options: [
+        { id: 'knee', label: 'Knee' },
+        { id: 'hip', label: 'Hip' },
+        { id: 'shoulder', label: 'Shoulder' },
+        { id: 'wristHand', label: 'Wrist / hand' },
+        { id: 'ankleFoot', label: 'Ankle / foot' },
+        { id: 'elbow', label: 'Elbow' },
+        { id: 'multiple', label: 'Multiple joints' },
+      ],
+      required: true,
+    },
+    {
+      id: 'jpOnset',
+      type: 'singleSelect',
+      label: 'How did it start?',
+      options: [
+        { id: 'sudden', label: 'Sudden' },
+        { id: 'gradual', label: 'Gradual' },
+        { id: 'afterInjury', label: 'After injury or fall' },
+      ],
+      required: true,
+    },
+    {
+      id: 'jpSeverity',
+      type: 'slider',
+      label: 'Pain severity (0 = no pain, 10 = worst imaginable)',
+      min: 0,
+      max: 10,
+      required: true,
+      isRedFlag: true,
+      redFlagValues: [8],
+    },
+    {
+      id: 'jpSwelling',
+      type: 'boolean',
+      label: 'Is the joint swollen?',
+      required: true,
+    },
+    {
+      id: 'jpAssociated',
+      type: 'multiSelect',
+      label: 'Any associated symptoms?',
+      maxSelections: 5,
+      options: [
+        { id: 'fever', label: 'Fever' },
+        { id: 'rednessWarmth', label: 'Redness / warmth over the joint' },
+        { id: 'stiffness', label: 'Stiffness (especially in the morning)' },
+        { id: 'limitedMovement', label: 'Limited range of movement' },
+        { id: 'trauma', label: 'Recent injury or fall' },
+      ],
+      isRedFlag: true,
+      redFlagValues: ['fever', 'rednessWarmth'],
+    },
+  ],
+};
+
+// ─── Pathway: Limb Pain ─────────────────────────────────────────────────────
+
+const painInLimbsPathway: SymptomPathway = {
+  id: 'painInLimbs',
+  name: 'Limb Pain',
+  questions: [
+    {
+      id: 'plLimb',
+      type: 'singleSelect',
+      label: 'Which limb is painful?',
+      options: [
+        { id: 'upperArm', label: 'Arm / hand' },
+        { id: 'lowerLeg', label: 'Leg / foot' },
+        { id: 'multiple', label: 'Multiple limbs' },
+      ],
+      required: true,
+    },
+    {
+      id: 'plSide',
+      type: 'singleSelect',
+      label: 'Which side?',
+      options: [
+        { id: 'left', label: 'Left' },
+        { id: 'right', label: 'Right' },
+        { id: 'both', label: 'Both sides' },
+      ],
+      required: true,
+    },
+    {
+      id: 'plOnset',
+      type: 'singleSelect',
+      label: 'How did it start?',
+      options: [
+        { id: 'sudden', label: 'Sudden' },
+        { id: 'gradual', label: 'Gradual' },
+        { id: 'afterInjury', label: 'After injury or fall' },
+      ],
+      required: true,
+    },
+    {
+      id: 'plSeverity',
+      type: 'slider',
+      label: 'Pain severity (0 = no pain, 10 = worst imaginable)',
+      min: 0,
+      max: 10,
+      required: true,
+      isRedFlag: true,
+      redFlagValues: [8],
+    },
+    {
+      id: 'plAssociated',
+      type: 'multiSelect',
+      label: 'Any associated symptoms?',
+      maxSelections: 5,
+      options: [
+        { id: 'swelling', label: 'Swelling' },
+        { id: 'redness', label: 'Redness / warmth' },
+        { id: 'numbness', label: 'Numbness / tingling' },
+        { id: 'weakness', label: 'Weakness' },
+        { id: 'fever', label: 'Fever' },
+      ],
+      isRedFlag: true,
+      redFlagValues: ['fever', 'weakness'],
+    },
+  ],
+};
+
+// ─── Pathway: Ear Pain ──────────────────────────────────────────────────────
+
+const earPainPathway: SymptomPathway = {
+  id: 'earPain',
+  name: 'Ear Pain',
+  questions: [
+    {
+      id: 'eaLaterality',
+      type: 'singleSelect',
+      label: 'Which ear is painful?',
+      options: [
+        { id: 'left', label: 'Left ear' },
+        { id: 'right', label: 'Right ear' },
+        { id: 'both', label: 'Both ears' },
+      ],
+      required: true,
+    },
+    {
+      id: 'eaOnset',
+      type: 'singleSelect',
+      label: 'How did it start?',
+      options: [
+        { id: 'sudden', label: 'Sudden' },
+        { id: 'gradual', label: 'Gradual' },
+        { id: 'afterCold', label: 'After cold / upper respiratory infection' },
+      ],
+      required: true,
+    },
+    {
+      id: 'eaSeverity',
+      type: 'slider',
+      label: 'Pain severity (0 = no pain, 10 = worst imaginable)',
+      min: 0,
+      max: 10,
+      required: true,
+      isRedFlag: true,
+      redFlagValues: [8],
+    },
+    {
+      id: 'eaAssociated',
+      type: 'multiSelect',
+      label: 'Any associated symptoms?',
+      maxSelections: 5,
+      options: [
+        { id: 'fever', label: 'Fever' },
+        { id: 'hearingLoss', label: 'Hearing loss / muffled hearing' },
+        { id: 'discharge', label: 'Ear discharge' },
+        { id: 'soreThroat', label: 'Sore throat' },
+        { id: 'dizziness', label: 'Dizziness / vertigo' },
+      ],
+      isRedFlag: true,
+      redFlagValues: ['hearingLoss', 'fever'],
+    },
+  ],
+};
+
 // ─── Simplified Pathway: Neck Pain ──────────────────────────────────────────
 
 const neckPainPathway: SymptomPathway = {
@@ -1010,7 +1271,7 @@ const neckPainPathway: SymptomPathway = {
     {
       id: 'npRadiation',
       type: 'singleSelect',
-      label: 'Does the pain spread?',
+      label: 'Does the pain radiate?',
       options: [
         { id: 'none', label: 'No, stays in neck' },
         { id: 'toArm', label: 'Yes, to arm / hand' },
@@ -1098,6 +1359,10 @@ export const SYMPTOM_PATHWAYS: Record<string, SymptomPathway> = {
   injuryTrauma: injuryTraumaPathway,
   changeInConsciousness: changeInConsciousnessPathway,
   backPain: backPainPathway,
+  flankPain: flankPainPathway,
+  jointPain: jointPainPathway,
+  painInLimbs: painInLimbsPathway,
+  earPain: earPainPathway,
   neckPain: neckPainPathway,
   eyeProblems: eyeProblemsPathway,
 };
@@ -1120,13 +1385,13 @@ export const SYMPTOM_TO_PATHWAY: Record<string, string> = {
   neckPain: 'neckPain',
   swellingEdema: 'shortnessOfBreath',
   fatigueWeakness: 'fever',
-  jointPain: 'backPain',
-  painInLimbs: 'injuryTrauma',
-  earPain: 'fever',
+  jointPain: 'jointPain',
+  painInLimbs: 'painInLimbs',
+  earPain: 'earPain',
   eyeProblems: 'eyeProblems',
   injectionSitePain: 'injuryTrauma',
   // ── New complaint keys ──
-  flankPain: 'backPain',               // closest anatomical pathway
+  flankPain: 'flankPain',
   cough: 'cough',
   vomiting: 'nauseaVomitingDiarrhea',  // same GI pathway
   diarrhea: 'nauseaVomitingDiarrhea',  // same GI pathway
