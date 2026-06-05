@@ -13,7 +13,6 @@ import {
   UserX,
   Trash2,
   KeyRound,
-  ChevronDown,
   ChevronUp,
 } from 'lucide-react'
 import { apiFetch } from '@/lib/api'
