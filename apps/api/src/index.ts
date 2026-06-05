@@ -1,11 +1,13 @@
 import express from "express";
 import cors from "cors";
+import helmet from "helmet";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import caseRoutes from "./routes/caseRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import { seedUsers } from "./services/seedUsers.js";
+import { generalLimiter } from "./middleware/rateLimits.js";
 
 dotenv.config();
 
@@ -32,6 +34,26 @@ function sanitizeUri(uri: string): string {
 
 // --------------- Express app ---------------
 const app = express();
+
+// --------------- Security headers (P1-8) ---------------
+// helmet sets X-Content-Type-Options, X-Frame-Options, HSTS, and more.
+// CSP is minimal since the API serves only JSON (no HTML/scripts).
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'none'"],
+        frameAncestors: ["'none'"],
+      },
+    },
+    // API is JSON-only; these browser-oriented headers are still worth setting.
+    crossOriginEmbedderPolicy: false,
+  })
+);
+
+// --------------- Rate limiting (P1-9) ---------------
+app.set("trust proxy", 1); // Render / Vercel set X-Forwarded-For
+app.use(generalLimiter);
 
 // --------------- CORS ---------------
 const rawCorsOrigins = process.env.CORS_ORIGINS || "";
@@ -67,7 +89,7 @@ app.use(cors({
   credentials: false
 }));
 app.options(/.*/, cors());
-app.use(express.json());
+app.use(express.json({ limit: "50kb" })); // P1-10: body size cap
 
 // --------------- Request logging ---------------
 app.use((req, res, next) => {

@@ -10,56 +10,44 @@ import express from "express";
 import mongoose from "mongoose";
 import { User, hashPassword } from "../models/User.js";
 import { requireStaff } from "../middleware/auth.js";
-import { ROLES } from "../config/auth.js";
+import { validateBody, createUserSchema, updateUserSchema } from "../middleware/validate.js";
+import { auditLog } from "../middleware/auditLog.js";
 
 const router = express.Router();
 const adminOnly = requireStaff("admin");
 
 // ─── List ────────────────────────────────────────────────────────────────────
-router.get("/", adminOnly, async (_req, res) => {
+router.get("/", adminOnly, async (req, res) => {
   try {
     const users = await User.find({}).sort({ createdAt: 1 });
+    auditLog(req, "user.list");
     return res.json({ users });
-  } catch (err) {
-    console.error("List users error:", err);
+  } catch {
     return res.status(500).json({ error: "Internal server error" });
   }
 });
 
 // ─── Create ──────────────────────────────────────────────────────────────────
-router.post("/", adminOnly, async (req, res) => {
+router.post("/", adminOnly, validateBody(createUserSchema), async (req, res) => {
   try {
-    const { username, password, role, displayName } = req.body ?? {};
-
-    if (!username || !password || !role || !displayName) {
-      return res.status(400).json({
-        error: "Bad request",
-        message: "username, password, role, and displayName are required",
-      });
-    }
-    if (typeof username !== "string" || username.trim().length < 3) {
-      return res.status(400).json({ error: "Bad request", message: "username must be at least 3 characters" });
-    }
-    if (typeof password !== "string" || password.length < 8) {
-      return res.status(400).json({ error: "Bad request", message: "password must be at least 8 characters" });
-    }
-    if (!ROLES.includes(role)) {
-      return res.status(400).json({
-        error: "Bad request",
-        message: `role must be one of: ${ROLES.join(", ")}`,
-      });
-    }
+    const { username, password, role, displayName } = req.body as {
+      username: string;
+      password: string;
+      role: "admin" | "doctor" | "nurse" | "intake";
+      displayName: string;
+    };
 
     const passwordHash = await hashPassword(password);
     const user = new User({
       username: username.trim().toLowerCase(),
       passwordHash,
       role,
-      displayName: (displayName as string).trim(),
+      displayName: displayName.trim(),
       active: true,
     });
     await user.save();
 
+    auditLog(req, "user.create", String(user._id));
     const saved = user.toObject() as unknown as Record<string, unknown>;
     delete saved["passwordHash"];
     return res.status(201).json({ user: saved });
@@ -68,56 +56,39 @@ router.post("/", adminOnly, async (req, res) => {
     if (e?.code === 11000) {
       return res.status(409).json({ error: "Conflict", message: "Username already exists" });
     }
-    console.error("Create user error:", err);
     return res.status(500).json({ error: "Internal server error" });
   }
 });
 
 // ─── Update ──────────────────────────────────────────────────────────────────
-router.patch("/:id", adminOnly, async (req, res) => {
+router.patch("/:id", adminOnly, validateBody(updateUserSchema), async (req, res) => {
   try {
     const id = req.params.id ?? "";
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ error: "Bad request", message: "Invalid user ID" });
     }
 
-    const { displayName, role, active, password } = req.body ?? {};
+    const { displayName, role, active, password } = req.body as {
+      displayName?: string;
+      role?: "admin" | "doctor" | "nurse" | "intake";
+      active?: boolean;
+      password?: string;
+    };
+
     const update: Record<string, unknown> = {};
-
-    if (typeof displayName === "string" && displayName.trim()) {
-      update["displayName"] = displayName.trim();
-    }
-    if (role !== undefined) {
-      if (!ROLES.includes(role)) {
-        return res.status(400).json({
-          error: "Bad request",
-          message: `role must be one of: ${ROLES.join(", ")}`,
-        });
-      }
-      update["role"] = role;
-    }
-    if (typeof active === "boolean") {
-      update["active"] = active;
-    }
-    if (typeof password === "string") {
-      if (password.length < 8) {
-        return res.status(400).json({ error: "Bad request", message: "password must be at least 8 characters" });
-      }
-      update["passwordHash"] = await hashPassword(password);
-    }
-
-    if (Object.keys(update).length === 0) {
-      return res.status(400).json({ error: "Bad request", message: "No valid fields to update" });
-    }
+    if (displayName !== undefined) update["displayName"] = displayName.trim();
+    if (role !== undefined)        update["role"] = role;
+    if (active !== undefined)      update["active"] = active;
+    if (password !== undefined)    update["passwordHash"] = await hashPassword(password);
 
     const user = await User.findByIdAndUpdate(id, { $set: update }, { new: true });
     if (!user) return res.status(404).json({ error: "Not found" });
 
+    auditLog(req, "user.update", id);
     const updated = user.toObject() as unknown as Record<string, unknown>;
     delete updated["passwordHash"];
     return res.json({ user: updated });
-  } catch (err) {
-    console.error("Update user error:", err);
+  } catch {
     return res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -136,9 +107,9 @@ router.delete("/:id", adminOnly, async (req, res) => {
     const user = await User.findByIdAndDelete(id);
     if (!user) return res.status(404).json({ error: "Not found" });
 
+    auditLog(req, "user.delete", id);
     return res.json({ message: "User deleted" });
-  } catch (err) {
-    console.error("Delete user error:", err);
+  } catch {
     return res.status(500).json({ error: "Internal server error" });
   }
 });

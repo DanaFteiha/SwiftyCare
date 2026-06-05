@@ -8,128 +8,101 @@ import { buildDischargeReportMessages } from "../services/dischargeReportPrompt.
 import { buildSummaryMessages } from "../services/summaryPrompt.js";
 import { requireStaff, requireCaseWriteAccess, requireCaseReadAccess } from "../middleware/auth.js";
 import { signPatientCaseToken } from "../config/auth.js";
+import { auditLog } from "../middleware/auditLog.js";
+import { aiLimiter } from "../middleware/rateLimits.js";
+import {
+  validateBody,
+  createCaseSchema,
+  vitalsSchema,
+  questionnaireSchema,
+  languageBodySchema,
+} from "../middleware/validate.js";
 
 const router = express.Router();
 
+function validId(id: string) {
+  return mongoose.Types.ObjectId.isValid(id);
+}
 
-// ---------------- GET ALL CASES ----------------
-router.get("/", requireStaff("doctor", "nurse", "admin"), async (_req, res) => {
+// ─── GET ALL CASES ────────────────────────────────────────────────────────────
+router.get("/", requireStaff("doctor", "nurse", "admin"), async (req, res) => {
   try {
     const cases = await Case.find({}).sort({ createdAt: -1 });
+    auditLog(req, "case.list");
     return res.json({ count: cases.length, cases });
-  } catch (error: any) {
-    console.error("Error fetching cases:", error);
-    return res.status(500).json({
-      message: "Error fetching cases",
-      error: error.message
-    });
+  } catch {
+    return res.status(500).json({ error: "Internal server error" });
   }
 });
 
-// ---------------- CREATE CASE ----------------
-router.post("/", requireStaff("intake", "nurse", "doctor", "admin"), async (req, res) => {
+// ─── CREATE CASE ──────────────────────────────────────────────────────────────
+router.post("/", requireStaff("intake", "nurse", "doctor", "admin"), validateBody(createCaseSchema), async (req, res) => {
   try {
     if (mongoose.connection.readyState !== 1) {
       return res.status(503).json({
         error: "Database unavailable",
-        message: "Database is not connected. Please start MongoDB or configure MONGODB_URI."
+        message: "Database is not connected",
       });
     }
 
-    const { patientName, nationalId, hospital } = req.body;
-
-    if (!patientName || !nationalId) {
-      return res.status(400).json({
-        error: "Missing required fields",
-        message: "Both patientName and nationalId are required"
-      });
-    }
+    const { patientName, nationalId, hospital } = req.body as {
+      patientName: string;
+      nationalId: string;
+      hospital?: string;
+    };
 
     const newCase = await Case.create({
       patientName,
       nationalId,
-      ...(typeof hospital === "string" && hospital.trim() ? { hospital: hospital.trim() } : {}),
+      ...(hospital ? { hospital } : {}),
     });
 
-    // Issue a case-scoped patient token so the patient can submit the
-    // questionnaire for THIS case only, without holding staff credentials.
     const patientCaseToken = signPatientCaseToken(String(newCase._id));
-
+    auditLog(req, "case.create", String(newCase._id));
     return res.status(201).json({ case: newCase, patientCaseToken });
-  } catch (error: any) {
-    console.error("Error creating case:", error);
+  } catch (error: unknown) {
+    const e = error as { name?: string; message?: string; code?: number };
 
-    if (error.name === "ValidationError") {
-      return res.status(400).json({
-        error: "Validation error",
-        message: error.message
-      });
+    if (e?.name === "ValidationError") {
+      return res.status(400).json({ error: "Validation error", message: e.message });
     }
-
-    if (error.code === 11000) {
-      return res.status(409).json({
-        error: "Duplicate national ID",
-        message: "A case with this national ID already exists"
-      });
+    // P1-12: hide national-ID probing — return a generic 400 instead of 409
+    if (e?.code === 11000) {
+      return res.status(400).json({ error: "Bad request", message: "Could not create case. Please verify the information and try again." });
     }
-
-    return res.status(500).json({ message: "Failed to create case" });
+    return res.status(500).json({ error: "Internal server error" });
   }
 });
 
-// ---------------- GET QUESTIONNAIRE ----------------
+// ─── GET QUESTIONNAIRE ────────────────────────────────────────────────────────
 router.get("/:id/questionnaire", requireStaff("doctor", "nurse", "admin"), async (req, res) => {
   try {
     const caseId = req.params.id ?? "";
-
-    // Validate ObjectId
-    if (!mongoose.Types.ObjectId.isValid(caseId)) {
-      return res.status(400).json({
-        error: "Invalid ID format",
-        message: "Please provide a valid MongoDB ObjectId"
-      });
+    if (!validId(caseId)) {
+      return res.status(400).json({ error: "Invalid ID format" });
     }
 
-    // Find questionnaire
     const questionnaire = await Questionnaire.findOne({ caseId });
-    
     if (!questionnaire) {
-      return res.status(404).json({
-        message: "Questionnaire not found"
-      });
+      return res.status(404).json({ message: "Questionnaire not found" });
     }
 
+    auditLog(req, "case.questionnaire.read", caseId);
     return res.status(200).json(questionnaire);
-  } catch (error: any) {
-    console.error("Error fetching questionnaire:", error);
-    return res.status(500).json({
-      message: "Error fetching questionnaire",
-      error: error.message
-    });
+  } catch {
+    return res.status(500).json({ error: "Internal server error" });
   }
 });
 
-// ---------------- CREATE QUESTIONNAIRE (PLACE BEFORE /:id) ----------------
-router.post("/:id/questionnaire", requireCaseWriteAccess, async (req, res) => {
+// ─── SUBMIT QUESTIONNAIRE ─────────────────────────────────────────────────────
+router.post("/:id/questionnaire", requireCaseWriteAccess, validateBody(questionnaireSchema), async (req, res) => {
   try {
     const caseId = req.params.id ?? "";
-    const { answers } = req.body;
-    
-    // validate ObjectId
-    if (!mongoose.Types.ObjectId.isValid(caseId)) {
-      return res.status(400).json({
-        error: "Invalid ID format",
-        message: "Please provide a valid MongoDB ObjectId"
-      });
+    if (!validId(caseId)) {
+      return res.status(400).json({ error: "Invalid ID format" });
     }
 
-    // validate answers body
-    if (!answers || typeof answers !== "object") {
-      return res.status(400).json({
-        error: "Invalid body",
-        message: "Missing or invalid 'answers' field in request body"
-      });
-    }
+    const { answers } = req.body as { answers: Record<string, unknown> };
 
     const existingCase = await Case.findById(caseId);
     if (!existingCase) {
@@ -137,214 +110,126 @@ router.post("/:id/questionnaire", requireCaseWriteAccess, async (req, res) => {
     }
 
     const questionnaire = await Questionnaire.create({ caseId, answers });
-    // After the patient completes the questionnaire the case moves to nurse
-    // triage. Doing this server-side means the patient token does not need
-    // permission to change case status.
     if (existingCase.status !== "awaiting_vitals") {
       existingCase.status = "awaiting_vitals";
       await existingCase.save();
     }
+
+    auditLog(req, "case.questionnaire.submit", caseId);
     return res.status(201).json(questionnaire);
-  } catch (error: any) {
-    console.error("Questionnaire error:", error);
-    return res.status(500).json({
-      error: "Internal server error",
-      message: "Error saving questionnaire",
-      details: error.message
-    });
+  } catch {
+    return res.status(500).json({ error: "Internal server error" });
   }
 });
 
-// ---------------- UPDATE STATUS ----------------
+// ─── UPDATE STATUS ────────────────────────────────────────────────────────────
 router.patch("/:id/status", requireStaff("nurse", "doctor", "admin"), async (req, res) => {
   try {
     const caseId = req.params.id ?? "";
-    const { status } = req.body;
+    const { status } = req.body as { status?: string };
 
-    if (!mongoose.Types.ObjectId.isValid(caseId)) {
-      return res.status(400).json({
-        error: "Invalid ID format",
-        message: "Please provide a valid MongoDB ObjectId"
-      });
+    if (!validId(caseId)) {
+      return res.status(400).json({ error: "Invalid ID format" });
     }
 
-    // "closed" may only be set by the discharge-report/finalize endpoint.
-    // Any other code path (e.g. the dashboard) must not be able to close a case directly.
     const allowedStatuses = ["awaiting_vitals", "open", "in_progress", "tests_ordered", "cancelled"];
     if (!status || !allowedStatuses.includes(status)) {
       return res.status(400).json({
         error: "Invalid status",
-        message: `Status must be one of: ${allowedStatuses.join(", ")}. To close a case, finalize the discharge report.`
+        message: `Status must be one of: ${allowedStatuses.join(", ")}. To close a case, finalize the discharge report.`,
       });
     }
 
-    const updatedCase = await Case.findByIdAndUpdate(
-      caseId,
-      { status },
-      { new: true, runValidators: true }
-    );
+    const updatedCase = await Case.findByIdAndUpdate(caseId, { status }, { new: true, runValidators: true });
+    if (!updatedCase) return res.status(404).json({ message: "Case not found" });
 
-    if (!updatedCase) {
-      return res.status(404).json({ message: "Case not found" });
-    }
-
+    auditLog(req, "case.update.status", caseId);
     return res.status(200).json(updatedCase);
-  } catch (error: any) {
-    console.error("Status update error:", error);
-    return res.status(500).json({
-      message: "Error updating case status",
-      error: error.message
-    });
+  } catch {
+    return res.status(500).json({ error: "Internal server error" });
   }
 });
 
-// ---------------- ORDER TESTS ----------------
+// ─── ORDER TESTS ──────────────────────────────────────────────────────────────
 router.post("/:id/order-tests", requireStaff("doctor", "admin"), async (req, res) => {
   try {
     const caseId = req.params.id ?? "";
-    const { tests } = req.body;
+    const { tests } = req.body as { tests?: unknown };
 
-    if (!mongoose.Types.ObjectId.isValid(caseId)) {
-      return res.status(400).json({
-        error: "Invalid ID format",
-        message: "Please provide a valid MongoDB ObjectId"
-      });
+    if (!validId(caseId)) {
+      return res.status(400).json({ error: "Invalid ID format" });
     }
 
     const caseDoc = await Case.findById(caseId);
-    if (!caseDoc) {
-      return res.status(404).json({ message: "Case not found" });
-    }
+    if (!caseDoc) return res.status(404).json({ message: "Case not found" });
 
     if (caseDoc.status === "closed") {
-      return res.status(409).json({
-        error: "Case already closed",
-        message: "This case has already been closed."
-      });
+      return res.status(409).json({ error: "Case already closed" });
     }
 
-    // Ordering tests must NOT change case status.
-    // Status remains open/in_progress until discharge is finalized.
-    const updateFields: Record<string, unknown> = {
-      orderedAt: new Date(),
-    };
-    if (tests && Array.isArray(tests)) {
-      updateFields.orderedTests = tests;
-    }
+    const updateFields: Record<string, unknown> = { orderedAt: new Date() };
+    if (Array.isArray(tests)) updateFields["orderedTests"] = tests;
 
-    const updatedCase = await Case.findByIdAndUpdate(caseId, updateFields, {
-      new: true,
-      runValidators: true,
-    });
-
+    const updatedCase = await Case.findByIdAndUpdate(caseId, updateFields, { new: true, runValidators: true });
+    auditLog(req, "case.tests.order", caseId);
     return res.status(200).json(updatedCase);
-  } catch (error: any) {
-    console.error("Order tests error:", error);
-    return res.status(500).json({
-      message: "Error ordering tests",
-      error: error.message
-    });
+  } catch {
+    return res.status(500).json({ error: "Internal server error" });
   }
 });
 
-// ---------------- UPDATE VITALS ----------------
-router.post("/:id/vitals", requireStaff("nurse", "doctor", "admin"), async (req, res) => {
+// ─── UPDATE VITALS ────────────────────────────────────────────────────────────
+router.post("/:id/vitals", requireStaff("nurse", "doctor", "admin"), validateBody(vitalsSchema), async (req, res) => {
   try {
     const caseId = req.params.id ?? "";
-    const vitalsData = req.body;
-
-    // Validate ObjectId
-    if (!mongoose.Types.ObjectId.isValid(caseId)) {
-      return res.status(400).json({
-        error: "Invalid ID format",
-        message: "Please provide a valid MongoDB ObjectId"
-      });
+    if (!validId(caseId)) {
+      return res.status(400).json({ error: "Invalid ID format" });
     }
 
-    // Validate that at least one vital field is provided
-    const validVitalsFields = ['bp', 'hr', 'spo2', 'temp', 'respRate', 'painScore'];
-    const providedFields = Object.keys(vitalsData).filter(key => 
-      validVitalsFields.includes(key) && vitalsData[key] !== undefined && vitalsData[key] !== null
-    );
-
-    if (providedFields.length === 0) {
-      return res.status(400).json({
-        error: "Invalid request body",
-        message: "At least one vital field must be provided",
-        validFields: validVitalsFields
-      });
+    const vitalsData = req.body as Record<string, unknown>;
+    const defined = Object.values(vitalsData).filter(v => v !== undefined && v !== null);
+    if (defined.length === 0) {
+      return res.status(400).json({ error: "At least one vital field is required" });
     }
 
-    // Find the case
     const existingCase = await Case.findById(caseId);
-    if (!existingCase) {
-      return res.status(404).json({ message: "Case not found" });
-    }
+    if (!existingCase) return res.status(404).json({ message: "Case not found" });
 
-    // Update vitals - merge with existing vitals
-    const currentVitals = existingCase.vitals || {};
-    const updatedVitals = { ...currentVitals, ...vitalsData };
+    const updatedVitals = { ...(existingCase.vitals as Record<string, unknown> ?? {}), ...vitalsData };
+    const update: Record<string, unknown> = { vitals: updatedVitals };
+    if (existingCase.status === "awaiting_vitals") update["status"] = "open";
 
-    // Triage hand-off: when the nurse records vitals on a case that was waiting
-    // for triage, transition the case to "open" so it appears on the doctor's
-    // dashboard. Cases that were already past triage keep their current status.
-    const update: Record<string, any> = { vitals: updatedVitals };
-    if (existingCase.status === "awaiting_vitals") {
-      update.status = "open";
-    }
-
-    const updatedCase = await Case.findByIdAndUpdate(
-      caseId,
-      update,
-      { new: true, runValidators: true }
-    );
-
+    const updatedCase = await Case.findByIdAndUpdate(caseId, update, { new: true, runValidators: true });
+    auditLog(req, "case.update.vitals", caseId);
     return res.status(200).json(updatedCase);
-  } catch (error: any) {
-    console.error("Vitals update error:", error);
-    
-    // Handle validation errors
-    if (error.name === "ValidationError") {
-      return res.status(400).json({
-        error: "Validation error",
-        message: error.message
-      });
+  } catch (error: unknown) {
+    const e = error as { name?: string };
+    if (e?.name === "ValidationError") {
+      return res.status(400).json({ error: "Validation error" });
     }
-
-    return res.status(500).json({
-      message: "Error updating vitals",
-      error: error.message
-    });
+    return res.status(500).json({ error: "Internal server error" });
   }
 });
 
-// ---------------- GENERATE SUMMARY ----------------
-router.post("/:id/summary", requireStaff("doctor", "admin"), async (req, res) => {
+// ─── GENERATE SUMMARY ─────────────────────────────────────────────────────────
+router.post("/:id/summary", requireStaff("doctor", "admin"), aiLimiter, validateBody(languageBodySchema), async (req, res) => {
   try {
     const caseId = req.params.id ?? "";
-
-    // Validate case ID
-    if (!mongoose.Types.ObjectId.isValid(caseId)) {
-      return res.status(400).json({ 
-        error: "Invalid case ID format",
-        message: "Please provide a valid MongoDB ObjectId"
-      });
+    if (!validId(caseId)) {
+      return res.status(400).json({ error: "Invalid ID format" });
     }
 
-    // Fetch case data
     const existingCase = await Case.findById(caseId);
-    if (!existingCase) {
-      return res.status(404).json({ 
-        error: "Case not found",
-        message: "No case found with the provided ID"
-      });
-    }
+    if (!existingCase) return res.status(404).json({ message: "Case not found" });
 
     const questionnaire = await Questionnaire.findOne({ caseId });
-    const answers = questionnaire?.answers || {};
-    const vitals = existingCase.vitals || {};
+    const answers = questionnaire?.answers ?? {};
+    const vitals = existingCase.vitals ?? {};
+    const language = ((req.body as { language?: string }).language === "he" ? "he" : "en") as "en" | "he";
 
-    const language = (req.body?.language === "he" ? "he" : "en") as "en" | "he";
+    if (!process.env.OPENAI_API_KEY) {
+      return res.status(503).json({ error: "AI features not configured" });
+    }
 
     const { systemMessage, userMessage } = buildSummaryMessages({
       answers,
@@ -352,19 +237,9 @@ router.post("/:id/summary", requireStaff("doctor", "admin"), async (req, res) =>
       language,
     });
 
-    if (!process.env.OPENAI_API_KEY) {
-      return res.status(503).json({
-        error: "OpenAI API key not configured",
-        message: "Please set OPENAI_API_KEY environment variable"
-      });
-    }
-
     const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-    const summaryModel = process.env.OPENAI_SUMMARY_MODEL || "gpt-4o";
-
     const response = await client.chat.completions.create({
-      model: summaryModel,
+      model: process.env.OPENAI_SUMMARY_MODEL ?? "gpt-4o",
       messages: [
         { role: "system", content: systemMessage },
         { role: "user", content: userMessage },
@@ -373,105 +248,45 @@ router.post("/:id/summary", requireStaff("doctor", "admin"), async (req, res) =>
       max_tokens: 900,
     });
 
-    const summary = response.choices[0]?.message?.content?.trim() || "Unable to generate summary";
-
-    // Save summary to case
+    const summary = response.choices[0]?.message?.content?.trim() ?? "Unable to generate summary";
     existingCase.summary = summary;
     await existingCase.save();
 
+    auditLog(req, "case.summary.generate", caseId);
     return res.status(200).json({ summary });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const e = error as { status?: number; code?: string };
+    if (e?.status === 429) return res.status(429).json({ error: "OpenAI quota exceeded" });
+    if (e?.code === "invalid_api_key") return res.status(503).json({ error: "AI features not configured" });
     console.error("Summary generation error:", error);
-    
-    // Handle specific OpenAI API errors
-    if (error.status === 429) {
-      return res.status(429).json({
-        error: "OpenAI API quota exceeded",
-        message: "You have exceeded your OpenAI API quota. Please check your billing details.",
-        details: "https://platform.openai.com/docs/guides/error-codes/api-errors"
-      });
-    }
-    
-    if (error.code === 'insufficient_quota') {
-      return res.status(402).json({
-        error: "OpenAI API quota exceeded",
-        message: "Please check your OpenAI API billing"
-      });
-    }
-
-    if (error.code === 'invalid_api_key') {
-      return res.status(401).json({
-        error: "Invalid OpenAI API key",
-        message: "Please check your OPENAI_API_KEY environment variable"
-      });
-    }
-
-    // Handle database errors
-    if (error.name === 'ValidationError') {
-      return res.status(400).json({
-        error: "Validation error",
-        message: error.message
-      });
-    }
-
-    // Generic error response
-    return res.status(500).json({
-      error: "Internal server error",
-      message: "Error generating summary",
-      details: error.message
-    });
+    return res.status(500).json({ error: "Internal server error" });
   }
 });
 
-// ---------------- GENERATE AI DIAGNOSIS ----------------
-router.post("/:id/diagnosis", requireStaff("doctor", "admin"), async (req, res) => {
+// ─── GENERATE AI DIAGNOSIS ────────────────────────────────────────────────────
+router.post("/:id/diagnosis", requireStaff("doctor", "admin"), aiLimiter, validateBody(languageBodySchema), async (req, res) => {
   try {
     const caseId = req.params.id ?? "";
-
-    if (!mongoose.Types.ObjectId.isValid(caseId)) {
-      return res.status(400).json({
-        error: "Invalid ID format",
-        message: "Please provide a valid MongoDB ObjectId"
-      });
+    if (!validId(caseId)) {
+      return res.status(400).json({ error: "Invalid ID format" });
     }
 
     if (!process.env.OPENAI_API_KEY) {
-      return res.status(503).json({
-        error: "OpenAI API key not configured",
-        message: "Please set OPENAI_API_KEY environment variable"
-      });
+      return res.status(503).json({ error: "AI features not configured" });
     }
 
     const caseDoc = await Case.findById(caseId);
-    if (!caseDoc) {
-      return res.status(404).json({ message: "Case not found" });
-    }
+    if (!caseDoc) return res.status(404).json({ message: "Case not found" });
 
-    // Questionnaire is optional — proceed with available data if not found
     const questionnaire = await Questionnaire.findOne({ caseId });
-    const qAnswers = questionnaire?.answers || {};
+    const qAnswers = questionnaire?.answers ?? {};
+    const language = ((req.body as { language?: string }).language === "he" ? "he" : "en") as "en" | "he";
 
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-    const language = (req.body?.language === "he" ? "he" : "en") as "en" | "he";
-
-    // Assemble the structured prompt. The builder pulls in the adaptive Step-2
-    // OPQRST answers, red flags and vital-sign alerts (none of which used to
-    // reach the model) and frames the request around a Rosen's-style "anchor
-    // on the chief complaint, list the must-not-miss diagnoses first" scaffold.
-    const { systemMessage, userMessage } = buildDiagnosisMessages({
-      caseDoc,
-      answers: qAnswers,
-      language,
-    });
-
-    // The differential is a high-stakes reasoning task — use a stronger model
-    // by default. `OPENAI_DIAGNOSIS_MODEL` lets us dial it back per-environment
-    // (e.g. to `gpt-4o-mini` in dev) without redeploying.
-    const diagnosisModel = process.env.OPENAI_DIAGNOSIS_MODEL || "gpt-4o";
+    const { systemMessage, userMessage } = buildDiagnosisMessages({ caseDoc, answers: qAnswers, language });
 
     const completion = await openai.chat.completions.create({
-      model: diagnosisModel,
+      model: process.env.OPENAI_DIAGNOSIS_MODEL ?? "gpt-4o",
       messages: [
         { role: "system", content: systemMessage },
         { role: "user", content: userMessage },
@@ -480,67 +295,42 @@ router.post("/:id/diagnosis", requireStaff("doctor", "admin"), async (req, res) 
       max_tokens: 1800,
     });
 
-    const aiDiagnosis = completion.choices[0]?.message?.content || "Unable to generate diagnosis";
-
+    const aiDiagnosis = completion.choices[0]?.message?.content ?? "Unable to generate diagnosis";
     await Case.findByIdAndUpdate(caseId, { aiDiagnosis });
 
-    return res.json({
-      diagnosis: aiDiagnosis,
-      caseId: caseDoc._id
-    });
-
-  } catch (error: any) {
+    auditLog(req, "case.diagnosis.generate", caseId);
+    return res.json({ diagnosis: aiDiagnosis, caseId: caseDoc._id });
+  } catch (error: unknown) {
+    const e = error as { status?: number; code?: string };
+    if (e?.status === 429) return res.status(429).json({ error: "OpenAI quota exceeded" });
+    if (e?.code === "invalid_api_key") return res.status(503).json({ error: "AI features not configured" });
     console.error("Diagnosis generation error:", error);
-
-    if (error.status === 429) {
-      return res.status(429).json({
-        error: "OpenAI API quota exceeded",
-        message: "Please check your OpenAI API billing"
-      });
-    }
-    if (error.code === "invalid_api_key") {
-      return res.status(401).json({
-        error: "Invalid OpenAI API key",
-        message: "Please check your OPENAI_API_KEY environment variable"
-      });
-    }
-
-    return res.status(500).json({
-      error: "Internal server error",
-      message: "Error generating AI diagnosis",
-      details: error.message
-    });
+    return res.status(500).json({ error: "Internal server error" });
   }
 });
 
-// ---------------- GENERATE DISCHARGE REPORT ----------------
-router.post("/:id/discharge-report/generate", requireStaff("doctor", "admin"), async (req, res) => {
+// ─── GENERATE DISCHARGE REPORT ────────────────────────────────────────────────
+router.post("/:id/discharge-report/generate", requireStaff("doctor", "admin"), aiLimiter, validateBody(languageBodySchema), async (req, res) => {
   try {
     const caseId = req.params.id ?? "";
-    const { action = "generate", currentText, language: bodyLang } = req.body; // "generate" | "improve" | "shorten"
+    if (!validId(caseId)) return res.status(400).json({ error: "Invalid ID format" });
+    if (!process.env.OPENAI_API_KEY) return res.status(503).json({ error: "AI features not configured" });
 
-    if (!mongoose.Types.ObjectId.isValid(caseId)) {
-      return res.status(400).json({ error: "Invalid ID format" });
-    }
-    if (!process.env.OPENAI_API_KEY) {
-      return res.status(503).json({ error: "OpenAI API key not configured" });
-    }
+    const { action = "generate", currentText, language: bodyLang } = req.body as {
+      action?: string;
+      currentText?: string;
+      language?: string;
+    };
 
     const caseDoc = await Case.findById(caseId);
     if (!caseDoc) return res.status(404).json({ message: "Case not found" });
 
     const questionnaire = await Questionnaire.findOne({ caseId });
-    const answers = questionnaire?.answers || {};
-
+    const answers = questionnaire?.answers ?? {};
     const language = (bodyLang === "he" ? "he" : "en") as "en" | "he";
-
-    // Prefer text passed from frontend (may include manual edits) over saved draft.
-    const existingDraft = currentText || caseDoc.dischargeReport?.draft || "";
-
+    const existingDraft = currentText ?? (caseDoc.dischargeReport as { draft?: string } | undefined)?.draft ?? "";
     const requestedAction = action === "improve" || action === "shorten" ? action : "generate";
 
-    // Build the prompt with the new style scaffold + few-shot examples lifted
-    // from the real Israeli-ED corpus. See `services/dischargeReportPrompt.ts`.
     const { systemMessage, userMessage } = buildDischargeReportMessages({
       caseDoc,
       answers,
@@ -549,11 +339,8 @@ router.post("/:id/discharge-report/generate", requireStaff("doctor", "admin"), a
       existingDraft,
     });
 
-    // Default to gpt-4o for `generate` (heavy synthesis with few-shots). The
-    // lighter `improve` / `shorten` rewrites stay on gpt-4o-mini to keep cost
-    // low. Both are env-overridable for per-environment tuning.
-    const generateModel = process.env.OPENAI_DISCHARGE_MODEL || "gpt-4o";
-    const rewriteModel = process.env.OPENAI_DISCHARGE_REWRITE_MODEL || "gpt-4o-mini";
+    const generateModel = process.env.OPENAI_DISCHARGE_MODEL ?? "gpt-4o";
+    const rewriteModel = process.env.OPENAI_DISCHARGE_REWRITE_MODEL ?? "gpt-4o-mini";
     const chosenModel = requestedAction === "generate" ? generateModel : rewriteModel;
 
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -567,34 +354,30 @@ router.post("/:id/discharge-report/generate", requireStaff("doctor", "admin"), a
       max_tokens: 2200,
     });
 
-    const report = completion.choices[0]?.message?.content?.trim() || "";
-
-    // Auto-save draft
+    const report = completion.choices[0]?.message?.content?.trim() ?? "";
     await Case.findByIdAndUpdate(caseId, {
       "dischargeReport.draft": report,
-      "dischargeReport.finalized": false
+      "dischargeReport.finalized": false,
     });
 
+    auditLog(req, "case.discharge.generate", caseId);
     return res.json({ report });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const e = error as { status?: number };
+    if (e?.status === 429) return res.status(429).json({ error: "OpenAI quota exceeded" });
     console.error("Discharge report generation error:", error);
-    if (error.status === 429) return res.status(429).json({ error: "OpenAI quota exceeded" });
-    return res.status(500).json({ error: "Internal server error", message: error.message });
+    return res.status(500).json({ error: "Internal server error" });
   }
 });
 
-// ---------------- SAVE DISCHARGE REPORT DRAFT ----------------
+// ─── SAVE DISCHARGE REPORT DRAFT ──────────────────────────────────────────────
 router.put("/:id/discharge-report", requireStaff("doctor", "admin"), async (req, res) => {
   try {
     const caseId = req.params.id ?? "";
-    const { draft } = req.body;
+    const { draft } = req.body as { draft?: unknown };
 
-    if (!mongoose.Types.ObjectId.isValid(caseId)) {
-      return res.status(400).json({ error: "Invalid ID format" });
-    }
-    if (typeof draft !== "string") {
-      return res.status(400).json({ error: "draft must be a string" });
-    }
+    if (!validId(caseId)) return res.status(400).json({ error: "Invalid ID format" });
+    if (typeof draft !== "string") return res.status(400).json({ error: "draft must be a string" });
 
     const updated = await Case.findByIdAndUpdate(
       caseId,
@@ -603,29 +386,27 @@ router.put("/:id/discharge-report", requireStaff("doctor", "admin"), async (req,
     );
     if (!updated) return res.status(404).json({ message: "Case not found" });
 
+    auditLog(req, "case.discharge.save", caseId);
     return res.json({ dischargeReport: updated.dischargeReport });
-  } catch (error: any) {
-    return res.status(500).json({ error: "Internal server error", message: error.message });
+  } catch {
+    return res.status(500).json({ error: "Internal server error" });
   }
 });
 
-// ---------------- FINALIZE DISCHARGE REPORT ----------------
+// ─── FINALIZE DISCHARGE REPORT ────────────────────────────────────────────────
 router.post("/:id/discharge-report/finalize", requireStaff("doctor", "admin"), async (req, res) => {
   try {
     const caseId = req.params.id ?? "";
-    const { draft } = req.body;
+    const { draft } = req.body as { draft?: unknown };
 
-    if (!mongoose.Types.ObjectId.isValid(caseId)) {
-      return res.status(400).json({ error: "Invalid ID format" });
-    }
+    if (!validId(caseId)) return res.status(400).json({ error: "Invalid ID format" });
 
     const caseDoc = await Case.findById(caseId);
     if (!caseDoc) return res.status(404).json({ message: "Case not found" });
 
-    const reportText = draft || caseDoc.dischargeReport?.draft;
-    if (!reportText) {
-      return res.status(400).json({ error: "No discharge report to finalize" });
-    }
+    const reportText = (typeof draft === "string" ? draft : null) ??
+      (caseDoc.dischargeReport as { draft?: string } | undefined)?.draft;
+    if (!reportText) return res.status(400).json({ error: "No discharge report to finalize" });
 
     const updated = await Case.findByIdAndUpdate(
       caseId,
@@ -633,39 +414,32 @@ router.post("/:id/discharge-report/finalize", requireStaff("doctor", "admin"), a
         status: "closed",
         "dischargeReport.draft": reportText,
         "dischargeReport.finalized": true,
-        "dischargeReport.finalizedAt": new Date()
+        "dischargeReport.finalizedAt": new Date(),
       },
       { new: true }
     );
 
+    auditLog(req, "case.discharge.finalize", caseId);
     return res.json(updated);
-  } catch (error: any) {
-    console.error("Finalize discharge error:", error);
-    return res.status(500).json({ error: "Internal server error", message: error.message });
+  } catch {
+    return res.status(500).json({ error: "Internal server error" });
   }
 });
 
-// ---------------- GET CASE BY ID (KEEP LAST) ----------------
-// Staff (doctor/nurse/admin) get the full record. A patient holding the case
-// token for THIS case gets a PHI-minimised view (no national ID, no clinical
-// fields) — just enough to render the questionnaire greeting.
+// ─── GET CASE BY ID (keep last — catches /:id) ────────────────────────────────
 router.get("/:id", requireCaseReadAccess, async (req, res) => {
   try {
     const caseId = req.params.id ?? "";
-
-    if (!mongoose.Types.ObjectId.isValid(caseId)) {
-      return res.status(400).json({
-        error: "Invalid ID format",
-        message: "Please provide a valid MongoDB ObjectId"
-      });
+    if (!validId(caseId)) {
+      return res.status(400).json({ error: "Invalid ID format" });
     }
 
     const caseDoc = await Case.findById(caseId);
-    if (!caseDoc) {
-      return res.status(404).json({ message: "Case not found" });
-    }
+    if (!caseDoc) return res.status(404).json({ message: "Case not found" });
 
-    // Patient (non-staff) access → limited projection.
+    auditLog(req, "case.read", caseId);
+
+    // Patient (non-staff) access → PHI-minimised projection (no national ID, no clinical fields)
     if (!req.staff) {
       return res.json({
         _id: caseDoc._id,
@@ -676,41 +450,28 @@ router.get("/:id", requireCaseReadAccess, async (req, res) => {
     }
 
     return res.json(caseDoc);
-  } catch (error: any) {
-    console.error("Error fetching case:", error);
-    return res.status(500).json({
-      message: "Error fetching case",
-      error: error.message
-    });
+  } catch {
+    return res.status(500).json({ error: "Internal server error" });
   }
 });
 
-// ---------------- DELETE CASE ----------------
+// ─── DELETE CASE ──────────────────────────────────────────────────────────────
 router.delete("/:id", requireStaff("doctor", "admin"), async (req, res) => {
   try {
     const caseId = req.params.id ?? "";
-
-    if (!mongoose.Types.ObjectId.isValid(caseId)) {
-      return res.status(400).json({
-        error: "Invalid ID format",
-        message: "Please provide a valid MongoDB ObjectId"
-      });
+    if (!validId(caseId)) {
+      return res.status(400).json({ error: "Invalid ID format" });
     }
 
     const deletedCase = await Case.findByIdAndDelete(caseId);
     await Questionnaire.deleteMany({ caseId });
 
-    if (!deletedCase) {
-      return res.status(404).json({ message: "Case not found" });
-    }
+    if (!deletedCase) return res.status(404).json({ message: "Case not found" });
 
+    auditLog(req, "case.delete", caseId);
     return res.status(200).json({ message: "Case deleted" });
-  } catch (error: any) {
-    console.error("Error deleting case:", error);
-    return res.status(500).json({
-      message: "Error deleting case",
-      error: error.message
-    });
+  } catch {
+    return res.status(500).json({ error: "Internal server error" });
   }
 });
 
