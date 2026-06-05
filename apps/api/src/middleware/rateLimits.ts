@@ -32,13 +32,14 @@ export const loginLimiter = rateLimit({
 });
 
 /**
- * 20 new cases / hour per IP — on the public POST /cases endpoint.
- * Prevents spam registration from the internet while keeping the kiosk
- * experience friction-free for real patients.
+ * 10 new cases / hour per IP — on the public POST /cases endpoint.
+ * Even a busy ER kiosk registers far fewer than 10 patients/hour from one IP.
+ * Prevents spam registration from the internet while keeping the experience
+ * friction-free for real patients.
  */
 export const caseCreationLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
-  max: 20,
+  max: 10,
   standardHeaders: true,
   legacyHeaders: false,
   message: msg("Too many registrations from this device. Please try again later."),

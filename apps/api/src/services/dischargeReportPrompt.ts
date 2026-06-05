@@ -354,7 +354,7 @@ ${fewShotBlock}
 נתוני המקרה הנוכחי שיש לתעד:
 ==============================
 
-מטופל: ${caseDoc?.patientName || "—"}, גיל: ${ageStr}, מגדר: ${genderStr}, ת"ז: ${caseDoc?.nationalId || "—"}
+גיל: ${ageStr}, מגדר: ${genderStr}
 מילוי הטופס על ידי: ${formFilledBy} | מצב קוגניטיבי: ${cognitiveState} | מצב תפקודי: ${functionalState}
 מצב משפחתי: ${maritalStatus}
 
@@ -393,7 +393,7 @@ Every section must appear. If data is missing for a section, write one short sen
 Current case data to document:
 ==============================
 
-Patient: ${caseDoc?.patientName || "—"}, Age: ${ageStr}, Gender: ${genderStr}, ID: ${caseDoc?.nationalId || "—"}
+Age: ${ageStr}, Gender: ${genderStr}
 Form filled by: ${formFilledBy} | Cognitive state: ${cognitiveState} | Functional state: ${functionalState}
 Marital status: ${maritalStatus}
 

@@ -903,15 +903,10 @@ Provide evidence-based analysis with clear probability assessments and actionabl
     ? `נתח את נתוני המטופל הבאים והפק אבחנה מבדלת מובנית בסגנון מלר"ד.`
     : `Analyze the following patient data and produce a structured ED differential diagnosis.`;
 
-  const patientSection = isHebrew
-    ? `Patient
-- Name: ${caseDoc?.patientName || "—"}
-- Age: ${ageStr}
-- Gender: ${genderStr}`
-    : `Patient
-- Name: ${caseDoc?.patientName || "—"}
-- Age: ${ageStr}
-- Gender: ${genderStr}`;
+  // Patient name and national ID are intentionally excluded from the OpenAI
+  // payload (POLICY-A de-identification). Age and gender are clinically
+  // sufficient for differential diagnosis.
+  const patientSection = `Patient\n- Age: ${ageStr}\n- Gender: ${genderStr}`;
 
   const complaintsLine = chiefComplaintLabels.length
     ? chiefComplaintLabels.join(", ")

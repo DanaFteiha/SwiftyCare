@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  audit-and-typecheck:
+    name: Security audit + type-check
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # ── API ──────────────────────────────────────────────────────────────
+      - name: Install API deps
+        run: npm ci
+        working-directory: apps/api
+
+      - name: npm audit (API) — fail on high/critical
+        run: npm audit --audit-level=high
+        working-directory: apps/api
+
+      - name: Type-check API
+        run: npx tsc --noEmit
+        working-directory: apps/api
+
+      # ── Web ──────────────────────────────────────────────────────────────
+      - name: Install web deps
+        run: npm ci
+        working-directory: apps/web
+
+      - name: npm audit (web) — fail on high/critical
+        run: npm audit --audit-level=high
+        working-directory: apps/web
+
+      - name: Type-check web
+        run: npx tsc --noEmit
+        working-directory: apps/web
+
+      # ── Secret scanning ───────────────────────────────────────────────────
+      - name: Scan for secrets (gitleaks)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

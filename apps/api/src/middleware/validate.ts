@@ -9,6 +9,19 @@
 import { z } from "zod";
 import type { Request, Response, NextFunction } from "express";
 
+// Israeli national ID (ת.ז.) must be exactly 9 digits and pass the standard
+// Luhn-like Ministry-of-Interior checksum.
+function isValidIsraeliId(id: string): boolean {
+  if (!/^\d{9}$/.test(id)) return false;
+  let total = 0;
+  for (let i = 0; i < 9; i++) {
+    let step = parseInt(id[i] ?? "0") * (i % 2 === 0 ? 1 : 2);
+    if (step > 9) step -= 9;
+    total += step;
+  }
+  return total % 10 === 0;
+}
+
 export function validateBody<T>(schema: z.ZodSchema<T>) {
   return (req: Request, res: Response, next: NextFunction) => {
     const result = schema.safeParse(req.body);
@@ -33,8 +46,13 @@ export const loginSchema = z.object({
 
 export const createCaseSchema = z.object({
   patientName: z.string().min(1, "patientName is required").max(120).trim(),
-  nationalId:  z.string().min(2, "nationalId is required").max(30).trim(),
-  hospital:    z.string().max(200).trim().optional(),
+  nationalId: z
+    .string()
+    .trim()
+    .refine(isValidIsraeliId, {
+      message: "Invalid national ID — must be a 9-digit Israeli ID number",
+    }),
+  hospital: z.string().max(200).trim().optional(),
 });
 
 export const vitalsSchema = z.object({
