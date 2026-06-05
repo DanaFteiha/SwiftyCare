@@ -9,7 +9,7 @@ import { buildSummaryMessages } from "../services/summaryPrompt.js";
 import { requireStaff, requireCaseWriteAccess, requireCaseReadAccess } from "../middleware/auth.js";
 import { signPatientCaseToken } from "../config/auth.js";
 import { auditLog } from "../middleware/auditLog.js";
-import { aiLimiter } from "../middleware/rateLimits.js";
+import { aiLimiter, caseCreationLimiter } from "../middleware/rateLimits.js";
 import {
   validateBody,
   createCaseSchema,
@@ -36,7 +36,11 @@ router.get("/", requireStaff("doctor", "nurse", "admin"), async (req, res) => {
 });
 
 // ─── CREATE CASE ──────────────────────────────────────────────────────────────
-router.post("/", requireStaff("intake", "nurse", "doctor", "admin"), validateBody(createCaseSchema), async (req, res) => {
+// Public endpoint — no staff login required. Security model: the kiosk is a
+// physical device inside the hospital. Rate-limited to prevent internet spam.
+// The response includes a short-lived case-scoped token so the patient can
+// submit the questionnaire without any further authentication.
+router.post("/", caseCreationLimiter, validateBody(createCaseSchema), async (req, res) => {
   try {
     if (mongoose.connection.readyState !== 1) {
       return res.status(503).json({

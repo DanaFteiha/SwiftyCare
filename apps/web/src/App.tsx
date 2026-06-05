@@ -13,8 +13,6 @@ import DoctorRoute from './components/DoctorRoute'
 import NurseLoginPage from './pages/NurseLoginPage'
 import NurseDashboardPage from './pages/NurseDashboardPage'
 import NurseRoute from './components/NurseRoute'
-import IntakeLoginPage from './pages/IntakeLoginPage'
-import IntakeRoute from './components/IntakeRoute'
 import AdminPanelPage from './pages/AdminPanelPage'
 import AdminRoute from './components/AdminRoute'
 
@@ -40,11 +38,10 @@ function App() {
       <Router>
         <div className="min-h-screen bg-gray-50">
           <Routes>
-            {/* Patient intake — runs on an authenticated registration/kiosk station */}
-            <Route path="/intake/login" element={<IntakeLoginPage />} />
-            <Route path="/" element={<IntakeRoute><ScanPage /></IntakeRoute>} />
-            <Route path="/scan" element={<IntakeRoute><ScanPage /></IntakeRoute>} />
-            <Route path="/patient" element={<IntakeRoute><ScanPage /></IntakeRoute>} />
+            {/* Patient intake — public, no login required */}
+            <Route path="/" element={<ScanPage />} />
+            <Route path="/scan" element={<ScanPage />} />
+            <Route path="/patient" element={<ScanPage />} />
 
             {/* Questionnaire — patient completes it using a case-scoped token */}
             <Route path="/questionnaire/:caseId" element={<QuestionnairePage />} />

@@ -32,6 +32,19 @@ export const loginLimiter = rateLimit({
 });
 
 /**
+ * 20 new cases / hour per IP — on the public POST /cases endpoint.
+ * Prevents spam registration from the internet while keeping the kiosk
+ * experience friction-free for real patients.
+ */
+export const caseCreationLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: msg("Too many registrations from this device. Please try again later."),
+});
+
+/**
  * 20 req / hour per authenticated user — applied to OpenAI-backed endpoints.
  * Keyed by JWT sub (set by requireStaff which runs before this limiter).
  * Falls back to IP in case the key is somehow missing.

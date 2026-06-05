@@ -59,10 +59,13 @@ ADMIN_PASSWORD=<strong password, 16+ chars>
 
 | Who | Auth method | How accounts are created |
 |---|---|---|
-| **Patients** | No login — 3-hour case-scoped token issued on intake | Automatic (no action needed) |
+| **Patients** | **No login required** — registration is public; a 3-hour case-scoped token is returned on intake and used only for questionnaire submission | Automatic (no action needed) |
 | **Admin** | Username + password (seeded from env var on first boot) | One account via `ADMIN_USERNAME`/`ADMIN_PASSWORD` |
-| **Doctors / Nurses / Intake staff** | Username + password (individual accounts) | Admin creates each person one-by-one via the admin panel |
+| **Doctors / Nurses** | Username + password (individual accounts) | Admin creates each person one-by-one via the admin panel |
 | **Future** | Hospital SSO (OIDC/SAML) | Integration with hospital identity provider (planned, not yet built) |
+
+### Patient intake — public by design
+`POST /api/cases` (register a new patient) requires **no authentication**. The security model mirrors the physical world: the registration kiosk is a device inside the hospital. Security is enforced at the network/physical layer, not the application layer. The API-level protection is a rate limiter (20 new cases / hour / IP) to prevent internet spam. All subsequent staff-facing endpoints (viewing cases, entering vitals, generating diagnoses) remain fully authenticated and role-restricted.
 
 ### Hospital SSO — planned
 For a full hospital deployment, doctors and nurses should authenticate with their **existing hospital credentials** via the hospital's identity provider (OIDC or SAML). This removes the need to manage SwiftyCare-specific passwords and ensures access is automatically revoked when a staff member leaves the hospital. This is planned for the next major iteration and requires coordination with the hospital IT team. The current individual-account model is explicitly designed as an interim solution and the auth middleware is structured so SSO can be added without changing protected routes.
@@ -71,4 +74,4 @@ For a full hospital deployment, doctors and nurses should authenticate with thei
 
 ## Dev login (local only)
 When no credentials are configured in development, these accounts are seeded automatically (**DO NOT use in production**):
-`admin/admin12345`, `doctor/doctor12345`, `nurse/nurse12345`, `intake/intake12345`.
+`admin/admin12345`, `doctor/doctor12345`, `nurse/nurse12345`.

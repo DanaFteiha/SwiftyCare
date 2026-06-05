@@ -4,7 +4,7 @@ import { apiUrl } from './api'
 // React route guards below are UX only; the server enforces auth/RBAC on every
 // request.
 
-export type Role = 'admin' | 'doctor' | 'nurse' | 'intake'
+export type Role = 'admin' | 'doctor' | 'nurse' | 'intake' // intake kept for backwards compat
 
 const TOKEN_KEY = 'swiftycare:token'
 const ROLE_KEY = 'swiftycare:role'
