@@ -125,10 +125,14 @@ router.post("/:id/questionnaire", requireCaseWriteAccess, validateBody(questionn
     }
 
     const questionnaire = await Questionnaire.create({ caseId, answers });
+    // Always stamp the submission time so the triage board shows how long
+    // the patient has been waiting since they finished the questionnaire,
+    // not since they first registered.
+    existingCase.questionnaireSubmittedAt = new Date();
     if (existingCase.status !== "awaiting_vitals") {
       existingCase.status = "awaiting_vitals";
-      await existingCase.save();
     }
+    await existingCase.save();
 
     auditLog(req, "case.questionnaire.submit", caseId);
     return res.status(201).json(questionnaire);

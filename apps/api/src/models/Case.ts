@@ -8,6 +8,7 @@ export interface ICase extends Document {
   status: string;
   orderedTests?: string[];
   orderedAt?: Date;
+  questionnaireSubmittedAt?: Date;
   vitals?: {
     bp?: string;
     hr?: number;
@@ -102,6 +103,9 @@ const CaseSchema = new Schema<ICase>({
   },
   orderedAt: {
     type: Date
+  },
+  questionnaireSubmittedAt: {
+    type: Date,
   },
   dischargeReport: {
     draft: { type: String },

@@ -217,7 +217,11 @@ function NurseDashboardPage() {
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {filteredCases.map((c: any) => {
-                      const minutes = minutesSince(c.createdAt);
+                      // Use the questionnaire submission time when available —
+                      // that's when the patient actually finished and is waiting.
+                      // Fall back to case creation time for legacy/incomplete cases.
+                      const waitingSince = c.questionnaireSubmittedAt ?? c.createdAt;
+                      const minutes = minutesSince(waitingSince);
                       const waitColor =
                         minutes >= 30
                           ? 'bg-red-100 text-red-800'
