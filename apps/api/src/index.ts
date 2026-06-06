@@ -7,6 +7,7 @@ import caseRoutes from "./routes/caseRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import { seedUsers } from "./services/seedUsers.js";
+import { runIndexMigrations } from "./services/migrateIndexes.js";
 import { generalLimiter } from "./middleware/rateLimits.js";
 
 dotenv.config();
@@ -108,6 +109,7 @@ app.use((req, res, next) => {
 mongoose.connect(MONGODB_URI)
   .then(async () => {
     console.log("✅ Connected to MongoDB");
+    await runIndexMigrations();
     try {
       await seedUsers();
     } catch (seedErr) {

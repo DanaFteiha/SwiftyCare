@@ -40,7 +40,6 @@ const CaseSchema = new Schema<ICase>({
     type: String,
     required: [true, "National ID is required"],
     trim: true,
-    unique: true,
     minlength: [5, "National ID must be at least 5 characters long"],
     maxlength: [20, "National ID cannot exceed 20 characters"]
   },
@@ -112,6 +111,10 @@ const CaseSchema = new Schema<ICase>({
 }, {
   timestamps: true // Automatically adds createdAt and updatedAt fields
 });
+
+// Non-unique index — supports fast lookup by national ID without enforcing
+// global uniqueness (a patient may have multiple visits over time).
+CaseSchema.index({ nationalId: 1 });
 
 // Create and export the Mongoose model
 export const Case = mongoose.model<ICase>("Case", CaseSchema);

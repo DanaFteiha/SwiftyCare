@@ -131,7 +131,8 @@ function ScanPage() {
 
         throw {
           status: response.status,
-          message: errorPayload?.message || errorPayload?.error || null
+          message: errorPayload?.message || errorPayload?.error || null,
+          hint: errorPayload?.hint ?? null,
         }
       }
 
@@ -150,24 +151,19 @@ function ScanPage() {
         setErrors(prev => ({ ...prev, form: t('form.timeoutError', 'The server is taking too long to respond. Please try again in a moment.') }))
         return
       }
-      const err = error as { status?: number; message?: string }
+      const err = error as { status?: number; message?: string; hint?: string }
       if (err?.status === 400 || err?.status === 409) {
-        const serverMsg = err.message ?? ''
-        // "Could not create case" is our duplicate-key generic message
-        const isDuplicate =
-          serverMsg.toLowerCase().includes('already') ||
-          serverMsg.toLowerCase().includes('could not create') ||
-          serverMsg.toLowerCase().includes('verify')
-        if (isDuplicate) {
+        if (err.hint === 'active_case_exists') {
+          // Patient already has an open visit — direct them to staff
           setErrors(prev => ({
             ...prev,
             form: t(
-              'form.duplicateCaseError',
-              'A case for this ID already exists in the system. If you have already registered today, please ask a staff member for your questionnaire link.'
+              'form.activeCaseExists',
+              'You already have an open case in the system. Please ask a staff member for your questionnaire link.'
             ),
           }))
         } else {
-          // Backend checksum / format rejection (shouldn't normally reach here
+          // Backend format/checksum rejection (shouldn't normally reach here
           // since the frontend validates first, but handle it gracefully)
           setErrors(prev => ({
             ...prev,

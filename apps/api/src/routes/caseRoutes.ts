@@ -55,6 +55,21 @@ router.post("/", caseCreationLimiter, validateBody(createCaseSchema), async (req
       hospital?: string;
     };
 
+    // Block only if an active (non-closed) case already exists for this ID.
+    // A patient whose previous visit was discharged ("closed" / "cancelled")
+    // is free to register again for a new visit.
+    const ACTIVE_STATUSES = ["awaiting_vitals", "open", "in_progress", "tests_ordered"];
+    const activeCase = await Case.findOne({ nationalId, status: { $in: ACTIVE_STATUSES } }).lean();
+    if (activeCase) {
+      // Return the same generic 400 shape so callers can't probe whether an
+      // ID is registered (P1-12) while still carrying a machine-readable hint.
+      return res.status(400).json({
+        error: "Bad request",
+        message: "An active case already exists for this ID. Please ask a staff member for your questionnaire link.",
+        hint: "active_case_exists",
+      });
+    }
+
     const newCase = await Case.create({
       patientName,
       nationalId,
@@ -69,10 +84,6 @@ router.post("/", caseCreationLimiter, validateBody(createCaseSchema), async (req
 
     if (e?.name === "ValidationError") {
       return res.status(400).json({ error: "Validation error", message: e.message });
-    }
-    // P1-12: hide national-ID probing — return a generic 400 instead of 409
-    if (e?.code === 11000) {
-      return res.status(400).json({ error: "Bad request", message: "Could not create case. Please verify the information and try again." });
     }
     return res.status(500).json({ error: "Internal server error" });
   }
