@@ -18,6 +18,19 @@ interface FormErrors {
   hospital?: string
   fullName?: string
   nationalId?: string
+  form?: string
+}
+
+// Israeli national ID (ת.ז.) — same algorithm as the backend validator
+function isValidIsraeliId(id: string): boolean {
+  if (!/^\d{9}$/.test(id)) return false
+  let total = 0
+  for (let i = 0; i < 9; i++) {
+    let step = parseInt(id[i] ?? '0') * (i % 2 === 0 ? 1 : 2)
+    if (step > 9) step -= 9
+    total += step
+  }
+  return total % 10 === 0
 }
 
 function ScanPage() {
@@ -55,9 +68,17 @@ function ScanPage() {
     i18n.changeLanguage(newLang)
   }
 
+  const validateNationalId = (id: string): string | undefined => {
+    const cleaned = id.trim()
+    if (!cleaned) return t('form.nationalIdRequired', 'National ID is required')
+    if (!/^\d+$/.test(cleaned)) return t('form.nationalIdInvalid', 'National ID must contain only digits')
+    if (cleaned.length !== 9) return t('form.nationalIdLength', 'National ID must be exactly 9 digits')
+    if (!isValidIsraeliId(cleaned)) return t('form.nationalIdChecksum', 'This ID number is not valid — please check and try again')
+    return undefined
+  }
+
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {}
-
     if (!formData.hospital.trim()) {
       newErrors.hospital = t('form.hospitalRequired', 'Hospital selection is required')
     }
@@ -66,27 +87,15 @@ function ScanPage() {
     } else if (formData.fullName.trim().length < 2) {
       newErrors.fullName = t('form.fullNameMinLength', 'Name must be at least 2 characters')
     }
-    const nationalId = formData.nationalId.trim()
-    if (!nationalId) {
-      newErrors.nationalId = t('form.nationalIdRequired', 'National ID is required')
-    } else if (!/^\d+$/.test(nationalId)) {
-      newErrors.nationalId = t('form.nationalIdInvalid', 'National ID must contain only numbers')
-    } else if (nationalId.length < 5) {
-      newErrors.nationalId = t('form.nationalIdMinLength', 'National ID must contain at least 5 digits')
-    }
-
+    const idError = validateNationalId(formData.nationalId)
+    if (idError) newErrors.nationalId = idError
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
 
   const isFormValid = (): boolean => {
-    const nationalId = formData.nationalId.trim()
-    return formData.hospital.trim() !== '' &&
-           formData.fullName.trim() !== '' &&
-           nationalId !== '' &&
-           /^\d+$/.test(nationalId) &&
-           nationalId.length >= 5 &&
-           Object.keys(errors).length === 0
+    if (!formData.hospital.trim() || !formData.fullName.trim() || formData.fullName.trim().length < 2) return false
+    return validateNationalId(formData.nationalId) === undefined
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -138,21 +147,18 @@ function ScanPage() {
     } catch (error) {
       console.error('Error creating case:', error)
       if (error instanceof DOMException && error.name === 'AbortError') {
-        alert(t('form.timeoutError', 'The server is taking too long to respond. Please try again in a moment.'))
+        setErrors(prev => ({ ...prev, form: t('form.timeoutError', 'The server is taking too long to respond. Please try again in a moment.') }))
         return
       }
       const err = error as { status?: number; message?: string }
-      if (err?.status === 409) {
-        alert(
-          t(
-            'form.duplicateCaseError',
-            'It looks like this case already exists. Please verify your information or contact support.'
-          )
-        )
-      } else if (err?.message) {
-        alert(err.message)
+      // Duplicate ID or backend checksum rejection → show under the ID field
+      if (err?.status === 400 || err?.status === 409) {
+        setErrors(prev => ({
+          ...prev,
+          nationalId: t('form.duplicateCaseError', 'This ID is already registered or invalid. Please check the number and try again.')
+        }))
       } else {
-        alert(t('form.submitError', 'Error creating case. Please try again.'))
+        setErrors(prev => ({ ...prev, form: t('form.submitError', 'Something went wrong. Please try again.') }))
       }
     } finally {
       setIsSubmitting(false)
@@ -161,14 +167,25 @@ function ScanPage() {
 
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
-    
-    // Clear error when user starts typing
-    if (errors[field]) {
-      setErrors(prev => {
-        const newErrors = { ...prev }
-        delete newErrors[field]
-        return newErrors
-      })
+
+    if (field === 'nationalId') {
+      const cleaned = value.trim()
+      // Validate in real-time once the user has typed 9 digits
+      if (cleaned.length >= 9) {
+        const idError = validateNationalId(cleaned)
+        setErrors(prev => ({ ...prev, nationalId: idError, form: undefined }))
+      } else {
+        // Clear error while still typing
+        setErrors(prev => ({ ...prev, nationalId: undefined, form: undefined }))
+      }
+    } else {
+      if (errors[field]) {
+        setErrors(prev => {
+          const newErrors = { ...prev }
+          delete newErrors[field]
+          return newErrors
+        })
+      }
     }
   }
 
@@ -289,6 +306,13 @@ function ScanPage() {
                   <p className="text-sm text-red-600 mt-1">{errors.nationalId}</p>
                 )}
               </div>
+
+              {/* Form-level error (network / server errors) */}
+              {errors.form && (
+                <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+                  {errors.form}
+                </div>
+              )}
 
               {/* Submit Button */}
               <div className="pt-2">
