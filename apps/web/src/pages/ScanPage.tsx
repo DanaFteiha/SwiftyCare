@@ -151,12 +151,29 @@ function ScanPage() {
         return
       }
       const err = error as { status?: number; message?: string }
-      // Duplicate ID or backend checksum rejection → show under the ID field
       if (err?.status === 400 || err?.status === 409) {
-        setErrors(prev => ({
-          ...prev,
-          nationalId: t('form.duplicateCaseError', 'This ID is already registered or invalid. Please check the number and try again.')
-        }))
+        const serverMsg = err.message ?? ''
+        // "Could not create case" is our duplicate-key generic message
+        const isDuplicate =
+          serverMsg.toLowerCase().includes('already') ||
+          serverMsg.toLowerCase().includes('could not create') ||
+          serverMsg.toLowerCase().includes('verify')
+        if (isDuplicate) {
+          setErrors(prev => ({
+            ...prev,
+            form: t(
+              'form.duplicateCaseError',
+              'A case for this ID already exists in the system. If you have already registered today, please ask a staff member for your questionnaire link.'
+            ),
+          }))
+        } else {
+          // Backend checksum / format rejection (shouldn't normally reach here
+          // since the frontend validates first, but handle it gracefully)
+          setErrors(prev => ({
+            ...prev,
+            nationalId: t('form.nationalIdChecksum', 'This ID number is not valid — please check and try again'),
+          }))
+        }
       } else {
         setErrors(prev => ({ ...prev, form: t('form.submitError', 'Something went wrong. Please try again.') }))
       }
