@@ -963,6 +963,67 @@ const resources = {
             },
             "epRfVisionLoss": { "q": "Is there sudden loss or significant decrease in vision?" },
             "epRfTrauma": { "q": "Was there any recent eye trauma or chemical exposure?" }
+          },
+          "fatigueWeakness": {
+            "fwOnset": {
+              "q": "How did the fatigue or weakness start?",
+              "sudden": "Sudden (within hours)",
+              "gradual": "Gradual (over days or weeks)",
+              "chronic": "Long-standing (months or more)"
+            },
+            "fwSeverity": {
+              "q": "How much is it limiting your daily activities?",
+              "mild": "Mild — I can do most things with some effort",
+              "moderate": "Moderate — I struggle with normal activities",
+              "severe": "Severe — I can barely get out of bed"
+            },
+            "fwAssociated": {
+              "q": "Any associated symptoms?",
+              "shortnessOfBreath": "Shortness of breath",
+              "chestPain": "Chest pain or palpitations",
+              "dizziness": "Dizziness or lightheadedness",
+              "fever": "Fever or chills",
+              "weightLoss": "Unintentional weight loss",
+              "nightSweats": "Night sweats",
+              "legSwelling": "Leg swelling",
+              "paleness": "Paleness or pallor"
+            },
+            "fwRfNeurologicalWeakness": { "q": "Is there sudden weakness or numbness on one side of the body?" },
+            "fwRfConsciousness": { "q": "Did you lose consciousness or nearly faint?" }
+          },
+          "rash": {
+            "rsAppearance": {
+              "q": "How would you describe the rash?",
+              "flat": "Flat red or pink patches",
+              "raised": "Raised bumps or welts (hives)",
+              "blistered": "Blisters or fluid-filled lesions",
+              "purpura": "Purple / red spots that do not blanch",
+              "scaling": "Scaling or flaking skin"
+            },
+            "rsOnset": {
+              "q": "When did the rash appear?",
+              "today": "Today",
+              "1to3days": "1–3 days ago",
+              "overWeek": "More than a week ago"
+            },
+            "rsLocation": {
+              "q": "Where is the rash located?",
+              "face": "Face",
+              "trunk": "Trunk (chest / back)",
+              "arms": "Arms / hands",
+              "legs": "Legs / feet",
+              "widespread": "Widespread / whole body"
+            },
+            "rsAssociated": {
+              "q": "Any associated symptoms?",
+              "itch": "Itching",
+              "pain": "Pain or burning at rash site",
+              "fever": "Fever",
+              "jointPain": "Joint pain",
+              "shortnessOfBreath": "Difficulty breathing or throat tightness"
+            },
+            "rsRfAnaphylaxis": { "q": "Do you have swelling of the lips, tongue, or throat — or difficulty swallowing?" },
+            "rsRecentMedication": { "q": "Did you recently start a new medication, food, or have an insect sting?" }
           }
         }
       },
@@ -2284,6 +2345,67 @@ const resources = {
             },
             "epRfVisionLoss": { "q": "האם יש אובדן פתאומי או ירידה משמעותית בראייה?" },
             "epRfTrauma": { "q": "האם הייתה פגיעה לעין או חשיפה כימית לאחרונה?" }
+          },
+          "fatigueWeakness": {
+            "fwOnset": {
+              "q": "כיצד התחיל העייפות או החולשה?",
+              "sudden": "פתאומי (תוך שעות)",
+              "gradual": "הדרגתי (במשך ימים או שבועות)",
+              "chronic": "ממושך (חודשים ומעלה)"
+            },
+            "fwSeverity": {
+              "q": "עד כמה זה מגביל את הפעילות היומית שלך?",
+              "mild": "קל — אני מסוגל לעשות רוב הדברים עם מאמץ",
+              "moderate": "בינוני — אני מתקשה בפעילות יומית רגילה",
+              "severe": "חמור — אני בקושי יכול לקום מהמיטה"
+            },
+            "fwAssociated": {
+              "q": "תסמינים נלווים?",
+              "shortnessOfBreath": "קוצר נשימה",
+              "chestPain": "כאב בחזה או דפיקות לב",
+              "dizziness": "סחרחורת",
+              "fever": "חום או צמרמורת",
+              "weightLoss": "ירידה לא מכוונת במשקל",
+              "nightSweats": "הזעות לילה",
+              "legSwelling": "נפיחות ברגליים",
+              "paleness": "חיוורון"
+            },
+            "fwRfNeurologicalWeakness": { "q": "האם יש חולשה פתאומית או חוסר תחושה בצד אחד של הגוף?" },
+            "fwRfConsciousness": { "q": "האם איבדת הכרה או כמעט התעלפת?" }
+          },
+          "rash": {
+            "rsAppearance": {
+              "q": "כיצד תתאר את הפריחה?",
+              "flat": "כתמים שטוחים אדומים או ורודים",
+              "raised": "בליטות מוגבהות או אורטיקריה (שלפוחיות)",
+              "blistered": "שלפוחיות מלאות נוזל",
+              "purpura": "כתמים סגולים / אדומים שאינם מחווירים בלחיצה",
+              "scaling": "קילוף או התקלפות עור"
+            },
+            "rsOnset": {
+              "q": "מתי הופיעה הפריחה?",
+              "today": "היום",
+              "1to3days": "לפני 1–3 ימים",
+              "overWeek": "לפני יותר משבוע"
+            },
+            "rsLocation": {
+              "q": "היכן ממוקמת הפריחה?",
+              "face": "פנים",
+              "trunk": "גזע (חזה / גב)",
+              "arms": "ידיים / כפות ידיים",
+              "legs": "רגליים / כפות רגליים",
+              "widespread": "נפוצה / כל הגוף"
+            },
+            "rsAssociated": {
+              "q": "תסמינים נלווים?",
+              "itch": "גירוד",
+              "pain": "כאב או צריבה באזור הפריחה",
+              "fever": "חום",
+              "jointPain": "כאב מפרקים",
+              "shortnessOfBreath": "קשיי נשימה או חסימה בגרון"
+            },
+            "rsRfAnaphylaxis": { "q": "האם יש נפיחות בשפתיים, בלשון או בגרון — או קושי לבלוע?" },
+            "rsRecentMedication": { "q": "האם התחלת לאחרונה תרופה חדשה, אכלת מזון חדש, או נדקרת על ידי חרק?" }
           }
         }
       },

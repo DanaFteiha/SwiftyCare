@@ -1345,6 +1345,150 @@ const eyeProblemsPathway: SymptomPathway = {
   ],
 };
 
+// ─── Pathway: Fatigue / Weakness ────────────────────────────────────────────
+
+const fatigueWeaknessPathway: SymptomPathway = {
+  id: 'fatigueWeakness',
+  name: 'Fatigue / Weakness',
+  questions: [
+    {
+      id: 'fwOnset',
+      type: 'singleSelect',
+      label: 'How did the fatigue or weakness start?',
+      options: [
+        { id: 'sudden', label: 'Sudden (within hours)' },
+        { id: 'gradual', label: 'Gradual (over days or weeks)' },
+        { id: 'chronic', label: 'Long-standing (months or more)' },
+      ],
+      required: true,
+      isRedFlag: true,
+      redFlagValues: ['sudden'],
+    },
+    {
+      id: 'fwSeverity',
+      type: 'singleSelect',
+      label: 'How much is it limiting your daily activities?',
+      options: [
+        { id: 'mild', label: 'Mild — I can do most things with some effort' },
+        { id: 'moderate', label: 'Moderate — I struggle with normal activities' },
+        { id: 'severe', label: 'Severe — I can barely get out of bed' },
+      ],
+      required: true,
+      isRedFlag: true,
+      redFlagValues: ['severe'],
+    },
+    {
+      id: 'fwAssociated',
+      type: 'multiSelect',
+      label: 'Any associated symptoms?',
+      maxSelections: 6,
+      options: [
+        { id: 'shortnessOfBreath', label: 'Shortness of breath' },
+        { id: 'chestPain', label: 'Chest pain or palpitations' },
+        { id: 'dizziness', label: 'Dizziness or lightheadedness' },
+        { id: 'fever', label: 'Fever or chills' },
+        { id: 'weightLoss', label: 'Unintentional weight loss' },
+        { id: 'nightSweats', label: 'Night sweats' },
+        { id: 'legSwelling', label: 'Leg swelling' },
+        { id: 'paleness', label: 'Paleness or pallor' },
+      ],
+      isRedFlag: true,
+      redFlagValues: ['shortnessOfBreath', 'chestPain'],
+    },
+    {
+      id: 'fwRfNeurologicalWeakness',
+      type: 'boolean',
+      label: 'Is there sudden weakness or numbness on one side of the body?',
+      isRedFlag: true,
+      redFlagValues: [true],
+    },
+    {
+      id: 'fwRfConsciousness',
+      type: 'boolean',
+      label: 'Did you lose consciousness or nearly faint?',
+      isRedFlag: true,
+      redFlagValues: [true],
+    },
+  ],
+};
+
+// ─── Pathway: Rash ───────────────────────────────────────────────────────────
+
+const rashPathway: SymptomPathway = {
+  id: 'rash',
+  name: 'Rash',
+  questions: [
+    {
+      id: 'rsAppearance',
+      type: 'singleSelect',
+      label: 'How would you describe the rash?',
+      options: [
+        { id: 'flat', label: 'Flat red or pink patches' },
+        { id: 'raised', label: 'Raised bumps or welts (hives)' },
+        { id: 'blistered', label: 'Blisters or fluid-filled lesions' },
+        { id: 'purpura', label: 'Purple / red spots that do not blanch' },
+        { id: 'scaling', label: 'Scaling or flaking skin' },
+      ],
+      required: true,
+      isRedFlag: true,
+      redFlagValues: ['purpura'],
+    },
+    {
+      id: 'rsOnset',
+      type: 'singleSelect',
+      label: 'When did the rash appear?',
+      options: [
+        { id: 'today', label: 'Today' },
+        { id: '1to3days', label: '1–3 days ago' },
+        { id: 'overWeek', label: 'More than a week ago' },
+      ],
+      required: true,
+    },
+    {
+      id: 'rsLocation',
+      type: 'multiSelect',
+      label: 'Where is the rash located?',
+      maxSelections: 4,
+      options: [
+        { id: 'face', label: 'Face' },
+        { id: 'trunk', label: 'Trunk (chest / back)' },
+        { id: 'arms', label: 'Arms / hands' },
+        { id: 'legs', label: 'Legs / feet' },
+        { id: 'widespread', label: 'Widespread / whole body' },
+      ],
+      isRedFlag: true,
+      redFlagValues: ['widespread'],
+    },
+    {
+      id: 'rsAssociated',
+      type: 'multiSelect',
+      label: 'Any associated symptoms?',
+      maxSelections: 5,
+      options: [
+        { id: 'itch', label: 'Itching' },
+        { id: 'pain', label: 'Pain or burning at rash site' },
+        { id: 'fever', label: 'Fever' },
+        { id: 'jointPain', label: 'Joint pain' },
+        { id: 'shortnessOfBreath', label: 'Difficulty breathing or throat tightness' },
+      ],
+      isRedFlag: true,
+      redFlagValues: ['shortnessOfBreath'],
+    },
+    {
+      id: 'rsRfAnaphylaxis',
+      type: 'boolean',
+      label: 'Do you have swelling of the lips, tongue, or throat — or difficulty swallowing?',
+      isRedFlag: true,
+      redFlagValues: [true],
+    },
+    {
+      id: 'rsRecentMedication',
+      type: 'boolean',
+      label: 'Did you recently start a new medication, food, or have an insect sting?',
+    },
+  ],
+};
+
 // ─── Pathway Registry ────────────────────────────────────────────────────────
 
 export const SYMPTOM_PATHWAYS: Record<string, SymptomPathway> = {
@@ -1365,6 +1509,8 @@ export const SYMPTOM_PATHWAYS: Record<string, SymptomPathway> = {
   earPain: earPainPathway,
   neckPain: neckPainPathway,
   eyeProblems: eyeProblemsPathway,
+  fatigueWeakness: fatigueWeaknessPathway,
+  rash: rashPathway,
 };
 
 // ─── Symptom to Pathway mapping ──────────────────────────────────────────────
@@ -1384,7 +1530,7 @@ export const SYMPTOM_TO_PATHWAY: Record<string, string> = {
   backPain: 'backPain',
   neckPain: 'neckPain',
   swellingEdema: 'shortnessOfBreath',
-  fatigueWeakness: 'fever',
+  fatigueWeakness: 'fatigueWeakness',
   jointPain: 'jointPain',
   painInLimbs: 'painInLimbs',
   earPain: 'earPain',
@@ -1395,7 +1541,7 @@ export const SYMPTOM_TO_PATHWAY: Record<string, string> = {
   cough: 'cough',
   vomiting: 'nauseaVomitingDiarrhea',  // same GI pathway
   diarrhea: 'nauseaVomitingDiarrhea',  // same GI pathway
-  rash: 'fever',                       // systemic/dermatological — fever pathway
+  rash: 'rash',
   syncope: 'changeInConsciousness',    // syncope → consciousness pathway
   alteredMentalStatus: 'changeInConsciousness', // → consciousness pathway
   // abnormalBloodTests has no specific adaptive pathway — no mapping
