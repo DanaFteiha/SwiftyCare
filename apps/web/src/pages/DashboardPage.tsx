@@ -5,7 +5,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Shield, Plus, Search, Globe, User, Clock, FileText, LogOut, Users } from 'lucide-react';
+import { Shield, Plus, Search, X, Globe, User, Clock, FileText, LogOut, Users } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
 import { clearSession, hasRole } from '@/lib/auth';
 
@@ -224,9 +224,18 @@ function DashboardPage() {
               placeholder={t('dashboard.search.placeholder', 'Search by patient name or ID...')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className={isRTL ? 'pr-10' : 'pl-10'}
+              className={isRTL ? 'pr-10 pl-8' : 'pl-10 pr-8'}
               aria-label={t('dashboard.search.placeholder', 'Search by patient name or ID')}
             />
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm('')}
+                className={`absolute ${isRTL ? 'left-3' : 'right-3'} top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors`}
+                aria-label="Clear search"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
           </div>
         </div>
 
