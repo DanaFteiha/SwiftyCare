@@ -65,15 +65,10 @@ export const vitalsSchema = z.object({
 });
 
 export const questionnaireSchema = z.object({
-  answers: z.record(
-    z.string(),
-    z.union([
-      z.string().max(500),
-      z.boolean(),
-      z.number(),
-      z.array(z.string().max(200)),
-    ])
-  ),
+  // The questionnaire payload contains deeply nested objects (adaptive pathway
+  // responses, medication groups, etc.) so we accept any JSON value per key
+  // while still requiring the `answers` envelope to be present.
+  answers: z.record(z.string(), z.unknown()),
 });
 
 export const languageBodySchema = z.object({
