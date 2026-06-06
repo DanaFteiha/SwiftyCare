@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -9,6 +9,9 @@ import { login, clearSession } from '@/lib/auth'
 
 function DoctorLoginPage() {
   const navigate = useNavigate()
+  const location = useLocation()
+  // If an authenticated route redirected here, remember where to go back.
+  const from = (location.state as { from?: { pathname: string } } | null)?.from?.pathname ?? '/doctor'
 
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -31,7 +34,7 @@ function DoctorLoginPage() {
         setError(t('doctorLogin.notAuthorized', 'This account is not authorized for doctor access.'))
         return
       }
-      navigate('/doctor', { replace: true })
+      navigate(from, { replace: true })
     } catch {
       setError(t('doctorLogin.invalidCode', 'Invalid username or password.'))
     } finally {
