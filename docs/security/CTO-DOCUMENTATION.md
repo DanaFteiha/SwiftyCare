@@ -36,26 +36,15 @@ SwiftyCare is a digital patient intake and clinical workflow platform for hospit
 
 ## 2. System Architecture
 
-```
-┌─────────────────────────────┐     ┌──────────────────────────────────────────────────────┐
-│      HOSPITAL PREMISES      │     │           EXTERNAL CLOUD INFRASTRUCTURE               │
-│                             │     │                                                        │
-│  [Patient Kiosk]            │     │  ┌─────────────────┐                                  │
-│  [Nurse Station]   ─HTTPS──►│────►│  │   Vercel CDN    │                                  │
-│  [Doctor Workstation]       │     │  │ Frontend·EU edge │                                  │
-│                             │     │  └────────┬────────┘                                  │
-└─────────────────────────────┘     │           │                                            │
-                                    │  ┌────────▼────────┐     ┌──────────────────────┐     │
-                                    │  │   Render API    │────►│   MongoDB Atlas      │     │
-                                    │  │ Node.js·Frankfurt│     │  Database · Tokyo    │     │
-                                    │  └────────┬────────┘     └──────────────────────┘     │
-                                    │           │ (de-identified)                            │
-                                    │  ┌────────▼────────┐                                  │
-                                    │  │   OpenAI API    │                                  │
-                                    │  │  AI · US        │                                  │
-                                    │  └─────────────────┘                                  │
-                                    └──────────────────────────────────────────────────────┘
-```
+| Zone | Component | Direction | Target |
+|---|---|---|---|
+| **Hospital premises** | Patient Kiosk, Nurse Station, Doctor Workstation | → HTTPS outbound | Vercel CDN (EU) |
+| **Cloud — Vercel** | Frontend SPA (React) | serves static assets → | Browser |
+| **Cloud — Vercel** | Frontend SPA | → API calls (HTTPS) | Render API (Frankfurt) |
+| **Cloud — Render** | API Server (Node.js) | reads/writes (TLS) | MongoDB Atlas (Tokyo) |
+| **Cloud — Render** | API Server | → de-identified payloads (HTTPS) | OpenAI API (US) |
+
+> All traffic between components is encrypted in transit (TLS 1.2+). No hospital network port needs to be opened inbound. All connections are initiated outbound from hospital endpoint devices to cloud services.
 
 ### Component Inventory
 
@@ -204,6 +193,7 @@ Upgrade Render to a paid plan for static egress IPs, then restrict MongoDB Atlas
 | Admin panel | https://demo.swifty-care.com/admin | Requires admin credentials |
 | API health check | https://swiftycare.onrender.com | Public — returns DB connection status |
 | Source code | https://github.com/DanaFteiha/SwiftyCare | Available on request for code review |
+
 
 > **Penetration test access:** A temporary test staff account (doctor role) and nurse account can be created by the admin for the duration of the engagement. The tester can use these to verify authentication, RBAC, and session handling without exposing production credentials.
 
